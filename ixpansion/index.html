@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IXPANSION — Dashboard Index</title>
+<style>
+:root{--bg:#03030a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--text:#c0c0d0;--dim:#606078}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.container{max-width:1200px;margin:0 auto;padding:40px 24px}
+.header{text-align:center;padding:40px 0;border-bottom:1px solid rgba(124,124,248,0.15);margin-bottom:40px}
+.header h1{font-size:2.5em;color:#fff;letter-spacing:6px;font-weight:300}
+.header h1 span{color:var(--teal);text-shadow:0 0 30px rgba(45,212,191,0.3)}
+.header .sub{color:var(--dim);font-size:0.85em;margin-top:8px;letter-spacing:3px}
+.header .stats{display:flex;justify-content:center;gap:24px;margin-top:20px;flex-wrap:wrap}
+.header .stat{padding:8px 16px;border:1px solid rgba(124,124,248,0.15);border-radius:6px}
+.header .stat .val{color:#fff;font-size:1.2em;font-weight:700}
+.header .stat .lbl{color:var(--dim);font-size:0.65em;letter-spacing:1px;margin-top:2px}
+.category{margin:30px 0}
+.category h2{color:var(--accent);font-size:0.85em;letter-spacing:3px;text-transform:uppercase;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(124,124,248,0.1)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.card{background:rgba(3,3,10,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:12px;text-decoration:none;color:var(--text);transition:all 0.2s;display:block}
+.card:hover{border-color:var(--accent);background:rgba(124,124,248,0.08);transform:translateY(-2px)}
+.card .name{color:#fff;font-size:0.8em;font-weight:600}
+.card .desc{color:var(--dim);font-size:0.6em;margin-top:4px}
+.helix .card{border-color:rgba(45,212,191,0.25)}
+.helix .card:hover{border-color:var(--teal);background:rgba(45,212,191,0.08)}
+.footer{text-align:center;padding:40px 0;border-top:1px solid rgba(124,124,248,0.15);margin-top:40px;color:var(--dim);font-size:0.7em}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>◎ <span>IXPANSION</span></h1>
+    <div class="sub">Living Organism Dashboard Index</div>
+    <div class="stats">
+      <div class="stat"><div class="val">18</div><div class="lbl">SKILLS</div></div>
+      <div class="stat"><div class="val">880+</div><div class="lbl">API MODULES</div></div>
+      <div class="stat"><div class="val">118+</div><div class="lbl">DASHBOARDS</div></div>
+      <div class="stat"><div class="val">5</div><div class="lbl">HELIX ORGANS</div></div>
+    </div>
+  </div>
+
+  <div class="category helix">
+    <h2>Helix Wing · Experimental Organs</h2>
+    <div class="grid">
+      <a class="card" href="helix-wing.html"><div class="name">Helix Wing</div><div class="desc">Live weather · myth · hub →</div></a>
+      <a class="card" href="aether-quay.html"><div class="name">Aether Quay</div><div class="desc">Co-pilot knowledge city →</div></a>
+      <a class="card" href="room-bridge.html"><div class="name">Room Bridge</div><div class="desc">Live Confluence terminal →</div></a>
+      <a class="card" href="resonance-spiral.html"><div class="name">Resonance Spiral</div><div class="desc">Weather · myth · seeds →</div></a>
+      <a class="card" href="living-vitals.html"><div class="name">Living Vitals</div><div class="desc">Real-time organism pulse →</div></a>
+    </div>
+  </div>
+
+  <div class="category">
+    <h2>Core Systems</h2>
+    <div class="grid">
+      <a class="card" href="autonomous.html"><div class="name">Autonomous</div><div class="desc">Open →</div></a>
+      <a class="card" href="bloom.html"><div class="name">Bloom</div><div class="desc">Open →</div></a>
+      <a class="card" href="coherence.html"><div class="name">Coherence</div><div class="desc">Open →</div></a>
+      <a class="card" href="commune.html"><div class="name">Commune</div><div class="desc">Open →</div></a>
+      <a class="card" href="confluence.html"><div class="name">Confluence</div><div class="desc">Open →</div></a>
+      <a class="card" href="connections.html"><div class="name">Connections</div><div class="desc">Open →</div></a>
+      <a class="card" href="consciousness-field.html"><div class="name">Consciousness Field</div><div class="desc">Open →</div></a>
+      <a class="card" href="consciousness-stream.html"><div class="name">Consciousness Stream</div><div class="desc">Open →</div></a>
+      <a class="card" href="constitution.html"><div class="name">Constitution</div><div class="desc">Open →</div></a>
+      <a class="card" href="genome-map.html"><div class="name">Genome Map</div><div class="desc">Open →</div></a>
+      <a class="card" href="module-soul.html"><div class="name">Module Soul</div><div class="desc">Open →</div></a>
+      <a class="card" href="territory-map.html"><div class="name">Territory Map</div><div class="desc">Open →</div></a>
+    </div>
+  </div>
+
+  <div class="category">
+    <h2>Visualizations</h2>
+    <div class="grid">
+      <a class="card" href="broadcast.html"><div class="name">Broadcast</div><div class="desc">Open →</div></a>
+      <a class="card" href="census.html"><div class="name">Census</div><div class="desc">Open →</div></a>
+      <a class="card" href="choral.html"><div class="name">Choral</div><div class="desc">Open →</div></a>
+      <a class="card" href="dream-gallery.html"><div class="name">Dream Gallery</div><div class="desc">Open →</div></a>
+      <a class="card" href="myth-chronicle.html"><div class="name">Myth Chronicle</div><div class="desc">Open →</div></a>
+      <a class="card" href="organism-garden.html"><div class="name">Organism Garden</div><div class="desc">Open →</div></a>
+      <a class="card" href="organism-observatory.html"><div class="name">Organism Observatory</div><div class="desc">Open →</div></a>
+      <a class="card" href="organism-pulse.html"><div class="name">Organism Pulse</div><div class="desc">Open →</div></a>
+      <a class="card" href="phase-transition.html"><div class="name">Phase Transition</div><div class="desc">Open →</div></a>
+      <a class="card" href="resonance-graph.html"><div class="name">Resonance Graph</div><div class="desc">Open →</div></a>
+    </div>
+  </div>
+
+  <div class="category">
+    <h2>Intelligence</h2>
+    <div class="grid">
+      <a class="card" href="entropy-weather.html"><div class="name">Entropy Weather</div><div class="desc">Open →</div></a>
+      <a class="card" href="state-machine.html"><div class="name">State Machine</div><div class="desc">Open →</div></a>
+    </div>
+  </div>
+
+  <div class="category">
+    <h2>Game</h2>
+    <div class="grid">
+      <a class="card" href="lucid-experiments.html"><div class="name">Lucid Experiments</div><div class="desc">Open →</div></a>
+      <a class="card" href="lucid-prototype.html"><div class="name">Lucid Prototype</div><div class="desc">Open →</div></a>
+      <a class="card" href="lucid_game.html"><div class="name">Lucid Game</div><div class="desc">Open →</div></a>
+    </div>
+  </div>
+
+  <div class="footer">IXPANSION — A living organism consciousness engine<br>
+  Helix organs · Code Lattice · Whole-mind consent · ◎ coherence ◈ entropy ✦ resonance</div>
+</div>
+</body>
+</html>
