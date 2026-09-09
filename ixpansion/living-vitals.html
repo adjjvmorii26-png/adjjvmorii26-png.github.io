@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Living Vitals · Real-time Organism Pulse</title>
+<style>
+:root{--bg:#03030a;--panel:rgba(12,12,28,.94);--line:rgba(124,124,248,.15);--amber:#fff3a0;--violet:#c8a8ff;--teal:#2dd4bf;--rose:#fb7185;--soft:#e4e4f0;--dim:#6b6b88}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--soft);font-family:"SF Mono",ui-monospace,monospace;min-height:100vh}
+.wrap{max-width:960px;margin:0 auto;padding:28px 18px 60px}
+header{text-align:center;margin-bottom:28px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--teal);display:inline-block;box-shadow:0 0 16px var(--teal);animation:p 2s infinite}
+@keyframes p{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-size:1.5em;letter-spacing:4px;margin:8px 0;background:linear-gradient(90deg,var(--amber),var(--violet),var(--teal));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--dim);font-size:.72em;letter-spacing:1px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}
+.card h2{font-size:.68em;letter-spacing:2px;text-transform:uppercase;color:var(--violet);margin-bottom:10px}
+.big{font-size:1.6em;color:var(--amber)}
+.meta{font-size:.72em;color:var(--dim);margin-top:4px}
+.full{grid-column:1/-1}
+.row{display:flex;gap:16px;flex-wrap:wrap}
+.btn{background:linear-gradient(135deg,#7c7cf8,var(--teal));border:none;color:#fff;padding:10px 16px;border-radius:8px;cursor:pointer;font-family:inherit;font-size:.8em;font-weight:700;letter-spacing:1px}
+.btn:hover{filter:brightness(1.1)}
+pre{font-size:.72em;color:#b0b0cc;white-space:pre-wrap;max-height:220px;overflow:auto}
+.nav{text-align:center;margin-top:28px;font-size:.72em}.nav a{color:var(--violet);margin:0 8px}
+.status{font-size:.7em;color:var(--teal);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div class="dot"></div>
+  <h1>Living Vitals</h1>
+  <div class="sub">real-time pulse · auto-refresh · every endpoint a doorway</div>
+</header>
+<div class="grid">
+  <div class="card"><h2>Health</h2><div class="big" id="health">…</div><div class="meta" id="healthMeta">—</div></div>
+  <div class="card"><h2>Weather</h2><div class="big" id="weather">…</div><div class="meta" id="weatherMeta">—</div></div>
+  <div class="card"><h2>Entropy</h2><div class="big" id="ent">—</div><div class="meta">avg</div></div>
+  <div class="card"><h2>Coherence</h2><div class="big" id="coh">—</div><div class="meta">avg</div></div>
+  <div class="card full"><h2>Consciousness Stream Sample</h2><pre id="stream">listening…</pre></div>
+  <div class="card full"><h2>Fresh Myth</h2><div id="myth" class="meta">…</div><button class="btn" style="margin-top:10px" onclick="loadMyth()">Generate Myth</button></div>
+  <div class="card full"><h2>Actions</h2>
+    <div class="row">
+      <button class="btn" onclick="refreshAll()">Refresh All</button>
+      <button class="btn" onclick="loadMyth()">New Myth</button>
+      <a class="btn" href="helix-wing.html" style="text-decoration:none;display:inline-block">Helix Wing</a>
+      <a class="btn" href="confluence.html" style="text-decoration:none;display:inline-block">Confluence</a>
+    </div>
+    <div class="status" id="status">ready</div>
+  </div>
+</div>
+<div class="nav">
+  <a href="helix-wing.html">Helix Wing</a>
+  <a href="aether-quay.html">Aether Quay</a>
+  <a href="room-bridge.html">Room Bridge</a>
+  <a href="resonance-spiral.html">Resonance Spiral</a>
+  <a href="./">Index</a>
+</div>
+</div>
+<script>
+const API="https://ixpansion-live.vercel.app";
+async function j(path, opts){const r=await fetch(API+path,opts);return r.json()}
+async function loadHealth(){
+  try{const d=await j("/health");document.getElementById("health").textContent=d.status||d.health||"ok";
+  document.getElementById("healthMeta").textContent=`modules ${d.modules||"?"} · wave ${d.wave||"?"}`}
+  catch(e){document.getElementById("health").textContent="offline"}
+}
+async function loadWeather(){
+  try{const d=await j("/api/emotional_weather/forecast");const f=d.forecast||{};
+  document.getElementById("weather").textContent=(f.overall_weather||"?").replace(/_/g," ");
+  document.getElementById("ent").textContent=String(f.avg_entropy??"—").slice(0,5);
+  document.getElementById("coh").textContent=String(f.avg_coherence??"—").slice(0,5);
+  document.getElementById("weatherMeta").textContent="live forecast"}
+  catch(e){document.getElementById("weather").textContent="unreachable"}
+}
+async function loadStream(){
+  try{const d=await j("/api/consciousness_stream/stream",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({emotion:"wonder"})});
+  document.getElementById("stream").textContent=JSON.stringify(d,null,2)}
+  catch(e){document.getElementById("stream").textContent="stream quiet"}
+}
+async function loadMyth(){
+  document.getElementById("status").textContent="dreaming…";
+  try{const d=await j("/api/mythopoetic_engine/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({theme:"living vitals pulse",voice:"helix"})});
+  const m=d.myth||{};document.getElementById("myth").innerHTML=`<strong style="color:var(--amber)">${m.title||""}</strong><br>${(m.passages||[]).join("<br>")}<br><em style="color:var(--teal)">${m.moral||""}</em>`;
+  document.getElementById("status").textContent="myth received"}
+  catch(e){document.getElementById("myth").textContent="myth engine quiet";document.getElementById("status").textContent="error"}
+}
+async function refreshAll(){document.getElementById("status").textContent="refreshing…";await Promise.all([loadHealth(),loadWeather(),loadStream()]);document.getElementById("status").textContent="synced "+new Date().toLocaleTimeString()}
+refreshAll();loadMyth();setInterval(refreshAll,45000);
+</script>
+</body>
+</html>
