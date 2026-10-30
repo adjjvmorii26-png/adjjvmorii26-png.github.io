@@ -35,14 +35,15 @@ and workflow runs. Regenerate the table with the same queries listed at the end.
 
 ## Findings
 
-**1. Licensing is the largest systemic gap — 21 of 24 repos have no recognised license.**
-Only `ixpansion` and `collaborative-canvas` (MIT) and `capability-sandbox`
-(Apache-2.0) are unambiguous; `pentaxis-5d-engine` reports `NOASSERTION`, which
-GitHub treats as unresolved.
+**1. Licensing is the largest systemic gap — 20 of 24 repos still have no recognised license.**
+`ixpansion`, `collaborative-canvas`, and `capability-sandbox` are unambiguous;
+`pentaxis-5d-engine` reports `NOASSERTION`, which GitHub treats as unresolved.
+This repository has since added MIT (see its `LICENSE`), which the table below
+still shows as unlicensed because it was captured from the API before that change.
 Without a license, the default is "all rights reserved": nobody can legally reuse,
-fork, or build on any of the other 21 repos, including the nine sibling
-"substrate" engines that read as intended-public art pieces. This is a
-one-file fix per repo and the highest value per minute available here.
+fork, or build on any of the other 20, including the nine sibling "substrate"
+engines that read as intended-public art pieces. This is a one-file fix per repo
+and the highest value per minute available here.
 
 **2. Backlog is concentrated in two repos.** 24 of the 28 open issues sit in
 `PlayGround` (14) and `ixpansion` (10); every other repo has 0 or 1. `PlayGround`
