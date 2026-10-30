@@ -14,7 +14,9 @@ Landing site and dashboard for **IXPANSION** — served by GitHub Pages at
 | `scripts/snapshot-live-pages.sh` | Rebuilds the archive from the live site (idempotent). |
 | `scripts/check-links.py` | Fails on broken internal links. Not yet wired into CI — see `AUDIT-CORRECTION.md`. |
 | `scripts/check-claims.py` | Fails when a number in the HTML disagrees with `data/figures.json` (module/wave/repo/route counts, version, "Showing N of M"). |
+| `scripts/check-secrets.py` | Fails when a credential-shaped string appears in files git would publish. Matches are masked. |
 | `data/figures.json` | The single source of truth for every figure the site quotes, with provenance and whether it is verified. |
+| `.gitignore` | Keeps `.cline-home/` (agent transcripts) and env/key files out of the repo. |
 | `scripts/make-icons.py` | Renders `assets/icon.svg` geometry to `favicon-32.png`, `apple-touch-icon.png`, `assets/og-card.png`. |
 | `scripts/make-sitemap.py` | Regenerates `sitemap.xml` from authored pages (excludes the archive). |
 | `robots.txt`, `sitemap.xml`, `404.html` | Crawler directives, indexable URL list, and the custom not-found page. |
@@ -37,6 +39,20 @@ the live site too, so no page ever executed them and removing them changes nothi
 build fixed, the landing page shows cached figures with an "API offline" badge, and
 the live-telemetry organ pages stay in their retry/empty states. Nothing in this
 repository can repair the origin.
+
+## Secrets
+
+Nothing in this repository should hold a credential. Tokens belong in GitHub
+Secrets (or a local `.env`, which is ignored), never in HTML, markdown, or a
+commit message.
+
+`scripts/check-secrets.py` scans every file git would publish for credential
+shapes — Telegram bot tokens, GitHub/AWS/Slack/OpenAI keys, private key blocks,
+and `secret = "…"`-style assignments — and fails with a masked report if it finds
+one. It runs as part of `scripts/check-all.sh`.
+
+`.cline-home/` is ignored because agent session transcripts and hook logs can
+capture whatever was pasted into a chat, secrets included.
 
 ## Local checks
 

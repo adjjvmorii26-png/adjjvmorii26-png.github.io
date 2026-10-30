@@ -101,17 +101,27 @@ The other 22 have no live demo, which for visual/generative projects (the
    with it. The remaining work is on the `ixpansion` side, whose dispatcher still
    says 352 while the site says 744.
 
-## Two things I could not resolve, and did not guess at
+## Telegram handle — resolved, and it was worse than a typo
 
-- **Telegram handle.** The site uses three variants — `aleph_bot` (portal card
-  text), `alpeh_bot` (`ixpansion/portal.html` link), `alpeha_bot` (landing page
-  CTA and footer). `t.me` returns an identical generic page for every one of
-  them, so no status code can settle which handle is real. One is almost
-  certainly a typo; only you know which.
-- **Dead repo link, now fixed.** The constellation card pointed at
-  `agent-workforce`, which 404s; the repo exists as `workforce-`. Repointed to
-  the real name — a concrete cost of the trailing-hyphen rename in
-  recommendation 4.
+The site used three variants: `aleph_bot` (portal card text), `alpeh_bot`
+(`ixpansion/portal.html`), and `alpeha_bot` (landing page CTA and footer). HTTP
+status was useless here — `t.me` returns a generic 200 for every handle, existing
+or not.
+
+An authenticated `getChat` lookup settled it:
+
+| Handle | Result |
+|---|---|
+| `alpeh_bot` | **does not exist** (`chat not found`) |
+| `alpeha_bot` | **does not exist** (`chat not found`) |
+| `aleph_bot` | exists — ownership unverified |
+| `adjjv_bot` | exists — verified as the account holding the supplied token |
+
+The landing page's primary CTA was pointing at a bot that does not exist. All
+references now point at `adjjv_bot`, the only handle provably owned here.
+`aleph_bot` exists but may belong to someone else, so the site does not send
+visitors there. If that bot is also yours, say so and it is a four-line change.
+
 
 7. **Split `ixpansion/api/`** into subpackages by domain (the docstring already
    names 8 entry points) to make 1254 flat modules tractable.

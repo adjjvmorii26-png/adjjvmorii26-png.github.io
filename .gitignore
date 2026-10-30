@@ -1,0 +1,21 @@
+# Agent/runtime state — may contain session transcripts and credentials.
+.cline-home/
+
+# Secrets and local environment. Never commit real values; use GitHub Secrets.
+.env
+.env.*
+!.env.example
+*.pem
+*.p8
+*.p12
+*.key
+
+# Working files
+*.part
+*.orig
+*.rej
+.DS_Store
+Thumbs.db
+
+# Dependency trees referenced by some archived pages
+node_modules/
