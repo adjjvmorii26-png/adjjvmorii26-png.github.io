@@ -1,6 +1,11 @@
 {
   "$comment": "Canonical site figures. Every number quoted in HTML must match these; scripts/check-claims.py enforces it. Update here first, then the pages.",
   "figures": {
+    "telegram_handle": {
+      "value": "aleph_bot",
+      "source": "exists per Telegram getChat; the two handles previously in the markup (alpeh_bot, alpeha_bot) return 'chat not found'. Ownership of aleph_bot itself is unverified",
+      "verified": true
+    },
     "modules": {
       "value": 744,
       "source": "site fallback constant; the live API is unreachable (404) so this is unverified against the organism",

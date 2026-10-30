@@ -55,6 +55,10 @@ STAT_CLAIMS = {
 
 VERSION_CLAIM = re.compile(r"\bv\d+\.\d+\.\d+\b")
 
+# Telegram handles, whether written as a link (t.me/x_bot) or a mention (@x_bot).
+# This is what let a dead bot sit in the primary CTA unnoticed.
+HANDLE_CLAIM = re.compile(r"(?:t\.me/|(?<![\w@])@)([A-Za-z0-9_]{4,}bot)\b")
+
 
 def load_figures(root: Path) -> dict:
     path = root / "data" / "figures.json"
@@ -122,6 +126,16 @@ def check_pages(root: Path, figures: dict) -> list[str]:
                     f"version = {match.group(0)}, figures.json says {expected}"
                 )
 
+        # Telegram handle must match the canonical one; a typo here ships a dead CTA.
+        expected_handle = figures.get("telegram_handle")
+        if expected_handle:
+            for match in HANDLE_CLAIM.finditer(text):
+                if match.group(1) != expected_handle:
+                    problems.append(
+                        f"{rel}:{line_of(text, match.start())}: telegram handle "
+                        f"'{match.group(1)}', figures.json says '{expected_handle}'"
+                    )
+
         # "Showing N of M" must match both the cards actually rendered and the
         # canonical repo count.
         shown = re.search(r"Showing (\d+) of (\d+)", text)
@@ -168,6 +182,9 @@ def main() -> int:
     problems = check_pages(root, figures)
     if args.github:
         problems += check_github(figures)
+
+    # One line can mention the same handle twice (href + visible text).
+    problems = list(dict.fromkeys(problems))
 
     if problems:
         print("claim drift detected:")

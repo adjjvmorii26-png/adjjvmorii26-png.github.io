@@ -24,6 +24,9 @@ Landing site and dashboard for **IXPANSION** — served by GitHub Pages at
 | `scripts/make-icons.py` | Renders `assets/icon.svg` geometry to `favicon-32.png`, `apple-touch-icon.png`, `assets/og-card.png`. |
 | `scripts/make-sitemap.py` | Regenerates `sitemap.xml` from authored pages (excludes the archive). |
 | `robots.txt`, `sitemap.xml`, `404.html` | Crawler directives, indexable URL list, and the custom not-found page. |
+| `LICENSE` | MIT. |
+| `SECURITY.md` | How to report a vulnerability, and the secrets policy. |
+| `.githooks/pre-commit` | Runs `scripts/check-all.sh` before every commit. Enable with `git config core.hooksPath .githooks`. |
 | `AUDIT-CORRECTION.md` | What an external audit claimed versus what the substrate actually shows. |
 | `PORTFOLIO.md` | Evaluation of all 24 repositories: licensing, backlog, CI, naming, hosted surfaces. |
 
@@ -81,7 +84,8 @@ capture whatever was pasted into a chat, secrets included.
 ## Local checks
 
 ```bash
-scripts/check-all.sh                              # links + claims + checksums + tag balance
+git config core.hooksPath .githooks                 # once per clone: run checks on commit
+scripts/check-all.sh                              # links + claims + skills + secrets + checksums + tag balance
 python3 scripts/check-links.py                    # authored pages
 python3 scripts/check-links.py --include-snapshot # includes archived pages
 python3 scripts/check-claims.py                   # figures match data/figures.json
