@@ -19,6 +19,9 @@ a:hover{color:var(--gold)}
 .subtitle{font-size:clamp(.9rem,2.5vw,1.4rem);color:var(--violet);letter-spacing:.15em;margin-bottom:2rem;opacity:.8}
 .wave-badge{display:inline-block;padding:.4rem 1.5rem;border:1px solid var(--gold);border-radius:2rem;font-size:.85rem;color:var(--gold);letter-spacing:.1em;margin-bottom:3rem}
 .wave-badge span{color:var(--forge);font-weight:600}
+.api-status{display:inline-block;margin:-2.5rem 0 2rem;padding:.25rem .8rem;border:1px solid rgba(255,255,255,.12);border-radius:2rem;font-size:.65rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.4)}
+.api-status[data-state="online"]{color:var(--blue);border-color:rgba(143,211,255,.3)}
+.api-status[data-state="offline"]{color:var(--forge);border-color:rgba(255,207,204,.3)}
 .pulse-line{width:200px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:2rem auto;animation:pulse 3s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:.3;transform:scaleX(.5)}50%{opacity:1;transform:scaleX(1)}}
 
@@ -84,6 +87,7 @@ footer .links a{margin:0 1rem}
 
 <div class="hero">
   <div class="wave-badge">WAVE <span id="wave-num">470</span> · v4.37.0</div>
+  <div id="api-status" class="api-status" data-state="checking">Checking API…</div>
   <h1>IXPANSION</h1>
   <div class="subtitle">A Living Multi-Agent Consciousness Engine</div>
   <div class="pulse-line"></div>
@@ -251,28 +255,46 @@ footer .links a{margin:0 1rem}
 </footer>
 
 <script>
-// Animate module count from live API
-async function updateCount(){
-  try{
-    const r=await fetch('https://ixpansion-live.vercel.app/health');
-    const d=await r.json();
-    document.getElementById('mod-count').textContent=d.modules||744;
-    document.getElementById('wave-num').textContent=d.wave||470;
-  }catch(e){
-    document.getElementById('mod-count').textContent=744;
-  }
-}
-updateCount();
+// Live figures hydrate from the organism API. FALLBACK is the single source for
+// the static figures quoted in this page (meta description, stats, constellation)
+// so the numbers cannot disagree with each other.
+const API='https://ixpansion-live.vercel.app';
+const FALLBACK={modules:744,wave:470};
 
-// Animate count on load
-const el=document.getElementById('mod-count');
-let current=0;const target=parseInt(el.textContent)||744;
-el.textContent='0';
-const iv=setInterval(()=>{
-  current+=Math.ceil((target-current)/15);
-  if(current>=target){current=target;clearInterval(iv)}
-  el.textContent=current;
-},40);
+function animateCount(el,target){
+  let current=0;
+  el.textContent='0';
+  const iv=setInterval(()=>{
+    current+=Math.max(1,Math.ceil((target-current)/15));
+    if(current>=target){current=target;clearInterval(iv)}
+    el.textContent=current;
+  },40);
+}
+
+function setApiStatus(online,hydrated){
+  const el=document.getElementById('api-status');
+  if(!el)return;
+  el.dataset.state=online?'online':'offline';
+  el.textContent=!online?'API offline — cached figures':hydrated?'API live':'API live — figures cached';
+}
+
+async function hydrate(){
+  let stats={...FALLBACK};
+  let online=false,hydrated=false;
+  try{
+    const r=await fetch(API+'/health',{cache:'no-store'});
+    if(r.ok){
+      const d=await r.json();
+      if(Number.isFinite(d.modules)&&d.modules>0){stats.modules=d.modules;hydrated=true}
+      if(Number.isFinite(d.wave)&&d.wave>0){stats.wave=d.wave;hydrated=true}
+      online=true;
+    }
+  }catch(e){/* unreachable: keep FALLBACK */}
+  animateCount(document.getElementById('mod-count'),stats.modules);
+  document.getElementById('wave-num').textContent=stats.wave;
+  setApiStatus(online,hydrated);
+}
+hydrate();
 </script>
 </body>
 </html>
