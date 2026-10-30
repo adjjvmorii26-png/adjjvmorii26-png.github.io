@@ -13,7 +13,11 @@ Landing site and dashboard for **IXPANSION** — served by GitHub Pages at
 | `ixpansion/LIVE-SNAPSHOT.sha256` | Checksums for every archived page. |
 | `scripts/snapshot-live-pages.sh` | Rebuilds the archive from the live site (idempotent). |
 | `scripts/check-links.py` | Fails on broken internal links. Not yet wired into CI — see `AUDIT-CORRECTION.md`. |
+| `scripts/make-icons.py` | Renders `assets/icon.svg` geometry to `favicon-32.png`, `apple-touch-icon.png`, `assets/og-card.png`. |
+| `scripts/make-sitemap.py` | Regenerates `sitemap.xml` from authored pages (excludes the archive). |
+| `robots.txt`, `sitemap.xml`, `404.html` | Crawler directives, indexable URL list, and the custom not-found page. |
 | `AUDIT-CORRECTION.md` | What an external audit claimed versus what the substrate actually shows. |
+| `PORTFOLIO.md` | Evaluation of all 24 repositories: licensing, backlog, CI, naming, hosted surfaces. |
 
 ## Archived pages
 

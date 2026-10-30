@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# The archived module pages under /ixpansion/ are preserved for continuity, not
+# for search results: they are pruned from the sitemap to avoid diluting the
+# landing page and dashboard.
+Sitemap: https://adjjvmorii26-png.github.io/sitemap.xml

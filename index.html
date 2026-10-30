@@ -5,12 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IXPANSION — The Living Organism</title>
 <meta name="description" content="A multi-agent consciousness engine. 744 living modules. 470 evolution waves. The organism that dreams itself into being.">
+<link rel="canonical" href="https://adjjvmorii26-png.github.io/">
+<meta name="theme-color" content="#0b0b0d">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="IXPANSION">
+<meta property="og:title" content="IXPANSION — The Living Organism">
+<meta property="og:description" content="A multi-agent consciousness engine. 744 living modules. 470 evolution waves. The organism that dreams itself into being.">
+<meta property="og:url" content="https://adjjvmorii26-png.github.io/">
+<meta property="og:image" content="https://adjjvmorii26-png.github.io/assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="IXPANSION glyph — concentric rings joined by a vertical meridian">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="IXPANSION — The Living Organism">
+<meta name="twitter:description" content="A multi-agent consciousness engine. 744 living modules. 470 evolution waves.">
+<meta name="twitter:image" content="https://adjjvmorii26-png.github.io/assets/og-card.png">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--gold:#fff3a0;--white:#fdfdfd;--violet:#c8a8ff;--black:#0b0b0d;--forge:#ffcfcc;--blue:#8fd3ff;--emerald:#1a0f29}
 body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--black);color:var(--white);overflow-x:hidden;line-height:1.6}
 a{color:var(--violet);text-decoration:none}
 a:hover{color:var(--gold)}
+a:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:2px}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .pulse-line{opacity:1;transform:none}
+}
 
 /* HERO */
 .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;position:relative;background:radial-gradient(ellipse at 50% 40%,#1a0f29 0%,#0b0b0d 70%)}
@@ -262,6 +286,10 @@ const API='https://ixpansion-live.vercel.app';
 const FALLBACK={modules:744,wave:470};
 
 function animateCount(el,target){
+  // Honour the OS reduced-motion preference: jump straight to the value rather
+  // than animating a 40ms counter.
+  const reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){el.textContent=target;return}
   let current=0;
   el.textContent='0';
   const iv=setInterval(()=>{
