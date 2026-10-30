@@ -101,26 +101,34 @@ The other 22 have no live demo, which for visual/generative projects (the
    with it. The remaining work is on the `ixpansion` side, whose dispatcher still
    says 352 while the site says 744.
 
-## Telegram handle — resolved, and it was worse than a typo
+## Telegram handle — resolved, and the answer needed a second look
 
 The site used three variants: `aleph_bot` (portal card text), `alpeh_bot`
 (`ixpansion/portal.html`), and `alpeha_bot` (landing page CTA and footer). HTTP
 status was useless here — `t.me` returns a generic 200 for every handle, existing
 or not.
 
-An authenticated `getChat` lookup settled it:
+An authenticated `getChat` lookup settled existence:
 
 | Handle | Result |
 |---|---|
 | `alpeh_bot` | **does not exist** (`chat not found`) |
 | `alpeha_bot` | **does not exist** (`chat not found`) |
 | `aleph_bot` | exists — ownership unverified |
-| `adjjv_bot` | exists — verified as the account holding the supplied token |
+| `adjjv_bot` | exists — the bot whose token was supplied |
 
-The landing page's primary CTA was pointing at a bot that does not exist. All
-references now point at `adjjv_bot`, the only handle provably owned here.
-`aleph_bot` exists but may belong to someone else, so the site does not send
-visitors there. If that bot is also yours, say so and it is a four-line change.
+The landing page's primary CTA was pointing at a bot that does not exist.
+
+**Do not link the public CTA at `adjjv_bot`.** Its own registered commands are
+`/threads`, `/newthread`, `/thread`, `/current`, `/history`, `/status`,
+`/whoami`, `/start`, `/help` — a Cline thread bridge for private use, with no
+organism commands at all. It is not "the organism's ambassador on Telegram".
+
+All public references therefore point at `aleph_bot`, the only existing handle
+the site's own copy claims. Ownership of `aleph_bot` could not be verified from
+here: if it is not yours, tell me and the four references should be removed
+rather than repointed.
+
 
 
 7. **Split `ixpansion/api/`** into subpackages by domain (the docstring already
