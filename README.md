@@ -41,6 +41,7 @@ repository can repair the origin.
 ## Local checks
 
 ```bash
+scripts/check-all.sh                              # links + claims + checksums + tag balance
 python3 scripts/check-links.py                    # authored pages
 python3 scripts/check-links.py --include-snapshot # includes archived pages
 python3 scripts/check-claims.py                   # figures match data/figures.json
