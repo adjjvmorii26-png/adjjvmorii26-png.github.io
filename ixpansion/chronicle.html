@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave Chronicle — IXpansion</title>
+<script>window.si=window.si||function(){ (window.siq=window.siq||[]).push(arguments); };</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+<style>
+:root{--gold:#fff3a0;--ember:#ffcf66;--white:#fdfdfd;--violet:#c8a8ff;
+  --black:#0b0b0d;--obsidian:#1a0f29;--muted:#5f5f78;--kinship:#8fd3ff;--spring:#00e5a0;--pink:#ff5fa2}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--black);color:var(--white);min-height:100vh;overflow-x:hidden;
+  background-image:radial-gradient(ellipse at 30% 60%,#c8a8ff08 0%,transparent 50%),radial-gradient(ellipse at 70% 85%,#fff3a006 0%,transparent 50%)}
+.header{padding:28px 32px;border-bottom:1px solid #ffffff0a;display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  background:linear-gradient(180deg,#c8a8ff08 0%,transparent 100%)}
+.header h1{font-size:1.6rem;letter-spacing:2px;background:linear-gradient(135deg,var(--gold),var(--violet),var(--pink));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;font-weight:800}
+.subtitle{color:var(--muted);font-size:.72rem;letter-spacing:4px;text-transform:uppercase}
+.badge{padding:3px 10px;border-radius:14px;font-size:.68rem;background:var(--obsidian);border:1px solid var(--violet);color:var(--violet);letter-spacing:1px;text-transform:uppercase}
+.container{max-width:1000px;margin:0 auto;padding:28px 20px}
+.story{font-size:.95rem;line-height:2;color:var(--white);padding:28px;border:1px solid var(--pink)30;border-radius:14px;
+  background:linear-gradient(135deg,var(--obsidian),#1a0f2960);margin-bottom:28px;min-height:120px}
+.story::first-letter{font-size:2.2rem;color:var(--gold);float:left;margin-right:8px;line-height:1}
+.timeline{list-style:none;padding:0}
+.tl-item{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid #ffffff0a;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.tl-time{color:var(--muted);font-size:.68rem;min-width:118px;padding-top:3px}
+.tl-type{color:var(--kinship);font-size:.68rem;min-width:120px;text-transform:uppercase;letter-spacing:1px;padding-top:3px}
+.tl-prose{color:var(--white);font-size:.8rem;line-height:1.6}
+.stats{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+.stat{padding:8px 16px;border-radius:10px;background:var(--obsidian);border:1px solid #ffffff0a;font-size:.72rem;color:var(--muted)}
+.stat strong{color:var(--spring)}
+.btn{padding:10px 20px;border-radius:10px;background:var(--violet)20;border:1px solid var(--violet);color:var(--violet);
+  font-size:.78rem;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.btn:hover{background:var(--violet)35;transform:translateY(-1px)}
+.endpoint{color:var(--kinship);font-size:.72rem;margin-top:12px;display:inline-block}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>📜 Wave Chronicle</h1>
+  <span class="subtitle">The organism writes itself</span>
+  <span class="badge">v4.21.0 · Wave 508</span>
+</div>
+<div class="container">
+  <div class="stats">
+    <div class="stat">Entries: <strong id="count">—</strong></div>
+    <div class="stat">Status: <strong id="status">—</strong></div>
+  </div>
+
+  <div class="story" id="story">Listening... the organism is gathering its words.</div>
+
+  <div style="display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap">
+    <button class="btn" onclick="loadStory()">🔄 Refresh Story</button>
+    <button class="btn" onclick="loadTimeline()">📄 Full Timeline</button>
+  </div>
+
+  <ul class="timeline" id="timeline"><li class="tl-item"><span class="tl-time">—</span><span class="tl-type">—</span><span class="tl-prose">No entries yet. Run a capybara cycle or silence reading to begin the story.</span></li></ul>
+
+  <span class="endpoint">GET /chronicle · /chronicle?action=timeline</span>
+</div>
+<script>
+async function api(p, json){try{const r=await fetch(p);return await r.json()}catch(e){return {error:e.message}}}
+async function loadStory(){
+  const d = await api('/chronicle');
+  document.getElementById('story').textContent = d.narrative || 'The organism is silent.';
+  document.getElementById('count').textContent = d.entries ?? '—';
+  const v = await api('/chronicle?action=status').catch(()=>null);
+  if (v && v.entries !== undefined) document.getElementById('count').textContent = v.entries;
+  const h = await api('/api/wave_chronicle').catch(()=>null);
+}
+async function loadTimeline(){
+  const d = await api('/chronicle?action=timeline&limit=25');
+  const list = Array.isArray(d) ? d : (d.timeline || []);
+  const ul = document.getElementById('timeline');
+  ul.innerHTML = '';
+  if (!list.length){ul.innerHTML = '<li class="tl-item"><span class="tl-time">—</span><span class="tl-type">—</span><span class="tl-prose">The chronicle is empty — a blank page waiting.</span></li>';return}
+  for (const e of list){
+    const li = document.createElement('li'); li.className = 'tl-item';
+    for (const [className, value] of [["tl-time", e.time], ["tl-type", e.type], ["tl-prose", e.prose]]) { const span = document.createElement("span"); span.className = className; span.textContent = value == null ? "" : String(value); li.appendChild(span); }
+    ul.appendChild(li);
+  }
+}
+loadStory();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

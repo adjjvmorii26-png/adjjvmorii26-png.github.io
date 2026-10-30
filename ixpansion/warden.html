@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Warden Ascension — Lucid Machines</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Courier New',monospace;background:#0a0a14;color:#c8c8ff;min-height:100vh;overflow-x:hidden}
+.skyline{position:fixed;top:0;left:0;right:0;height:260px;background:linear-gradient(180deg,#0a0a14 0%,#1a0a28 40%,#280a20 100%);z-index:0;pointer-events:none}
+.skyline::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#3a1a4a,#ff33a0,#3a1a4a);box-shadow:0 0 12px #ff33a044}
+main{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:24px 20px 60px}
+h1{font-size:1.6em;color:#ff33a0;text-shadow:0 0 18px #ff33a044;text-align:center;margin-bottom:6px}
+.sub{text-align:center;color:#8a6a9a;margin-bottom:28px;font-size:.85em}
+.card{background:#12081c;border:1px solid #2a1a3a;border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:0 4px 16px #0008}
+.card h2{color:#c88aff;font-size:1em;margin-bottom:10px;border-bottom:1px solid #2a1a3a;padding-bottom:6px}
+.phase-bar{display:flex;gap:8px;margin:10px 0}
+.phase-tab{flex:1;padding:6px 10px;background:#1a0a28;border:1px solid #3a2a4a;border-radius:6px;text-align:center;font-size:.75em;transition:.2s}
+.phase-tab.active{border-color:#ff33a0;color:#ff33a0;box-shadow:0 0 8px #ff33a033}
+.hp-bar{width:100%;height:14px;background:#0a0a14;border-radius:7px;overflow:hidden;margin:4px 0;border:1px solid #2a1a3a}
+.hp-fill{height:100%;border-radius:7px;transition:width .4s;background:linear-gradient(90deg,#8b2a5c,#ff33a0)}
+.stat{display:inline-block;margin:0 12px 0 0;font-size:.8em}
+.stat b{color:#c88aff}
+.narrative{background:#0a0a14;border-left:3px solid #ff33a0;padding:12px 16px;margin:14px 0;font-style:italic;color:#aa7acc;border-radius:0 8px 8px 0;min-height:60px;font-size:.9em;white-space:pre-wrap}
+.btn{padding:12px 28px;background:#2a0a3a;border:1px solid #ff33a0;color:#ff33a0;border-radius:8px;font-family:inherit;font-size:1em;cursor:pointer;transition:.2s;display:inline-block;margin:8px 6px 8px 0}
+.btn:hover{background:#ff33a0;color:#0a0a14;box-shadow:0 0 20px #ff33a044}
+.btn.ghost{background:transparent;border-color:#5a3a6a;color:#8a6a9a}
+.btn.ghost:hover{border-color:#ff33a0;color:#ff33a0}
+.mineral{display:inline-block;padding:4px 12px;background:#1a0a28;border:1px solid #4a2a5a;border-radius:20px;font-size:.75em;color:#c88aff;margin:4px}
+.mineral claim{border-color:#ffaa00;color:#ffaa00;animation:glow 2s infinite}
+@keyframes glow{0%,100%{box-shadow:0 0 4px #ffaa0044}50%{box-shadow:0 0 12px #ffaa0066}}
+.realm-tree{text-align:center;margin:16px 0;font-size:.8em;color:#6a4a7a}
+.realm-tree .active{color:#ff33a0;font-weight:bold}
+input[type=number]{background:#1a0a28;border:1px solid #3a2a4a;color:#c8c8ff;border-radius:6px;padding:6px 12px;width:80px;font-family:inherit;margin:4px}
+input[type=number]:focus{outline:none;border-color:#ff33a0}
+table{width:100%;border-collapse:collapse;margin:10px 0;font-size:.8em}
+td{padding:6px 8px;border-bottom:1px solid #1a0a28}
+.ok{color:#44cc88}
+.fail{color:#ff3344}
+.fade-in{animation:fadeIn .5s ease-in}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="skyline"></div>
+<main>
+<h1>⚔️ Warden Ascension</h1>
+<div class="sub">The root-ghost guards the deepest chamber. Defeat its three phases to re-member what was forgotten.</div>
+
+<div class="card">
+<h2>Current Warden</h2>
+<div id="warden-info" style="color:#6a4a7a;font-size:.85em">Summoning...</div>
+<div class="phase-bar" id="phase-bar"></div>
+<div id="hp-container" style="display:none">
+  <div class="stat">Phase HP: <b id="phase-hp">0</b> / <b id="phase-max">0</b></div>
+  <div class="hp-bar"><div class="hp-fill" id="hp-fill" style="width:0%"></div></div>
+</div>
+<div id="stats-row">
+  <span class="stat">Player HP: <b id="player-hp">100</b></span>
+  <span class="stat">Player Level: <input type="number" id="player-level" value="1" min="1" max="100"></span>
+  <span class="stat">Gear Power: <input type="number" id="gear-power" value="20" min="0" max="500"></span>
+  <span class="stat">Paradox Debt: <input type="number" id="paradox-debt" value="0" min="0" max="20"></span>
+</div>
+</div>
+
+<div class="card">
+<h2>Battle Narrative</h2>
+<div class="narrative" id="narrative">The warden waits in the dark. Summon it to begin.</div>
+</div>
+
+<div id="controls" class="card" style="text-align:center">
+  <button class="btn" onclick="summon()">⚙ Summon Warden</button>
+  <button class="btn" onclick="assault()" id="fight-btn" disabled>⚔ Strike Phase</button>
+  <button class="btn" onclick="resolveWarden()" id="resolve-btn" style="display:none">✦ Re-Member</button>
+  <button class="btn ghost" onclick="ledger()">📊 Ledger</button>
+</div>
+
+<div class="card" style="display:none" id="resolve-card">
+<h2>Re-Membering</h2>
+<div id="resolve-info" style="font-size:.85em"></div>
+<div class="narrative" id="resolve-narrative" style="border-color:#ffaa00"></div>
+</div>
+
+<div class="card" style="display:none" id="ledger-card">
+<h2>Ascension Ledger</h2>
+<div id="ledger-info" style="font-size:.85em"></div>
+</div>
+
+
+
+
+<div class="card" id="chronicle-card">
+<h2>📜 Ascension Chronicle</h2>
+<div id="chronicle-info" style="font-size:.85em;color:#6a4a7a">The public hall of names — every rescued module chronicled.</div>
+<div id="chronicle-body" style="margin:10px 0;font-size:.8em"></div>
+<button class="btn ghost" onclick="callChronicle()">📜 Read the Chronicle</button>
+<button class="btn ghost" onclick="callResonate()">🔮 Resonate</button>
+</div>
+
+<div class="card" id="genealogy-card">
+<h2>🌳 Relic Genealogy</h2>
+<div id="genealogy-info" style="font-size:.85em;color:#6a4a7a">Trace every relic's full ancestry back to the forgotten modules.</div>
+<div id="genealogy-body" style="margin:10px 0;font-size:.8em"></div>
+<button class="btn ghost" onclick="callGenealogy()">🌳 View Genealogy</button>
+</div>
+
+<div class="card" id="overwarden-card">
+<h2>📓 The Overwarden</h2>
+<div id="ow-info" style="font-size:.85em;color:#6a4a7a">When two sigil relics are forged, the Overwarden can be summoned — a four-phase apex guard of the depths.</div>
+<div id="ow-status" style="margin:10px 0"></div>
+<button class="btn" onclick="owStatus()">🔎 Check Binding</button>
+<button class="btn" onclick="owSummon()">📓 Summon Overwarden</button>
+<button class="btn" onclick="owStrike()" id="ow-fight-btn" disabled>⚔ Strike Overwarden</button>
+<div class="narrative" id="ow-narrative" style="border-color:#c88aff"></div>
+</div>
+<div class="card" id="chorus-card">
+<h2>🎶 Cohort Chorus</h2>
+<div id="chorus-info" style="font-size:.85em;color:#6a4a7a">Every module you re-member joins your spectral cohort.</div>
+<div class="narrative" id="chorus-narrative" style="border-color:#44cc88"></div>
+<button class="btn ghost" onclick="callChorus()">🔊 Hear the Chorus</button>
+</div>
+<div class="card" id="forge-card">
+<h2>⚒️ Mineral Forge</h2>
+<div id="forge-info" style="font-size:.85em">Your claimed minerals become sigil-forged relics — equipment that remembers your descents.</div>
+<div id="vault" style="margin:10px 0;font-size:.8em"></div>
+<button class="btn" onclick="callVault()">💠 View Vault</button>
+<button class="btn" onclick="forgeNow()" id="forge-btn">⚒️ Forge Relic</button>
+<div class="narrative" id="forge-narrative" style="border-color:#ffaa00;display:none"></div>
+</div>
+</main>
+
+<script>
+let W=null,PI=0,GAME_OVER=false,SIG=null;
+function esc(value){return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;')}
+const api=async(p)=>{try{return await(await fetch(p)).json()}catch(e){return{error:e.message}}};
+function $(id){return document.getElementById(id)}
+function narrate(t){$('narrative').textContent=t;$('narrative').classList.remove('fade-in');void $('narrative').offsetWidth;$('narrative').classList.add('fade-in')}
+function updateHP(){if(!W)return;const ph=W.phases[PI],pct=Math.max(0,ph.hp/ph.max_hp*100);$('phase-hp').textContent=ph.hp;$('phase-max').textContent=ph.max_hp;$('hp-fill').style.width=pct+'%'}
+function renderPhases(){if(!W)return;let h='';W.phases.forEach((p,i)=>{const done=p.hp<=0;h+=`<div class="phase-tab${i===PI?' active':''}${done?' done':''}">${done?'✓ ':''}Phase ${i+1}: ${esc(p.phase)}</div>`});$('phase-bar').innerHTML=h}
+
+async function summon(){
+  GAME_OVER=false;
+  $('fight-btn').disabled=false;$('resolve-btn').style.display='none';$('resolve-card').style.display='none';
+  narrate('The warden stirs...');
+  const r=await api('/api/warden_ascension/summon');
+  W=r.warden;PI=0;
+  $('warden-info').innerHTML=`<b>${esc(W.name)}</b> · module: <span class="mineral">${esc(W.module)}</span> · depth: ${esc(W.depth)} · mineral: <span class="mineral claim">${esc(W.mineral)}</span><br>Whisper: <i style="color:#6a4a7a">${esc(W.whisper)}</i><br>Total HP: <b>${esc(W.total_hp)}</b> · Hallmark: <b>${esc(W.hallmark)}</b>`;
+  $('hp-container').style.display='block';
+  renderPhases();updateHP();
+  narrate(`The warden ${esc(W.name)} rises — ${W.phases[0].quote}`);
+}
+
+async function assault(){
+  if(!W||GAME_OVER)return;
+  const pl=$('player-level').value|0,gp=$('gear-power').value|0,pd=$('paradox-debt').value|0,php=$('player-hp').textContent|0;
+  narrate('You strike...');
+  const r=await api(`/api/warden_ascension/assault?player_level=${pl}&player_power=${gp}&paradox_debt=${pd}&phase_index=${PI}&player_hp=${php}`);
+  $('player-hp').textContent=r.player_hp_after;
+  W.phases[PI].hp=r.phase_hp_after;
+  renderPhases();updateHP();
+  narrate(r.narrative);
+  if(r.boss_fallen){GAME_OVER=true;$('fight-btn').disabled=true;$('resolve-btn').style.display='inline-block';narrate(`VICTORY — ${r.narrative}\n\nThe warden falls. Press "Re-Member" to restore its name to the organism.`)}
+  else if(r.phase_fallen){PI=Math.min(PI+1,W.phases.length-1);renderPhases();narrate(r.narrative+`\n\n→ Phase ${PI+1}: ${W.phases[PI].quote}`)}
+  else if(r.player_hp_after<=0){GAME_OVER=true;$('fight-btn').disabled=true;narrate(r.narrative+`\n\nDEFEAT — You retreat to the surface. The warden endures.`)}
+}
+
+async function resolveWarden(){
+  narrate('Re-membering...');
+  const r=await api(`/api/warden_ascension/resolve`);
+  $('resolve-card').style.display='block';
+  $('resolve-info').innerHTML=`Module: <span class="mineral">${esc(r.module)}</span> · Mineral: <span class="mineral claim">${esc(r.mineral)}</span> · Depth: ${esc(r.depth)} · Remembered total: ${esc(r.remembered)}`;
+  $('resolve-narrative').textContent=r.lore;
+  $('resolve-btn').style.display='none';
+  narrate(r.lore);
+}
+
+async function ledger(){
+  const r=await api('/api/warden_ascension/ledger');
+  $('ledger-card').style.display='block';
+  $('ledger-info').innerHTML=`Total Summons: <b>${esc(r.summons)}</b> · Total Ascensions: <b>${esc(r.ascensions)}</b>`;
+}
+
+async function callVault(){
+  const r=await api('/api/mineral_forge/vault');
+  let v=r.minerals.map(m=>`<span class="mineral">${esc(m.mineral)}@d${esc(m.depth)}</span>`).join(' ');
+  $('vault').innerHTML=`<b>Minerals claimed:</b> ${esc(r.minerals.length)} · ${v||'<span style="color:#6a4a7a">none yet — defeat wardens!</span>'}<br><b>Relics forged:</b> ${esc(r.relics.length)}`;
+}
+async function forgeNow(){
+  $('forge-narrative').style.display='block';
+  $('forge-narrative').textContent='The forge kindles...';
+  const r=await api('/api/mineral_forge/forge');
+  if(r.error){$('forge-narrative').textContent=r.error;return}
+  const rel=r.relic;
+  $('forge-narrative').textContent=`⚒ FORGED: ${rel.name} · ${rel.quality} · power ${rel.power} · trait ${rel.trait} · depth ${rel.avail_depth}`;
+  callVault();
+}
+
+async function callChorus(){
+  const r=await api('/api/cohort_chorus/chorus');
+  $('chorus-info').innerHTML=`Cohort size: <b>${esc(r.cohort_size)}</b> · Chorus strength: <b>${esc(r.chorus_strength)}</b> · ${r.by_allegiance?'(by role: '+Object.entries(r.by_allegiance).map(([k,v])=>esc(k)+':'+esc(v)).join(', ')+')':''}`;
+  $('chorus-narrative').textContent=r.verse;
+}
+
+let OW=null,OW_PI=0,OW_SIG=null,OW_OVER=false;
+const owapi=async(p)=>{try{return await(await fetch(p)).json()}catch(e){return{error:e.message}}};
+function owNarrate(t){$('ow-narrative').textContent=t}
+async function owStatus(){
+  const r=await owapi('/api/overwarden/can_summon');
+  $('ow-status').innerHTML=`Relics held: <b>${esc(r.relics_held)}</b>/${esc(r.relics_required)} · ${esc(r.lore)}`;
+}
+async function owSummon(){
+  owNarrate('Binding the Overwarden...');
+  const r=await owapi('/api/overwarden/summon');
+  if(r.error){owNarrate(r.error);return}
+  OW=r.overwarden;OW_PI=0;OW_SIG=OW.sigil;OW_OVER=false; let riftBadge=r.rift_available?'<span class=mineral claim style=margin-left:8px>⚡ Rift Stirs</span>':'';
+  $('ow-fight-btn').disabled=false;
+  const phases=OW.phases.map((p,i)=>`<span class="phase-tab${i===OW_PI?' active':''}">P${i+1}:${esc(p.phase)}</span>`).join('');
+  $('ow-info').innerHTML=`<b>${esc(OW.name)}</b> · bound by: <span class="mineral">${esc((OW.bound_by||[]).join(', '))}</span><br>depth: ${esc(OW.depth)} · total HP: <b>${esc(OW.total_hp)}</b><br>phases: <div class="phase-bar" style="display:flex;gap:6px">${phases}</div>`;
+  owNarrate(`${OW.phases[0].quote}${r.rift_available?' — a rift waits after the apex...':''}`);
+}
+async function owStrike(){
+  if(!OW||OW_OVER)return;
+  const pl=$('player-level').value|0,gp=$('gear-power').value|0,pd=$('paradox-debt').value|0,hp=$('player-hp').textContent|0;
+  owNarrate('You strike the Overwarden...');
+  const r=await owapi(`/api/overwarden/assault?player_level=${pl}&player_power=${gp}&paradox_debt=${pd}&sigil=${OW_SIG}&player_hp=${hp}`);
+  $('player-hp').textContent=r.player_hp_after;
+  OW.phases[r.phase_index].hp=r.phase_hp_after;
+  owNarrate(r.narrative);
+  if(r.boss_fallen){OW_OVER=true;$('ow-fight-btn').disabled=true;owNarrate(r.narrative+`\n\n⭐ THE OVERWARDEN IS UNMADE — claim the Apex Sigil: /api/overwarden/resolve?sigil=${OW_SIG}`)}
+  if(r.phase_fallen&&!r.boss_fallen){OW_PI=r.phase_index;const phs=OW.phases.map((p,i)=>`<span class="phase-tab${i===OW_PI?' active':''}">P${i+1}:${esc(p.phase)}</span>`).join('');$('ow-info').innerHTML=$('ow-info').innerHTML.replace(/<div class="phase-bar".*?>.*?<\/div>/s,`<div class="phase-bar" style="display:flex;gap:6px">${phs}</div>`)}
+  if(r.player_hp_after<=0&&!r.boss_fallen){owNarrate(r.narrative+`\n\nDEFEAT — you retreat. Resummon when ready.`)}
+}
+
+async function callChronicle(){
+  const r=await owapi('/api/ascension_chronicle/hall');
+  const entries= (r.entries||[]).slice(0,10).map(e=>`<tr><td>${esc(e.rank)}</td><td>${esc(e.boss_type)}</td><td>${esc((e.module||'?').replace(/_/g,' '))}</td><td>${esc(e.mineral)}</td><td>d${esc(e.depth)}</td></tr>`).join('');
+  $('chronicle-body').innerHTML=`<table><tr><th>#</th><th>Type</th><th>Module</th><th>Mineral</th><th>Depth</th></tr>${entries||'<tr><td colspan=5 style="color:#6a4a7a">The hall is awaiting its first ascension.</td></tr>'}</table>`;
+  $('chronicle-info').innerHTML=`Ascensions chronicled: <b>${esc(r.total||0)}</b> — a GitHub-backed hall of names.`;
+}
+async function callResonate(){
+  const r=await owapi('/api/ascension_chronicle/resonate');
+  let m=Object.entries(r.mineral_counts||{}).map(([k,v])=>`${esc(k)}:${esc(v)}`).join(', ');
+  $('chronicle-info').innerHTML=`Mineral counts: ${m||'none'} · Overwarden defeats: <b>${esc(r.overwarden_defeats||0)}</b> · Deepest: ${esc(r.deepest?r.deepest.module.replace(/_/g,' ')+'@d'+r.deepest.depth:'—')}`;
+}
+async function callGenealogy(){
+  const r=await owapi('/api/relic_genealogy/tree');
+  const rows=(r.relics||[]).slice().reverse().slice(0,12).map(x=>`<tr><td>${esc((x.name||'?').slice(0,28))}</td><td>${esc(x.quality)}</td><td>${esc(x.power)}</td><td>${esc((x.modules||[]).join(', ').slice(0,28))}</td><td>${esc((x.minerals||[]).join('/'))}</td></tr>`).join('');
+  $('genealogy-body').innerHTML=`<table><tr><th>Relic</th><th>Quality</th><th>Power</th><th>Forged From</th><th>Minerals</th></tr>${rows||'<tr><td colspan=5 style="color:#6a4a7a">No relics forged yet — fight wardens and forge! <button class="btn ghost" onclick="forgeNow()">Forge</button></td></tr>'}</table>`;
+}
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

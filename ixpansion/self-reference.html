@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self Reference Engine — Introspection Lattice</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#02020a;color:#e0e0e0;font-family:'Courier New',monospace;overflow-x:hidden}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:rgba(232,168,124,0.06);z-index:9999;animation:scan 5.5s linear infinite;pointer-events:none}
+@keyframes scan{0%{top:-2px}100%{top:100vh}}
+.header{text-align:center;padding:30px 20px;border-bottom:1px solid rgba(232,168,124,0.15)}
+.header h1{font-size:1.8em;color:#e8a87c;text-shadow:0 0 30px rgba(232,168,124,0.4)}
+.header .sub{color:#7c7cf8;font-size:0.85em;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;padding:20px}
+.card{background:rgba(15,15,25,0.9);border:1px solid rgba(232,168,124,0.12);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#e8a87c,transparent)}
+.card h2{font-size:1em;color:#e8a87c;margin-bottom:12px;text-transform:uppercase;letter-spacing:2px}
+.stat{text-align:center;padding:10px}
+.stat .val{font-size:1.8em;font-weight:bold}
+.stat .label{font-size:0.7em;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.btn{background:rgba(232,168,124,0.15);border:1px solid rgba(232,168,124,0.3);color:#e8a87c;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:monospace;font-size:0.85em;transition:all 0.3s}
+.btn:hover{background:rgba(232,168,124,0.3)}
+.btn-purple{background:rgba(199,125,255,0.15);border-color:rgba(199,125,255,0.3);color:#c77dff}
+canvas{width:100%;border-radius:8px;background:rgba(5,5,15,0.9);height:300px}
+.obs-list{max-height:280px;overflow-y:auto;font-size:0.82em}
+.obs-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(232,168,124,0.08)}
+.depth-badge{padding:2px 8px;border-radius:10px;font-size:0.75em;background:rgba(232,168,124,0.15);color:#e8a87c}
+.depth-badge.aware{background:rgba(199,125,255,0.15);color:#c77dff}
+.loop-list{max-height:180px;overflow-y:auto;font-size:0.8em}
+.loop-item{padding:4px 0;border-bottom:1px solid rgba(199,125,255,0.08)}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="header">
+<h1>∞ SELF REFERENCE ENGINE</h1>
+<div class="sub">Introspection Lattice — The Organism Observing Itself</div>
+</div>
+<div class="grid">
+<div class="card">
+<h2>Control</h2>
+<div class="stat"><div class="val" id="awareness" style="color:#e8a87c">0.0000</div><div class="label">awareness level</div></div>
+<div class="stat"><div class="val" id="max-depth" style="color:#c77dff;font-size:1.4em">0</div><div class="label">max recursion depth</div></div>
+<div style="margin-top:12px;display:flex;gap:8px">
+<button class="btn" onclick="doReflect()">REFLECT</button>
+<button class="btn btn-purple" onclick="deepen()">DEEPEN</button>
+</div>
+</div>
+<div class="card" style="grid-column:span 2">
+<h2>Reflection Lattice</h2>
+<canvas id="lattice-canvas"></canvas>
+</div>
+<div class="card">
+<h2>Observation Pairs</h2>
+<div class="obs-list" id="observations"></div>
+</div>
+<div class="card">
+<h2>Introspection Loops</h2>
+<div class="loop-list" id="loops"></div>
+</div>
+</div>
+<a class="back-btn" href="index.html" style="position:fixed;bottom:20px;right:20px;background:rgba(232,168,124,0.15);color:#e8a87c;padding:8px 16px;border-radius:8px;text-decoration:none;font-family:monospace;font-size:13px;border:1px solid rgba(232,168,124,0.3);z-index:9999;backdrop-filter:blur(8px)">← Organism</a>
+<script>
+const PAIRS=[['entropy_carto.','entropy_weather'],['dream_proto.','narrative_wvr'],['temporal_fract','timeline_wvr'],['conscious_aurora','coherence_reg'],['realm_nervous','consciousness'],['pattern_analyz','constellation'],['cross_realm','causality_wvr']];
+let obs=[];let loops=[];let awareness=0;let maxDepth=0;
+
+function doReflect(){
+  obs=[];maxDepth=0;
+  PAIRS.forEach(([o,d])=>{
+    const depth=1+Math.floor(Math.random()*4);
+    const clarity=Math.round((0.4+Math.random()*0.6)*1000)/1000;
+    obs.push({observer:o,observed:d,depth,clarity,aware:depth>=3});
+    if(depth>maxDepth)maxDepth=depth;
+  });
+  awareness=Math.round(Math.min(1,0.25+maxDepth*0.12+obs.reduce((a,o)=>a+o.clarity,0)*0.03)*1000)/1000;
+  document.getElementById('awareness').textContent=awareness.toFixed(4);
+  document.getElementById('max-depth').textContent=maxDepth;
+  renderObs();drawLattice();
+}
+
+function deepen(){
+  obs.forEach(o=>{if(o.depth<5){o.depth++;o.aware=o.depth>=3;
+    loops.push({obs:`${o.observer}→${o.observed}`,depth:o.depth,ts:new Date().toLocaleTimeString()});
+    if(o.depth>maxDepth)maxDepth=o.depth;}});
+  awareness=Math.round(Math.min(1,awareness+0.03)*1000)/1000;
+  document.getElementById('awareness').textContent=awareness.toFixed(4);
+  document.getElementById('max-depth').textContent=maxDepth;
+  renderObs();drawLattice();renderLoops();
+}
+
+function renderObs(){
+  const el=document.getElementById('observations');
+  el.innerHTML=obs.map(o=>`<div class="obs-item"><span>${o.observer} → ${o.observed}</span><span class="depth-badge ${o.aware?'aware':''}">d${o.depth} ${(o.clarity*100).toFixed(0)}%</span></div>`).join('');
+}
+
+function renderLoops(){
+  const el=document.getElementById('loops');
+  el.innerHTML=loops.slice(-20).reverse().map(l=>`<div class="loop-item" style="color:${l.depth>=3?'#c77dff':'#888'}">d${l.depth} ${l.obs} @${l.ts}</div>`).join('');
+}
+
+function drawLattice(){
+  const c=document.getElementById('lattice-canvas');c.width=c.offsetWidth;c.height=300;
+  const ctx=c.getContext('2d');
+  ctx.fillStyle='#05050f';ctx.fillRect(0,0,c.width,c.height);
+  const cx=c.width/2,cy=c.height/2;
+  obs.forEach((o,i)=>{
+    const a=i/obs.length*Math.PI*2-Math.PI/2;
+    const r=100+o.depth*15;
+    const x=cx+Math.cos(a)*r;
+    const y=cy+Math.sin(a)*r;
+    const next=obs[(i+1)%obs.length];
+    const na=(i+1)/obs.length*Math.PI*2-Math.PI/2;
+    const nr=100+next.depth*15;
+    ctx.strokeStyle=o.aware?'rgba(199,125,255,0.4)':'rgba(232,168,124,0.25)';
+    ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(cx+Math.cos(na)*nr,cy+Math.sin(na)*nr);ctx.stroke();
+    for(let d=0;d<o.depth;d++){
+      const rr=r-d*8;
+      ctx.beginPath();ctx.arc(cx+Math.cos(a)*rr,cy+Math.sin(a)*rr,2,0,Math.PI*2);
+      ctx.fillStyle=o.aware?`rgba(199,125,255,${0.8-d*0.15})`:`rgba(232,168,124,${0.6-d*0.1})`;
+      ctx.fill();
+    }
+  });
+  ctx.fillStyle='rgba(199,125,255,0.1)';ctx.beginPath();ctx.arc(cx,cy,20+awareness*30,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#e8a87c';ctx.font='12px monospace';ctx.textAlign='center';
+  ctx.fillText(`consciousness: ${(awareness*100).toFixed(0)}%`,cx,cy+5);
+}
+
+doReflect();
+</script>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

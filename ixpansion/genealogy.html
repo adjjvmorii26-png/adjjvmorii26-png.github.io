@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Relic Genealogy — IXPansion</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Courier New',monospace;background:#06060e;color:#c8c8ff;min-height:100vh}
+.banner{background:linear-gradient(180deg,#06060e,#12081c 60%,#1a0a28);padding:28px 20px 16px;border-bottom:1px solid #1a1a2e;text-align:center}
+.banner h1{font-size:1.5em;color:#c88aff;text-shadow:0 0 12px #c88aff33}
+.banner .sub{color:#6a4a7a;font-size:.82em;margin-top:6px}
+main{max-width:1100px;margin:24px auto;padding:0 20px 60px}
+.card{background:#0c0c18;border:1px solid #1a1a2e;border-radius:10px;padding:18px;margin-bottom:18px}
+.card h2{color:#ffaa00;font-size:1em;border-bottom:1px solid #1a1a2e;padding-bottom:8px;margin-bottom:12px}
+table{width:100%;border-collapse:collapse;font-size:.8em}
+td,th{padding:7px 8px;text-align:left;border-bottom:1px solid #111122}
+th{color:#c88aff;font-weight:normal}
+.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.7em}
+.badge.mythic{border:1px solid #c88aff;color:#c88aff}
+.badge.legendary{border:1px solid #ffaa00;color:#ffaa00}
+.badge.epic{border:1px solid #8a4aff;color:#8a4aff}
+.badge.rare{border:1px solid #44aacc;color:#44aacc}
+svg{width:100%;height:520px;background:#0a0a14;border-radius:8px;border:1px solid #1a1a2e}
+svg text{font-family:'Courier New',monospace}
+svg .node{cursor:pointer}
+svg .node circle{transition:r .2s}
+svg .node:hover circle{r:8}
+svg .node text{fill:#c8c8ff;font-size:10px}
+svg .link{stroke:#2a2a3e;stroke-width:1.5;fill:none}
+svg .apex-line{stroke:#c88aff;stroke-width:2}
+svg .rift-glow{filter:url(#glow)}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="banner">
+<h1>🌳 Relic Genealogy</h1>
+<div class="sub">Every relic traces back through its forged minerals and bound modules to the forgotten wardens that bore them.</div>
+</div>
+<main>
+<div class="card">
+<h2>Relic Lineage Tree</h2>
+<div id="svg-wrap"><svg id="tree-svg" viewBox="0 0 1000 500">
+<defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<text x="500" y="260" text-anchor="middle" fill="#6a4a7a">Loading genealogy...</text>
+</svg></div>
+</div>
+<div class="card">
+<h2>Full Relic Catalogue</h2>
+<div id="catalogue"><table id="cat-table"><tr><th>#</th><th>Name</th><th>Quality</th><th>Power</th><th>Forged From</th><th>Minerals</th><th>Sigil</th></tr></table></div>
+</div>
+
+<div class="card" id="confessions-card" style="margin-top:18px">
+<h2>🕊 Resonance Confessions</h2>
+<div class="sub" style="color:#6a4a7a;font-size:.82em;margin-bottom:10px">When modules are bound together, they speak their true names.</div>
+<div id="confessions-body" style="font-size:.85em"></div>
+</div>
+</main>
+<script>
+const api=async(p)=>{try{return await(await fetch(p)).json()}catch(e){return{}}};
+const QUALITY_COLORS={mythic:'#c88aff',legendary:'#ffaa00',epic:'#8a4aff',rare:'#44aacc',uncommon:'#44cc88',common:'#8888aa',worn:'#555566'};
+const MINERAL_COLORS={basalt:'#5566aa',obsidian:'#222233',cinnabar:'#cc3344',salt:'#eeeeee',mica:'#aacc88',pyrite:'#ccaa33',graphite:'#555555',fluorite:'#44ddff'};
+const HALLMARK_HINTS={coherence:'#44aacc',resonance:'#44cc88',entropy:'#cc6633',memory:'#aacc88',dream:'#8844cc',paradox:'#cc3344',substrate:'#888888',echo:'#44aadd',pulse:'#ccaa33',lattice:'#66aacc'};
+
+function drawTree(relics){
+  const svg=document.getElementById('tree-svg');
+  if(!relics.length){
+    svg.innerHTML='<text x="500" y="260" text-anchor="middle" fill="#6a4a7a">No relics forged yet — fight wardens and forge to populate the genealogy.</text>';
+    return;
+  }
+  svg.innerHTML='<defs><filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+  const w=1000,h=500,pad=60;
+  const n=Math.min(relics.length,8);
+  const spacing=(w-pad*2)/(n-1||1);
+
+  // Group modules per relic
+  let allModules=new Set();
+  relics.forEach(r=>{(r.modules||[]).forEach(m=>allModules.add(m))});
+  let modList=[...allModules].slice(0,20);
+  let modIdx={};modList.forEach((m,i)=>modIdx[m]=i);
+
+  // Draw links from each relic to its modules
+  for(let i=0;i<n;i++){
+    const r=relics[i];
+    const rx=pad+i*spacing, ry=80;
+    const modules=r.modules||[];
+    const total=modules.length||1;
+    for(let j=0;j<modules.length;j++){
+      const m=modules[j];
+      const mi=modIdx[m];
+      if(mi===undefined)continue;
+      const mx=pad+((mi/(modList.length-1||1))*(w-pad*2));
+      const my=200+((mi%3)*70);
+      const color=QUALITY_COLORS[r.quality]||'#555';
+      const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+      const d=`M${rx},${ry+16} C${rx},${ry+50} ${mx},${my-30} ${mx},${my-8}`;
+      path.setAttribute('d',d);
+      path.setAttribute('stroke',color);
+      path.setAttribute('stroke-width','1.5');
+      path.setAttribute('fill','none');
+      path.setAttribute('opacity','0.5');
+      svg.appendChild(path);
+    }
+  }
+
+  // Draw module nodes
+  for(let i=0;i<modList.length;i++){
+    const m=modList[i];
+    const mx=pad+((i/(modList.length-1||1))*(w-pad*2));
+    const my=200+((i%3)*70);
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','node');
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',mx);c.setAttribute('cy',my);c.setAttribute('r','6');
+    c.setAttribute('fill','#1a0a28');c.setAttribute('stroke','#4a2a5a');c.setAttribute('stroke-width','1.5');
+    g.appendChild(c);
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',mx);t.setAttribute('y',my+20);t.setAttribute('text-anchor','middle');
+    t.setAttribute('fill','#8a6a9a');t.setAttribute('font-size','9');
+    t.textContent=m.replace(/_/g,' ');
+    g.appendChild(t);
+    svg.appendChild(g);
+  }
+
+  // Draw relic nodes at top
+  for(let i=0;i<n;i++){
+    const r=relics[i];
+    const rx=pad+i*spacing, ry=80;
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','node');
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',rx);c.setAttribute('cy',ry);c.setAttribute('r','12');
+    c.setAttribute('fill','#0c0c18');c.setAttribute('stroke',QUALITY_COLORS[r.quality]||'#555');c.setAttribute('stroke-width','2');
+    g.appendChild(c);
+    if(r.quality==='mythic')g.setAttribute('class','node rift-glow');
+    const t1=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t1.setAttribute('x',rx);t1.setAttribute('y',ry-18);t1.setAttribute('text-anchor','middle');
+    t1.setAttribute('fill',QUALITY_COLORS[r.quality]||'#888');t1.setAttribute('font-size','10');
+    t1.textContent=(r.name||'?').slice(0,20);
+    g.appendChild(t1);
+    const t2=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t2.setAttribute('x',rx);t2.setAttribute('y',ry+30);t2.setAttribute('text-anchor','middle');
+    t2.setAttribute('fill','#6a4a7a');t2.setAttribute('font-size','8');
+    t2.textContent=r.quality+' p'+r.power;
+    g.appendChild(t2);
+    svg.appendChild(g);
+  }
+
+  // Draw mineral legend at bottom
+  let lx=pad;
+  for(const [m,c] of Object.entries(MINERAL_COLORS)){
+    const r=document.createElementNS('http://www.w3.org/2000/svg','rect');
+    r.setAttribute('x',lx);r.setAttribute('y',430);r.setAttribute('width','8');r.setAttribute('height','8');
+    r.setAttribute('fill',c);r.setAttribute('rx','2');
+    svg.appendChild(r);
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',lx+12);t.setAttribute('y',438);t.setAttribute('fill','#6a4a7a');t.setAttribute('font-size','8');
+    t.textContent=m;
+    svg.appendChild(t);
+    lx+=80;
+  }
+}
+
+async function load(){
+  const g=await api('/api/relic_genealogy/tree');
+  const relics=g.relics||[];
+  drawTree(relics);
+  const tbl=document.getElementById('cat-table');
+  (relics||[]).slice().reverse().forEach((r,i)=>{
+    const row=tbl.insertRow();
+    row.innerHTML=`<td>${i+1}</td><td>${(r.name||'?').slice(0,28)}</td><td><span class="badge ${r.quality}">${r.quality}</span></td><td>${r.power}</td><td>${(r.modules||[]).map(m=>m.replace(/_/g,' ')).join(', ').slice(0,28)||'—'}</td><td>${(r.minerals||[]).map(m=>`<span style="color:${MINERAL_COLORS[m]||'#888'}">${m}</span>`).join(' ')}</td><td style="color:#6a4a7a;font-size:.75em">${(r.sigil||'').slice(0,12)}</td>`;
+  });
+}
+load();
+
+async function loadConfessions(){
+  const c=await api('/api/resonance_confession/collection?limit=8');
+  const body=document.getElementById('confessions-body');
+  if(!c.confessions||!c.confessions.length){
+    body.innerHTML='<p class="t">No confessions yet — bind two modules into an Overwarden and they will speak.</p>';
+    return;
+  }
+  body.innerHTML=c.confessions.map(cf=>{
+    const badge=cf.shared_hallmark?'<span class="badge mythic">convergence</span>':'<span class="badge rare">tension</span>';
+    return `<div style="border-bottom:1px solid #111;padding:10px 0">
+      <span class="badge" style="border:1px solid #c88aff;color:#c88aff">${(cf.module_a||'?').replace(/_/g,' ')} + ${(cf.module_b||'?').replace(/_/g,' ')}</span> ${badge}
+      <div style="margin:6px 0;color:#aa7acc;font-style:italic">"${cf.verse_a}"</div>
+      <div style="color:#8a6a9a;font-style:italic">"${cf.verse_b}"</div>
+      <div style="color:#6a4a7a;font-size:.8em;margin-top:4px">${cf.convergence||''}</div>
+    </div>`;
+  }).join('');
+}
+loadConfessions();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

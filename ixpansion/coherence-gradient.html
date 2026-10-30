@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coherence Gradient — IXPANSION</title>
+<style>
+:root{--bg:#0a0a14;--fg:#e0e0e8;--muted:#6b6b80;--cyan:#41b3a3;--magenta:#c063e8;--card:#14142a;--border:#2a2a44;--green:#41d3a3;--amber:#ffcc66;--red:#e05a5a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--fg);padding:20px}
+.header{text-align:center;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:16px}
+h1{font-size:2em;background:linear-gradient(135deg,var(--cyan),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--muted);margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1400px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card h2{color:var(--cyan);font-size:1.1em;margin-bottom:12px}
+.metric{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222}
+.metric:last-child{border-bottom:none}
+.label{color:var(--muted)}
+.value{color:var(--cyan);font-weight:bold}
+.field-item{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid #222}
+.field-bar{height:8px;border-radius:4px;flex:1;min-width:60px}
+.coh-label{width:120px;color:var(--fg);font-size:0.85em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.coh-value{width:60px;text-align:right;color:var(--amber);font-size:0.85em}
+.btn{background:var(--cyan);border:none;color:#0a0a14;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;margin:4px}
+.btn:hover{opacity:0.9}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🌀 Coherence Gradient</h1>
+  <p class="sub">Module coherence flow — the organism's emotional landscape</p>
+  <span class="badge" id="tick" style="background:#2a2a44;color:var(--cyan);padding:4px 12px;border-radius:12px">tick: 0</span>
+  <span class="badge" id="flows" style="background:#2a2a44;color:var(--amber);padding:4px 12px;border-radius:12px">flows: 0</span>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>📊 Field Statistics</h2>
+    <div id="stats">
+      <div class="metric"><span class="label">Modules</span><span class="value">0</span></div>
+      <div class="metric"><span class="label">Connections</span><span class="value">0</span></div>
+      <div class="metric"><span class="label">Active Flows</span><span class="value">0</span></div>
+      <div class="metric"><span class="label">Flow Rate</span><span class="value">0</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🎯 Controls</h2>
+    <button class="btn" onclick="tickField()">▶ Advance Field</button>
+    <div id="flow-result" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card" style="grid-column:1/-1">
+    <h2>🌊 Module Coherence Field</h2>
+    <div id="field">No modules registered</div>
+  </div>
+</div>
+
+<script>
+const HOST='';
+async function api(action){
+  const r = await fetch(HOST+'/api/field_gradient_field?action='+action);
+  return r.json();
+}
+function colorFor(c){
+  if(c > 0.7) return '#41d3a3';
+  if(c > 0.4) return '#ffcc66';
+  return '#e05a5a';
+}
+async function refresh(){
+  const s = await api('status');
+  document.getElementById('tick').textContent = 'tick: '+s.tick;
+  document.getElementById('flows').textContent = 'flows: '+s.active_flows;
+  document.getElementById('stats').innerHTML = `
+    <div class="metric"><span class="label">Modules</span><span class="value">${s.modules}</span></div>
+    <div class="metric"><span class="label">Connections</span><span class="value">${s.connections}</span></div>
+    <div class="metric"><span class="label">Active Flows</span><span class="value">${s.active_flows}</span></div>
+    <div class="metric"><span class="label">Flow Rate</span><span class="value">${s.total_flow_rate}</span></div>`;
+
+  const f = await api('field');
+  if(f.field && f.field.length){
+    document.getElementById('field').innerHTML = f.field.map(m => {
+      const pct = Math.round(m.coherence * 100);
+      return `<div class="field-item">
+        <span class="coh-label">${m.module}</span>
+        <div class="field-bar" style="width:${pct}%;background:${colorFor(m.coherence)}"></div>
+        <span class="coh-value">${m.coherence}</span>
+      </div>`;
+    }).join('');
+  } else {
+    document.getElementById('field').textContent = 'No modules registered';
+  }
+}
+async function tickField(){
+  const r = await api('tick');
+  if(r.flows && r.flows.length){
+    document.getElementById('flow-result').innerHTML = r.flows.map(f =>
+      `<div class="metric"><span class="label">${f.from} → ${f.to}</span><span class="value">${f.flow}</span></div>`).join('');
+  } else {
+    document.getElementById('flow-result').textContent = 'No active flows this tick';
+  }
+  await refresh();
+}
+refresh();
+setInterval(refresh, 10000);
+</script>
+</body>
+</html>

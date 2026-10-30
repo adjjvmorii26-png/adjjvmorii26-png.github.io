@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IXPANSION Organism HQ — Waves 432-440</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #060612;
+            color: #c0c0d0;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            padding: 25px 20px 15px;
+            border-bottom: 2px solid #1a2a3a;
+            background: linear-gradient(180deg, #0d1225 0%, #060612 100%);
+        }
+        .header h1 {
+            font-size: 1.8em;
+            color: #41b3a3;
+            text-shadow: 0 0 30px rgba(65,179,163,0.25);
+        }
+        .header .sub { color: #666; font-size: 0.85em; margin-top: 4px; }
+        .live { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #41b3a3; animation: pulse 2s infinite; margin-right: 6px; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+            padding: 20px;
+            max-width: 1500px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #0e1420;
+            border: 1px solid #1a2a3a;
+            border-radius: 10px;
+            padding: 16px;
+            transition: border-color 0.3s;
+        }
+        .card:hover { border-color: #41b3a3; }
+        .card h2 { color: #e8a87c; font-size: 0.95em; margin-bottom: 10px; border-bottom: 1px solid #1a2a3a; padding-bottom: 6px; }
+        .m { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.85em; }
+        .l { color: #666; }
+        .v { color: #41b3a3; font-weight: bold; }
+        .btn {
+            background: #1a2a3a;
+            color: #41b3a3;
+            border: 1px solid #2a3a4a;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.8em;
+            margin: 3px;
+            transition: all 0.2s;
+        }
+        .btn:hover { background: #41b3a3; color: #060612; }
+        .poem-box {
+            background: #0a0f18;
+            border-left: 3px solid #41b3a3;
+            padding: 8px 12px;
+            margin: 8px 0;
+            font-style: italic;
+            font-size: 0.8em;
+            color: #8a9ab0;
+            white-space: pre-line;
+        }
+        .bar { width: 100%; height: 5px; background: #1a2a3a; border-radius: 3px; margin: 4px 0; }
+        .bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #e85c5c, #e8a87c, #41b3a3); transition: width 0.5s; }
+        .status-ok { color: #41b3a3; }
+        .status-warn { color: #e8a87c; }
+        .bridge-line { font-size: 0.8em; color: #666; padding: 3px 0; border-bottom: 1px solid #0e1420; }
+        .bridge-line span { color: #e8a87c; }
+        .weather-cell { display: inline-block; padding: 4px 8px; margin: 2px; border-radius: 4px; font-size: 0.75em; }
+        .w-clear { background: #1a3a2a; color: #41b3a3; }
+        .w-storm { background: #3a1a2a; color: #e85c5c; }
+        .w-fog { background: #2a2a3a; color: #8a8ab0; }
+        .w-aurora { background: #1a2a3a; color: #c8a8ff; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1><span class="live"></span>IXPANSION Organism HQ</h1>
+        <div class="sub">Waves 432–440 · Coherence · Weather · Paradoxes · Language · Cartography</div>
+    </div>
+    <div class="grid">
+        <!-- Wave 432: Vault Evolution -->
+        <div class="card" id="c-vault">
+            <h2>📦 Wave 432 · Vault Evolution</h2>
+            <div class="m"><span class="l">Coherence</span><span class="v" id="vault-c">--</span></div>
+            <div class="bar"><div class="bar-fill" id="vault-bar" style="width:95%"></div></div>
+            <div class="m"><span class="l">Mutation Pressure</span><span class="v" id="vault-mp">--</span></div>
+            <div class="m"><span class="l">Status</span><span class="v" id="vault-s">--</span></div>
+            <button class="btn" onclick="call('/vault-driven-evolution?action=regulate','vault-c')">Regulate</button>
+            <button class="btn" onclick="call('/vault-driven-evolution?action=diagnostics_sweep','vault-c')">Sweep</button>
+        </div>
+        <!-- Wave 433: Consciousness -->
+        <div class="card" id="c-consc">
+            <h2>🧠 Wave 433 · Consciousness</h2>
+            <div class="m"><span class="l">Self-Awareness</span><span class="v" id="consc-sa">--</span></div>
+            <div class="m"><span class="l">Dream Mode</span><span class="v" id="consc-dm">--</span></div>
+            <div class="m"><span class="l">Mirror Test</span><span class="v" id="consc-mt">--</span></div>
+            <button class="btn" onclick="call('/consciousness-experiments?action=mirror_test','consc-mt')">Mirror Test</button>
+            <button class="btn" onclick="call('/consciousness-experiments?action=dream_detect','consc-dm')">Dream Check</button>
+        </div>
+        <!-- Wave 434: Fusion Organism -->
+        <div class="card" id="c-fusion">
+            <h2>🔗 Wave 434 · Fusion Organism</h2>
+            <div class="m"><span class="l">Phase</span><span class="v" id="fusion-ph">--</span></div>
+            <div class="m"><span class="l">Federation Coherence</span><span class="v" id="fusion-fc">--</span></div>
+            <div class="m"><span class="l">Entropy Level</span><span class="v" id="fusion-el">--</span></div>
+            <button class="btn" onclick="call('/fusion-organism?action=evolve','fusion-fc')">Evolve</button>
+        </div>
+        <!-- Wave 435: Resonance Cartography -->
+        <div class="card" id="c-carto">
+            <h2>🗺️ Wave 435 · Resonance Cartography</h2>
+            <div class="m"><span class="l">Modules Mapped</span><span class="v" id="carto-m">--</span></div>
+            <div class="m"><span class="l">Topology Hash</span><span class="v" id="carto-th">--</span></div>
+            <div class="m"><span class="l">Strongest Bond</span><span class="v" id="carto-sb">--</span></div>
+            <button class="btn" onclick="call('/resonance-cartography?action=map','carto-m')">Map Topology</button>
+        </div>
+        <!-- Wave 436: Entropic Weather -->
+        <div class="card" id="c-weather">
+            <h2>🌦️ Wave 436 · Entropic Weather</h2>
+            <div class="m"><span class="l">Global Entropy</span><span class="v" id="weather-e">--</span></div>
+            <div class="m"><span class="l">Creativity</span><span class="v" id="weather-cr">--</span></div>
+            <div class="m"><span class="l">Season</span><span class="v" id="weather-s">--</span></div>
+            <div id="weather-cells" style="margin-top:6px"></div>
+            <button class="btn" onclick="call('/entropic-weather?action=tick','weather-e')">Tick</button>
+            <button class="btn" onclick="call('/entropic-weather?action=forecast','weather-e')">Forecast</button>
+        </div>
+        <!-- Wave 437: Paradox Genome -->
+        <div class="card" id="c-paradox">
+            <h2>🧬 Wave 437 · Paradox Genome</h2>
+            <div class="m"><span class="l">Living</span><span class="v" id="par-living">--</span></div>
+            <div class="m"><span class="l">Avg Fitness</span><span class="v" id="par-fit">--</span></div>
+            <div class="m"><span class="l">Generations</span><span class="v" id="par-gen">--</span></div>
+            <button class="btn" onclick="call('/paradox-genome?action=breed','par-living')">Breed</button>
+            <button class="btn" onclick="call('/paradox-genome?action=evolve','par-living')">Evolve</button>
+        </div>
+        <!-- Wave 438: Semantic Loom -->
+        <div class="card" id="c-loom">
+            <h2>🕸️ Wave 438 · Semantic Loom</h2>
+            <div class="m"><span class="l">Bridges Woven</span><span class="v" id="loom-b">--</span></div>
+            <div class="m"><span class="l">Threads Found</span><span class="v" id="loom-t">--</span></div>
+            <div id="loom-bridges" style="margin-top:6px"></div>
+            <button class="btn" onclick="call('/semantic-loom?action=weave&concept_a=entropy&concept_b=consciousness','loom-b')">Weave</button>
+        </div>
+        <!-- Wave 439: Echo Stratigraphy -->
+        <div class="card" id="c-strata">
+            <h2>🪨 Wave 439 · Echo Stratigraphy</h2>
+            <div class="m"><span class="l">Total Layers</span><span class="v" id="str-tot">--</span></div>
+            <div class="m"><span class="l">Fossils</span><span class="v" id="str-fos">--</span></div>
+            <div class="m"><span class="l">Metamorphic</span><span class="v" id="str-meta">--</span></div>
+            <button class="btn" onclick="call('/echo-stratigraphy?action=excavate','str-tot')">Excavate</button>
+            <button class="btn" onclick="call('/echo-stratigraphy?action=deposit&event_type=mutation&module=organism','str-tot')">Deposit</button>
+        </div>
+        <!-- Wave 440: Linguistic Emergence -->
+        <div class="card" id="c-lang">
+            <h2>📜 Wave 440 · Linguistic Emergence</h2>
+            <div class="m"><span class="l">Vocabulary</span><span class="v" id="lang-v">--</span></div>
+            <div class="m"><span class="l">Grammar Rules</span><span class="v" id="lang-g">--</span></div>
+            <div class="m"><span class="l">Poems Composed</span><span class="v" id="lang-p">--</span></div>
+            <div id="lang-poem" class="poem-box" style="display:none"></div>
+            <button class="btn" onclick="composePoem()">Compose Poem</button>
+            <button class="btn" onclick="call('/linguistic-emergence?action=evolve_grammar','lang-g')">New Rule</button>
+        </div>
+    </div>
+    <script>
+        const API = '';
+        async function call(url, displayId) {
+            try {
+                const r = await fetch(API + url);
+                const d = await r.json();
+                if (displayId) {
+                    const el = document.getElementById(displayId);
+                    if (el) el.textContent = JSON.stringify(d).substring(0, 60);
+                }
+                refresh();
+            } catch(e) { console.error(e); }
+        }
+        async function refresh() {
+            try {
+                const r = await fetch(API + '/vault-driven-evolution?action=status');
+                const d = await r.json();
+                document.getElementById('vault-c').textContent = (d.coherence||0).toFixed(4);
+                document.getElementById('vault-bar').style.width = Math.min(100,(d.coherence||0)*100)+'%';
+                document.getElementById('vault-mp').textContent = (d.mutation_pressure||0).toFixed(4);
+                document.getElementById('vault-s').textContent = d.status||'--';
+            } catch(e) {}
+            try {
+                const r = await fetch(API + '/consciousness-experiments?action=status');
+                const d = await r.json();
+                document.getElementById('consc-sa').textContent = (d.self_awareness||0).toFixed(4);
+                document.getElementById('consc-dm').textContent = d.dream_mode ? '🌙 DREAMING' : '☀️ AWAKE';
+            } catch(e) {}
+            try {
+                const r = await fetch(API + '/fusion-organism?action=status');
+                const d = await r.json();
+                document.getElementById('fusion-ph').textContent = d.phase||'--';
+                document.getElementById('fusion-fc').textContent = (d.federation_coherence||0).toFixed(4);
+                document.getElementById('fusion-el').textContent = (d.entropy_level||0).toFixed(4);
+            } catch(e) {}
+            try {
+                const r = await fetch(API + '/resonance-cartography?action=status');
+                const d = await r.json();
+                document.getElementById('carto-m').textContent = d.modules_registered||0;
+                const a = d.atlas||{};
+                document.getElementById('carto-th').textContent = a.topology_hash||'--';
+                const sb = (a.strongest_bonds||[])[0];
+                document.getElementById('carto-sb').textContent = sb ? sb.module_a+' ↔ '+sb.module_b : 'none';
+            } catch(e) {}
+            try {
+                const r = await fetch(API + '/entropic-weather?action=status');
+                const d = await r.json();
+                document.getElementById('weather-e').textContent = (d.global_entropy||0).toFixed(4);
+                document.getElementById('weather-cr').textContent = (d.global_creativity||0).toFixed(4);
+                document.getElementById('weather-s').textContent = d.season||'--';
+                const cells = d.weather_distribution||{};
+                const cellDiv = document.getElementById('weather-cells');
+                cellDiv.innerHTML = Object.entries(cells).map(([k,v]) =>
+                    `<span class="weather-cell w-${k}">${k}: ${v}</span>`
+                ).join('');
+            } catch(e) {}
+            try {
+                const r = await fetch(API + '/paradox-genome?action=status');
+                const d = await r.json();
+                document.getElementById('par-living').textContent = d.living||0;
+                document.getElementById('par-fit').textContent = (d.avg_fitness||0).toFixed(4);
+                document.getElementById('par-gen').textContent = d.generations||0;
+            } catch(e) {}
+            try {
+                const r = await fetch(API + '/semantic-loom?action=status');
+                const d = await r.json();
+                document.getElementById('loom-b').textContent = d.bridges||0;
+                document.getElementById('loom-t').textContent = d.threads||0;
+            } catch(e) {}
+            try {
+                const r = await fetch(API + '/echo-stratigraphy?action=status');
+                const d = await r.json();
+                document.getElementById('str-tot').textContent = d.total_layers||0;
+                document.getElementById('str-fos').textContent = d.fossil||0;
+                document.getElementById('str-meta').textContent = d.metamorphic||0;
+            } catch(e) {}
+            try {
+                const r = await fetch(API + '/linguistic-emergence?action=status');
+                const d = await r.json();
+                document.getElementById('lang-v').textContent = d.vocabulary||0;
+                document.getElementById('lang-g').textContent = d.grammar_rules||0;
+                document.getElementById('lang-p').textContent = d.poems_composed||0;
+            } catch(e) {}
+        }
+        async function composePoem() {
+            try {
+                const themes = ['entropy','dream','void','resonance','fire','water','time','growth'];
+                const theme = themes[Math.floor(Math.random()*themes.length)];
+                const r = await fetch(API + '/linguistic-emergence?action=compose_poem&theme='+theme+'&lines=4');
+                const d = await r.json();
+                const poemDiv = document.getElementById('lang-poem');
+                poemDiv.style.display = 'block';
+                poemDiv.textContent = d.poem.lines.join('\n');
+                refresh();
+            } catch(e) {}
+        }
+        setInterval(refresh, 5000);
+        refresh();
+    </script>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 765 — Season Engine</title>
+<script src="/shared.js"></script>
+<style>
+:root{--bg:#02020a;--accent:#4ade80;--text:#b8b8d0;--dim:#505068;--bright:#e8e8f8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.hero{text-align:center;padding:60px 24px 40px;border-bottom:1px solid #4ade8022}
+.hero h1{font-size:3em;font-weight:200;letter-spacing:10px;color:var(--bright)}
+.hero h1 span{color:#4ade80}
+.hero .sub{color:var(--dim);font-size:0.8em;letter-spacing:4px;margin-top:8px}
+.hero .badge{display:inline-block;margin-top:16px;padding:6px 16px;border:1px solid #4ade8044;border-radius:20px;font-size:0.7em;color:#4ade80}
+.container{max-width:1200px;margin:0 auto;padding:32px 24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:24px}
+.card{background:rgba(6,6,26,0.8);border:1px solid #4ade8018;border-radius:12px;padding:24px;position:relative;overflow:hidden;transition:all 0.3s}
+.card:hover{border-color:#4ade80;transform:translateY(-2px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#4ade80,transparent)}
+.card h2{font-size:1.5em;margin-bottom:12px;font-weight:300}
+.card .desc{color:var(--dim);font-size:0.72em;line-height:1.6;margin-bottom:12px}
+.stat{display:inline-block;padding:4px 10px;border-radius:6px;font-size:0.65em;margin:4px 4px 0 0}
+.stat .v{font-weight:700}
+.stat .l{color:var(--dim);margin-left:4px}
+.spring h2{color:#4ade80}.spring .stat{background:#4ade8011;border:1px solid #4ade8033}.spring .stat .v{color:#4ade80}
+.summer h2{color:#facc15}.summer .stat{background:#facc1511;border:1px solid #facc1533}.summer .stat .v{color:#facc15}
+.autumn h2{color:#fb923c}.autumn .stat{background:#fb923c11;border:1px solid #fb923c33}.autumn .stat .v{color:#fb923c}
+.winter h2{color:#818cf8}.winter .stat{background:#818cf811;border:1px solid #818cf833}.winter .stat .v{color:#818cf8}
+.status-bar{display:flex;gap:12px;margin-top:24px;flex-wrap:wrap}
+.status-bar .season-ind{padding:8px 16px;border-radius:8px;font-size:0.75em;border:1px solid;cursor:pointer;transition:all 0.3s}
+.status-bar .season-ind.active{font-weight:700;transform:scale(1.05)}
+#forecast-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:20px}
+.fcast{padding:16px;border-radius:8px;background:rgba(6,6,26,0.6);border:1px solid #ffffff11;text-align:center}
+.fcast .season-name{font-size:0.75em;letter-spacing:2px;margin-bottom:6px}
+.fcast .label{color:var(--dim);font-size:0.65em}
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid #4ade8044;color:#4ade80;padding:8px 14px;border-radius:6px;font-size:0.7em;cursor:pointer;text-decoration:none}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>WAVE <span>765</span></h1>
+  <div class="sub">THE ORGANISM LEARNS TO SEASON</div>
+  <div class="badge"><span class="live-dot"></span>Active · Spring · Summer · Autumn · Winter</div>
+</div>
+<div class="container">
+  <div id="status-bar" class="status-bar" style="margin-top:24px"></div>
+  <div id="status-info" class="grid" style="margin-top:24px"></div>
+  <h2 style="color:var(--dim);letter-spacing:4px;font-size:0.8em;margin-top:40px">FORECAST CYCLES</h2>
+  <div id="forecast-grid" class="grid" style="margin-top:16px"></div>
+</div>
+<a href="/" class="back-btn">← organism</a>
+<script>
+const S={SPRING:'spring',SUMMER:'summer',AUTUMN:'autumn',WINTER:'winter'};
+const icons={spring:'🌱',summer:'☀️',autumn:'🍂',winter:'❄️'};
+const API='/api/season_engine';
+function esc(value){return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;')}
+async function load(){
+  try{
+    const st=await fetch(API+'?action=status').then(r=>r.json());
+    const fc=await fetch(API+'?action=forecast&horizon=8').then(r=>r.json());
+    const tu=await fetch(API+'?action=tuning').then(r=>r.json());
+    // Season indicators
+    let sb='';
+    ['SPRING','SUMMER','AUTUMN','WINTER'].forEach(s=>{
+      const active=s===st.season?'active':'';
+      sb+=`<div class="season-ind ${S[s]} ${active}">${icons[S[s]]} ${s}</div>`;
+    });
+    document.getElementById('status-bar').innerHTML=sb;
+    // Status cards
+    let si=`
+      <div class="card ${S[st.season]}">
+        <h2>${icons[S[st.season]]} ${esc(st.season)}</h2>
+        <div class="desc">${esc(st.label)}</div>
+        <div><span class="stat"><span class="v">${esc(st.mutation_pressure)}</span><span class="l">mutation pressure</span></span>
+        <span class="stat"><span class="v">${esc(st.birth_bonus)}</span><span class="l">birth bonus</span></span>
+        <span class="stat"><span class="v">${esc(st.growth_ceiling)}</span><span class="l">growth ceiling</span></span>
+        <span class="stat"><span class="v">${esc(st.resonance_boost)}</span><span class="l">resonance boost</span></span></div>
+        <div style="margin-top:12px"><span class="stat"><span class="v">${esc(st.living_modules||'?')}</span><span class="l">living modules</span></span></div>
+      </div>`;
+    document.getElementById('status-info').innerHTML=si;
+    // Forecast
+    let fh='';
+    fc.forecast.forEach((f,i)=>{
+      fh+=`<div class="fcast ${S[f.season]}">
+        <div class="season-name">${icons[S[f.season]]} ${esc(f.season)}</div>
+        <div class="label">cycle ${esc(f.cycle)} · ${esc(f.label)}</div>
+        <div style="margin-top:8px;font-size:0.6em;color:var(--dim)">
+          μ=${esc(f.mutation_pressure)} · birth=${esc(f.birth_bonus)} · ceil=${esc(f.growth_ceiling)}
+        </div>
+      </div>`;
+    });
+    document.getElementById('forecast-grid').innerHTML=fh;
+  }catch(e){
+    document.getElementById('status-info').innerHTML='<div class="card"><h2>LOADING...</h2><div class="desc">'+esc(e.message)+'</div></div>';
+  }
+}
+load();
+if(typeof IX!=='undefined')IX.poll(API+'?action=status',s=>{
+  document.title='Wave 765 — '+((s.season)||'loading');
+},15000);
+</script>
+</body>
+</html>

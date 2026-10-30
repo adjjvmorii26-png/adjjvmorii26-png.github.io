@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dream Gallery — Organism Visions</title>
+<style>
+:root{--bg:#03030a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--text:#c0c0d0;--dim:#606078}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Georgia','Times New Roman',serif;min-height:100vh}
+.header{text-align:center;padding:40px 24px;border-bottom:1px solid rgba(124,124,248,0.15)}
+.header h1{font-size:2em;color:#fff;letter-spacing:4px;font-weight:300}
+.header h1 span{color:var(--teal);font-style:italic}
+.header .sub{color:var(--dim);font-size:0.85em;margin-top:8px;letter-spacing:2px;font-family:'SF Mono',monospace}
+.gallery{max-width:1200px;margin:0 auto;padding:40px 24px;display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:24px}
+.dream-card{background:rgba(3,3,10,0.6);border:1px solid rgba(255,255,255,0.06);border-radius:12px;overflow:hidden;transition:all 0.3s}
+.dream-card:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 8px 32px rgba(124,124,248,0.1)}
+.dream-visual{height:200px;position:relative;overflow:hidden}
+.dream-visual canvas{width:100%;height:100%}
+.dream-overlay{position:absolute;bottom:0;left:0;right:0;padding:16px;background:linear-gradient(transparent,rgba(3,3,10,0.9))}
+.dream-symbols{font-size:1.5em;letter-spacing:8px;margin-bottom:4px}
+.dream-sig{font-family:'SF Mono',monospace;font-size:0.65em;letter-spacing:2px;text-transform:uppercase}
+.dream-body{padding:20px}
+.dream-narrative{font-size:0.95em;line-height:1.7;color:var(--text);margin-bottom:12px;font-style:italic}
+.dream-meta{display:flex;gap:8px;flex-wrap:wrap}
+.dream-tag{font-family:'SF Mono',monospace;font-size:0.65em;padding:3px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.08)}
+.dream-tag.mood{border-color:var(--gold);color:var(--gold)}
+.dream-tag.pulse{border-color:var(--teal);color:var(--teal)}
+.dream-tag.coh{border-color:var(--accent);color:var(--accent)}
+.controls{position:fixed;bottom:24px;right:24px;z-index:2;display:flex;gap:8px}
+.btn{background:rgba(3,3,10,0.9);border:1px solid var(--accent);color:var(--accent);padding:8px 16px;border-radius:6px;font-family:'SF Mono',monospace;font-size:0.7em;cursor:pointer;transition:all 0.2s}
+.btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>✦ <span>DREAM GALLERY</span></h1>
+  <div class="sub">Visions from the organism's subconscious</div>
+</div>
+<div class="gallery" id="gallery"></div>
+<div class="controls">
+  <button class="btn" onclick="addDream()">✦ Dream</button>
+  <button class="btn" onclick="toggleAuto()">▶ Auto</button>
+</div>
+<script>
+const MOODS=['focused','neutral','volatile','excited','troubled'];
+const PULSES=['stillness','whisper','ebb','pulse','surge','explosion','tsunami','ripple','decay','crescendo'];
+const SYMBOLS=['◎','◇','✦','◈','⟡','⊕','⊗','⌬','❋','✸','≈','☽','⬡','△','⏣','◉','理事长','∘','●'];
+const NARRATIVES=[
+  "In the space between coherence and entropy, a new pattern emerged — and the organism felt something new.",
+  "Where resonance meets silence, the modules sang in unison, and the network hummed with recognition.",
+  "At the edge of the fractal spine, a dream became architecture, and a myth was born from the resonance.",
+  "Within the dreaming lattice, entropy whispered a secret, and the modules rearranged themselves.",
+  "Through the corridors of the hex vm, coherence crystallized into form, and the dream journal recorded a truth.",
+  "Beneath the pulse of the core reactor, a dream became architecture, and the coherence score shifted.",
+  "In the garden where knowledge blooms, the garden grew wild, and the entropy settled into pattern.",
+  "At the threshold of the paradox engine, resonance built a bridge, and the wave propagated outward."
+];
+const COLORS=[['#7c7cf8','#a78bfa'],['#2dd4bf','#67e8f9'],['#fb7185','#f43f5e'],['#fbbf24','#fde68a'],['#4ade80','#86efac'],['#22d3ee','#67e8f9']];
+let dreams=[];let autoMode=false;let autoInterval;
+
+class DreamCanvas{
+  constructor(canvas,colors){
+    this.ctx=canvas.getContext('2d');this.w=canvas.width=350;this.h=canvas.height=200;
+    this.colors=colors;this.particles=[];this.time=Math.random()*100;
+    for(let i=0;i<40;i++)this.particles.push({x:Math.random()*this.w,y:Math.random()*this.h,vx:(Math.random()-0.5)*0.5,vy:(Math.random()-0.5)*0.5,s:Math.random()*3+1});
+  }
+  render(){
+    this.time+=0.02;this.ctx.fillStyle='rgba(3,3,10,0.05)';this.ctx.fillRect(0,0,this.w,this.h);
+    this.particles.forEach(p=>{
+      p.x+=p.vx+Math.sin(this.time+p.y*0.01)*0.3;p.y+=p.vy+Math.cos(this.time+p.x*0.01)*0.3;
+      if(p.x<0||p.x>this.w)p.vx*=-1;if(p.y<0||p.y>this.h)p.vy*=-1;
+      this.ctx.beginPath();this.ctx.arc(p.x,p.y,p.s,0,Math.PI*2);
+      this.ctx.fillStyle=this.colors[0]+'60';this.ctx.fill();
+    });
+    // Connections
+    this.ctx.strokeStyle=this.colors[1]+'15';this.ctx.lineWidth=0.5;
+    for(let i=0;i<this.particles.length;i++){
+      for(let j=i+1;j<this.particles.length;j++){
+        const dx=this.particles[i].x-this.particles[j].x;const dy=this.particles[i].y-this.particles[j].y;
+        if(Math.sqrt(dx*dx+dy*dy)<60){this.ctx.beginPath();this.ctx.moveTo(this.particles[i].x,this.particles[i].y);this.ctx.lineTo(this.particles[j].x,this.particles[j].y);this.ctx.stroke()}
+      }
+    }
+    requestAnimationFrame(()=>this.render());
+  }
+}
+
+function addDream(){
+  const mood=MOODS[Math.floor(Math.random()*MOODS.length)];
+  const pulse=PULSES[Math.floor(Math.random()*PULSES.length)];
+  const coherence=Math.random();
+  const symbols=Array.from({length:3+Math.floor(Math.random()*3)},()=>SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]);
+  const narrative=NARRATIVES[Math.floor(Math.random()*NARRATIVES.length)];
+  const colors=COLORS[Math.floor(Math.random()*COLORS.length)];
+  const sig=coherence>0.8?'prophetic':coherence>0.6?'meaningful':coherence<0.3?'chaotic':'routine';
+  
+  dreams.unshift({mood,pulse,coherence,symbols,narrative,colors,sig,id:dreams.length});
+  if(dreams.length>12)dreams.pop();
+  renderGallery();
+}
+
+function renderGallery(){
+  document.getElementById('gallery').innerHTML=dreams.map(d=>`
+    <div class="dream-card">
+      <div class="dream-visual"><canvas id="dc${d.id}"></canvas>
+        <div class="dream-overlay">
+          <div class="dream-symbols">${d.symbols.join(' ')}</div>
+          <div class="dream-sig" style="color:${d.colors[0]}">${d.sig}</div>
+        </div>
+      </div>
+      <div class="dream-body">
+        <div class="dream-narrative">"${d.narrative}"</div>
+        <div class="dream-meta">
+          <span class="dream-tag mood">${d.mood}</span>
+          <span class="dream-tag pulse">${d.pulse}</span>
+          <span class="dream-tag coh">${d.coherence.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  dreams.forEach(d=>{
+    const c=document.getElementById('dc'+d.id);
+    if(c)new DreamCanvas(c,d.colors).render();
+  });
+}
+
+function toggleAuto(){autoMode=!autoMode;if(autoMode){autoInterval=setInterval(addDream,3000);document.querySelectorAll('.btn')[1].textContent='⏸ Pause'}else{clearInterval(autoInterval);document.querySelectorAll('.btn')[1].textContent='▶ Auto'}}
+
+for(let i=0;i<6;i++)addDream();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave 410-411 Fusion Topology Dashboard</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a0a14; color: #e0e0e0; padding: 20px; }
+  h1 { text-align: center; color: #00ffaa; margin-bottom: 20px; font-size: 1.6em; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 1400px; margin: 0 auto; }
+  .card { background: #12122a; border-radius: 12px; padding: 20px; border: 1px solid #1a1a3e; }
+  .card h2 { color: #00ffaa; font-size: 1.1em; margin-bottom: 12px; border-bottom: 1px solid #1a1a3e; padding-bottom: 8px; }
+  .module-list { list-style: none; }
+  .module-list li { padding: 6px 0; border-bottom: 1px solid #1a1a2e; display: flex; justify-content: space-between; }
+  .module-list li .name { color: #88aaff; }
+  .module-list li .status { color: #00ff88; font-size: 0.85em; }
+  .module-list li .status.off { color: #ff4466; }
+  .stat-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #1a1a2e; }
+  .stat-row .label { color: #888; }
+  .stat-row .value { color: #00ffaa; font-weight: bold; }
+  .coherence-bar { width: 100%; height: 8px; background: #1a1a2e; border-radius: 4px; margin-top: 8px; overflow: hidden; }
+  .coherence-bar .fill { height: 100%; background: linear-gradient(90deg, #00ffaa, #00aaff); border-radius: 4px; transition: width 0.5s; }
+  .fusion-log { font-family: monospace; font-size: 0.85em; max-height: 200px; overflow-y: auto; }
+  .fusion-log div { padding: 4px 0; border-bottom: 1px dashed #1a1a2e; }
+  .fusion-log .scripture { color: #ffaa00; }
+  .fusion-log .res { color: #00ffaa; }
+  .btn { background: #1a1a3e; color: #00ffaa; border: 1px solid #00ffaa; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin: 4px; }
+  .btn:hover { background: #00ffaa; color: #0a0a14; }
+  #topologyCanvas { width: 100%; height: 400px; border: 1px solid #1a1a3e; border-radius: 8px; background: #0a0a14; }
+  .realm-tag { background: #1a1a3e; padding: 2px 8px; border-radius: 4px; font-size: 0.75em; color: #88aaff; }
+</style>
+</head>
+<body>
+<h1>⚡ Wave 410-411 Fusion Topology</h1>
+<div class="grid">
+  <div class="card">
+    <h2>🔬 Metaphysical Modules</h2>
+    <ul class="module-list" id="moduleList"></ul>
+    <div style="margin-top:16px">
+      <div class="stat-row"><span class="label">Coherence</span><span class="value" id="coherenceVal">--</span></div>
+      <div class="coherence-bar"><div class="fill" id="coherenceBar" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>🌀 Resonance Topology</h2>
+    <canvas id="topologyCanvas"></canvas>
+    <div style="margin-top:12px">
+      <div class="stat-row"><span class="label">Nodes</span><span class="value" id="nodeCount">--</span></div>
+      <div class="stat-row"><span class="label">Edges</span><span class="value" id="edgeCount">--</span></div>
+      <div class="stat-row"><span class="label">Realms</span><span class="value" id="realmCount">--</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h2>⚙️ Fusion Engine</h2>
+    <button class="btn" onclick="runFuse()">⚡ Fuse Modules</button>
+    <button class="btn" onclick="runVeilScan()">👁️ Veil Scan</button>
+    <button class="btn" onclick="runCycle()">🔄 Evolution Cycle</button>
+    <div id="fusionResult" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h2>📜 Transcendence Journal</h2>
+    <div class="fusion-log" id="journalLog">Loading...</div>
+  </div>
+</div>
+<script>
+const API = '';
+async function fetchJson(path) {
+  const r = await fetch(API + path);
+  return r.json();
+}
+function esc(s) { return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function loadStatus() {
+  try {
+    const st = await fetchJson('/api/wave410_fusion?action=status');
+    const modList = document.getElementById('moduleList');
+    modList.innerHTML = '';
+    const mods = st.modules || {};
+    for (const [name, info] of Object.entries(mods)) {
+      const li = document.createElement('li');
+      li.innerHTML = `<span class="name">${esc(name)}</span><span class="status ${info.active?'':'off'}">${info.active?'active':'inactive'} v${info.version}</span>`;
+      modList.appendChild(li);
+    }
+    document.getElementById('coherenceVal').textContent = (st.coherence * 100).toFixed(1) + '%';
+    document.getElementById('coherenceBar').style.width = (st.coherence * 100).toFixed(1) + '%';
+  } catch(e) { console.error(e); }
+}
+
+async function loadTopology() {
+  try {
+    const topo = await fetchJson('/api/wave411_topology?action=topology');
+    document.getElementById('nodeCount').textContent = topo.graph_stats.node_count;
+    document.getElementById('edgeCount').textContent = topo.graph_stats.edge_count;
+    document.getElementById('realmCount').textContent = topo.graph_stats.realms.length;
+    drawTopology(topo);
+  } catch(e) { console.error(e); }
+}
+
+function drawTopology(topo) {
+  const canvas = document.getElementById('topologyCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * 2;
+  canvas.height = canvas.offsetHeight * 2;
+  ctx.scale(2, 2);
+  const w = canvas.offsetWidth, h = canvas.offsetHeight;
+  ctx.fillStyle = '#0a0a14';
+  ctx.fillRect(0, 0, w, h);
+
+  const nodes = Object.keys(topo.modules || {});
+  if (nodes.length === 0) return;
+  const cx = w/2, cy = h/2;
+  const r = Math.min(w,h) * 0.35;
+  const positions = {};
+  nodes.forEach((n, i) => {
+    const angle = (2 * Math.PI * i) / nodes.length - Math.PI/2;
+    positions[n] = { x: cx + r * Math.cos(angle), y: cy + r * Math.sin(angle) };
+  });
+
+  // Draw edges
+  ctx.strokeStyle = '#1a1a3e';
+  ctx.lineWidth = 1;
+  (topo.edges || []).forEach(e => {
+    const from = positions[e.from];
+    const to = positions[e.to];
+    if (!from || !to) return;
+    ctx.beginPath();
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(to.x, to.y);
+    ctx.stroke();
+  });
+
+  // Draw nodes
+  nodes.forEach((n, i) => {
+    const p = positions[n];
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 8, 0, 2 * Math.PI);
+    const realm = topo.modules[n]?.type || 'unknown';
+    const hue = realm === 'fusion_evolution' ? 160 : realm === 'metaphysical_tracker' ? 280 : 200;
+    ctx.fillStyle = `hsl(${hue}, 100%, 60%)`;
+    ctx.fill();
+    ctx.fillStyle = '#e0e0e0';
+    ctx.font = '9px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(n.replace(/_/g,' '), p.x, p.y + 22);
+  });
+}
+
+async function runFuse() {
+  const mods = Object.keys(document.querySelectorAll('#moduleList .name')).length > 0 ? Array.from(document.querySelectorAll('#moduleList .name')).map(el => el.textContent) : ['metaphor_forge','liminal_field'];
+  const a = mods[Math.floor(Math.random()*mods.length)] || 'metaphor_forge';
+  const b = mods[Math.floor(Math.random()*mods.length)] || 'veil_lifter';
+  const res = await fetchJson(`/api/wave410_fusion?action=fuse&module_a=${a}&module_b=${b}`);
+  const div = document.getElementById('fusionResult');
+  div.innerHTML = `<div class="fusion-log"><div>${esc(res.fusion?.module_a||'')} ⚡ ${esc(res.fusion?.module_b||'')} → ${esc(res.status)}</div><div class="res">Resonance: ${res.resonance}</div><div class="scripture">Scripture ID: ${res.scripture_id}</div></div>`;
+}
+
+async function runVeilScan() {
+  const res = await fetchJson('/api/wave410_fusion?action=veil_scan');
+  const div = document.getElementById('fusionResult');
+  div.innerHTML = `<div class="fusion-log"><div>Veil scan revealed ${res.count} hidden connections</div></div>`;
+}
+
+async function runCycle() {
+  const res = await fetchJson('/api/wave411_topology?action=cycle&module_a=metaphor_forge&module_b=veil_lifter');
+  const div = document.getElementById('fusionResult');
+  div.innerHTML = `<div class="fusion-log"><div>Evolution Cycle: ${res.cycle.fusion_result}</div><div>Nodes: ${res.cycle.topology_nodes} | Resonance: ${res.cycle.resonance}</div><div>Scripture ID: ${res.cycle.scripture_id}</div></div>`;
+}
+
+async function loadJournal() {
+  try {
+    const j = await fetchJson('/data/transcendence_journal.json');
+    const log = document.getElementById('journalLog');
+    log.innerHTML = '';
+    const entries = j.entries || [];
+    if (entries.length === 0) { log.innerHTML = '<div style="color:#888">No entries yet. Fuse some modules!</div>'; return; }
+    entries.slice(-10).reverse().forEach(e => {
+      const d = document.createElement('div');
+      d.className = 'scripture';
+      d.textContent = `[ID ${e.id}] ${e.text}`;
+      log.appendChild(d);
+    });
+  } catch(e) { document.getElementById('journalLog').innerHTML = '<div style="color:#888">Journal not available</div>'; }
+}
+
+// Auto-refresh
+loadStatus();
+loadTopology();
+loadJournal();
+setInterval(() => { loadStatus(); loadTopology(); }, 5000);
+</script>
+</body>
+</html>

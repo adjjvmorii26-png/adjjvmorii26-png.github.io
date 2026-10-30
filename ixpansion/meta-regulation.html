@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta-Regulation — IXPANSION</title>
+<style>
+:root{--bg:#0a0a14;--fg:#e0e0e8;--muted:#6b6b80;--cyan:#41b3a3;--magenta:#c063e8;--card:#14142a;--border:#2a2a44;--green:#41d3a3;--amber:#ffcc66;--red:#e05a5a;--purple:#a366ff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--fg);padding:20px}
+.header{text-align:center;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:16px}
+h1{font-size:2em;background:linear-gradient(135deg,var(--purple),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--muted);margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1400px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card h2{color:var(--purple);font-size:1.1em;margin-bottom:12px}
+.metric{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222}
+.metric:last-child{border-bottom:none}
+.label{color:var(--muted)}
+.value{color:var(--cyan);font-weight:bold}
+.genome-bar{height:10px;border-radius:5px;background:#333;overflow:hidden;margin:4px 0}
+.genome-fill{height:100%;border-radius:5px;transition:width 0.3s}
+.btn{background:var(--purple);border:none;color:#fff;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;margin:4px}
+.btn:hover{opacity:0.9}
+.btn.secondary{background:var(--cyan);color:#0a0a14}
+.interference{padding:8px;background:#2a1a1a;border:1px solid var(--red);border-radius:6px;margin:4px 0;font-size:0.85em}
+.mode-badge{display:inline-block;padding:2px 8px;border-radius:12px;font-size:0.8em;font-weight:bold}
+.exploration{background:var(--green);color:#0a0a14}
+.healing{background:var(--cyan);color:#0a0a14}
+.mutation{background:var(--amber);color:#0a0a14}
+.consolidation{background:var(--purple);color:#fff}
+.dreaming{background:var(--magenta);color:#fff}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🧬 Meta-Regulation</h1>
+  <p class="sub">Genome evolution, mode prediction, interference detection</p>
+  <span class="mode-badge" id="mode-badge" style="background:var(--cyan)">healing</span>
+  <span class="badge" id="cycles">cycles: 0</span>
+  <span class="badge" id="prediction" style="background:#2a2a44;color:var(--amber);padding:4px 12px;border-radius:12px">pred: healing (0%)</span>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>🧬 Regulatory Genome</h2>
+    <div id="genome">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h2>🎯 Homeostatic Setpoints</h2>
+    <div id="setpoints">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h2>🔮 Prediction</h2>
+    <div id="prediction-detail">Run assessment to see prediction</div>
+  </div>
+
+  <div class="card">
+    <h2>⚠️ Interference</h2>
+    <div id="interference">No interference detected</div>
+  </div>
+
+  <div class="card">
+    <h2>🎮 Controls</h2>
+    <button class="btn secondary" onclick="assess()">▶ Assess (simulate)</button>
+    <button class="btn" onclick="mutate()">🧬 Mutate Genome</button>
+    <button class="btn" onclick="predict()">🔮 Predict Next</button>
+    <div id="action-result" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>📜 Recent Transitions</h2>
+    <div id="history">No history</div>
+  </div>
+</div>
+
+<script>
+const HOST='';
+async function api(action){
+  const r = await fetch(HOST+'/api/meta_regulation?action='+action);
+  return r.json();
+}
+function badgeClass(mode){
+  return mode.toLowerCase().replace(' ','-');
+}
+async function refresh(){
+  const s = await api('status');
+  document.getElementById('mode-badge').textContent = s.current_mode;
+  document.getElementById('mode-badge').className = 'mode-badge ' + badgeClass(s.current_mode);
+  document.getElementById('cycles').textContent = 'cycles: '+s.cycles;
+  document.getElementById('prediction').textContent = 'pred: '+s.predicted_mode+' ('+Math.round(s.prediction_confidence*100)+'%)';
+
+  const g = s.genome || {};
+  document.getElementById('genome').innerHTML = Object.entries(g).map(([k,v]) =>
+    `<div><span class="label">${k}</span>
+     <div class="genome-bar"><div class="genome-fill" style="width:${v*100}%;background:${k==='adaptability'?'var(--green)':k==='stability'?'var(--cyan)':'var(--amber)'}"></div></div>
+     <span class="value">${v}</span></div>`).join('');
+
+  const sp = s.setpoints || {};
+  document.getElementById('setpoints').innerHTML = Object.entries(sp).map(([k,v]) =>
+    `<div class="metric"><span class="label">${k}</span><span class="value">${v}</span></div>`).join('');
+
+  if(s.interferences && s.interferences.length){
+    document.getElementById('interference').innerHTML = s.interferences.map(i =>
+      `<div class="interference">${i.type}: ${i.pattern||i.mode||''} <span style="color:var(--red)">${i.severity}</span></div>`).join('');
+  } else {
+    document.getElementById('interference').textContent = 'No interference detected';
+  }
+
+  if(s.recent_transitions && s.recent_transitions.length){
+    document.getElementById('history').innerHTML = s.recent_transitions.slice().reverse().map(t =>
+      `<div class="metric"><span class="label">${t.from} → ${t.to}</span><span class="value">coh:${t.avg_coherence}</span></div>`).join('');
+  }
+}
+async function assess(){
+  // Simulate different coherence scenarios
+  const scenarios = [
+    {avg_coherence: 0.9, variance: 0.01},  // exploration
+    {avg_coherence: 0.3, variance: 0.01},  // healing
+    {avg_coherence: 0.6, variance: 0.5},   // mutation
+  ];
+  const c = scenarios[Math.floor(Math.random()*scenarios.length)];
+  const r = await fetch(HOST+'/api/meta_regulation?action=assess', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({coherence: c})
+  });
+  const d = await r.json();
+  document.getElementById('action-result').innerHTML =
+    `<div class="metric"><span class="label">Mode</span><span class="value">${d.mode}</span></div>
+     <div class="metric"><span class="label">Changed</span><span class="value">${d.mode_changed?'Yes':'No'}</span></div>`;
+  await refresh();
+}
+async function predict(){
+  const r = await api('predict');
+  document.getElementById('prediction-detail').innerHTML =
+    `<div class="metric"><span class="label">Next Mode</span><span class="value">${r.predicted}</span></div>
+     <div class="metric"><span class="label">Confidence</span><span class="value">${Math.round(r.confidence*100)}%</span></div>`;
+}
+async function mutate(){
+  const r = await fetch(HOST+'/api/meta_regulation?action=mutate_genome', {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({rate: 0.1})
+  });
+  const d = await r.json();
+  document.getElementById('action-result').innerHTML =
+    `<div class="metric"><span class="label">Mutated</span><span class="value">adapt: ${d.genome.adaptability}</span></div>`;
+  await refresh();
+}
+refresh();
+setInterval(refresh, 10000);
+</script>
+</body>
+</html>

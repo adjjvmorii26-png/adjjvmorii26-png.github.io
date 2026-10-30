@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organism Census — Full Module Map</title>
+<style>
+  :root{--bg:#040410;--s:rgba(8,8,20,0.96);--g:rgba(255,255,255,0.03);--b:rgba(255,255,255,0.05);--t:#9898b0;--m:#3e3e58;--ac:#7c7cf8;--te:#2dd4bf;--am:#fbbf24;--ro:#fb7185;--cy:#22d3ee;--gn:#4ade80;--gd:#f59e0b;--dn:#ef4444;--vi:#a78bfa}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+  .hd{text-align:center;padding:20px 20px 10px;border-bottom:1px solid var(--b)}
+  .hd h1{font-size:1.3em;color:#fff;letter-spacing:2px}
+  .hd h1 span{color:var(--vi)}
+  .sub{color:var(--m);font-size:0.7em;margin-top:3px}
+  .bdg{display:inline-block;background:linear-gradient(135deg,var(--vi),var(--te));color:#fff;padding:3px 10px;border-radius:12px;font-size:0.6em;font-weight:700;margin-top:5px}
+  .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;padding:12px;max-width:1500px;margin:0 auto}
+  .c{background:var(--s);border:1px solid var(--b);border-radius:8px;overflow:hidden}
+  .ch{padding:8px 12px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px}
+  .ic{width:24px;height:24px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:0.8em}
+  .ct{font-size:0.75em;font-weight:600;color:#fff}
+  .cs{font-size:0.58em;color:var(--m);margin-top:1px}
+  .cb{padding:8px 12px}
+  .br{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+  .b{background:var(--g);border:1px solid var(--b);color:var(--t);padding:3px 8px;border-radius:4px;font-size:0.62em;font-family:inherit;cursor:pointer;transition:all .15s}
+  .b:hover{background:rgba(167,139,250,0.1);border-color:var(--vi);color:#fff}
+  .b.p{background:rgba(167,139,250,0.12);border-color:var(--vi);color:var(--vi)}
+  .o{background:rgba(0,0,0,0.35);border:1px solid var(--b);border-radius:5px;padding:6px 8px;font-size:0.58em;color:var(--m);max-height:180px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.35}
+  .o .hl{color:var(--vi)} .o .w{color:var(--am)} .o .g{color:var(--gn)} .o .c{color:var(--cy)} .o .te{color:var(--te)} .o .d{color:var(--dn)} .o .r{color:var(--ro)} .o .gd{color:var(--gd)}
+  .full{grid-column:1/-1}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:6px;margin:8px 0}
+  .stat-box{padding:8px;border-radius:6px;text-align:center;border:1px solid var(--b)}
+  .stat-num{font-size:1.4em;font-weight:700;color:#fff}
+  .stat-label{font-size:0.6em;color:var(--m);margin-top:2px}
+  .layer-bar{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:0.6em}
+  .layer-name{min-width:90px;color:var(--m)}
+  .layer-fill-bg{flex:1;height:6px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden}
+  .layer-fill{height:100%;border-radius:3px}
+  .layer-count{min-width:30px;text-align:right;color:#fff}
+  .module-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:4px;margin:6px 0;max-height:200px;overflow-y:auto}
+  .module-chip{padding:4px 6px;border-radius:4px;font-size:0.55em;border:1px solid var(--b);cursor:pointer;transition:all .15s;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .module-chip:hover{border-color:var(--vi);color:#fff}
+  .module-chip.active{border-color:var(--gn);color:var(--gn)}
+  .module-chip.dormant{border-color:var(--m);color:var(--m);opacity:0.5}
+  canvas{border-radius:7px;background:rgba(0,0,0,0.3)}
+  .sb{display:flex;justify-content:center;gap:14px;padding:8px;border-top:1px solid var(--b);font-size:0.52em;color:var(--m);position:fixed;bottom:0;left:0;right:0;background:var(--bg)}
+  .dl{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gn);margin-right:3px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>Organism <span>Census</span></h1>
+  <div class="sub">Full module inventory — vitals, layers, connections</div>
+  <div class="bdg">LIVE CENSUS</div>
+</div>
+<div class="g">
+  <!-- VITALS OVERVIEW -->
+  <div class="c full">
+    <div class="ch"><div class="ic" style="background:rgba(74,222,128,0.12);color:var(--gn)">◉</div><div><div class="ct">Vitals Overview</div><div class="cs">Total organism health snapshot</div></div></div>
+    <div class="cb">
+      <div class="stat-grid" id="statsGrid"></div>
+      <canvas id="healthCanvas" style="width:100%;height:100px;margin:8px 0"></canvas>
+      <div class="br"><button class="b p" onclick="takeCensus()">◉ Census</button><button class="b" onclick="history()">📊 History</button></div>
+      <div id="censusOut" class="o">Taking census...</div>
+    </div>
+  </div>
+  <!-- LAYER DISTRIBUTION -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(124,124,248,0.12);color:var(--ac)">📊</div><div><div class="ct">Layer Distribution</div><div class="cs">Module counts by system layer</div></div></div>
+    <div class="cb" id="layerPanel"></div>
+  </div>
+  <!-- EXPERIMENTAL: RITUAL + COURT + BOOTSTRAP -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(251,113,133,0.12);color:var(--ro)">ritual</div><div><div class="ct">Entropic Rituals</div><div class="cs">Planned mutations</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="ritualInit()">ritual Initiate</button><button class="b" onclick="ritualHistory()">ritual History</button></div>
+      <div id="ritualOut" class="o">Awaiting ritual...</div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(245,158,11,0.12);color:var(--gd)">⚖</div><div><div class="ct">Memory Court</div><div class="cs">Paradox resolution</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="courtCase()">⚖ Hear Case</button><button class="b" onclick="courtDocket()">📜 Docket</button></div>
+      <div id="courtOut" class="o">The court prepares...</div>
+    </div>
+  </div>
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(34,211,238,0.12);color:var(--cy)">🌿</div><div><div class="ct">Auto-Bootstrap</div><div class="cs">The organism births new modules</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="bootstrapSpawn()">🌿 Spawn</button><button class="b" onclick="bootstrapLineage()">🧬 Lineage</button></div>
+      <div id="bootOut" class="o">Awaiting spawn...</div>
+    </div>
+  </div>
+  <!-- MODULE MAP -->
+  <div class="c full">
+    <div class="ch"><div class="ic" style="background:rgba(167,139,250,0.12);color:var(--vi)">🗺</div><div><div class="ct">Module Map</div><div class="cs">All modules in the organism</div></div></div>
+    <div class="cb">
+      <div class="module-grid" id="moduleGrid"></div>
+    </div>
+  </div>
+</div>
+<div class="sb"><span><span class="dl"></span>CENSUS ACTIVE</span><span id="modCount">— MODULES</span><span id="clock"></span><span>IXPANSION ORGANISM</span></div>
+<script>
+function fmt(o){return JSON.stringify(o,null,2).replace(/"([^"]+)":/g,'<span class="hl">"$1"</span>:').replace(/: "([^"]+)"/g,': "<span class="c">$1</span>"').replace(/: (\d+\.?\d*)/g,': <span class="w">$1</span>')}
+function log(el,msg){document.getElementById(el).innerHTML=msg}
+const api=async(p)=>{try{return await(await fetch(p)).json()}catch(e){return{error:e.message}}};
+const LAYER_COLORS={core:'var(--gn)',depth:'var(--ac)',temporal:'var(--cy)',pulse:'var(--ro)',creative:'var(--gd)',dream:'var(--vi)',expansion:'var(--te)',game:'var(--am)',economy:'var(--gn)',experimental:'var(--ro)',governance:'var(--cy)',mesh:'var(--ac)'};
+
+async function takeCensus(){
+  const d=await api('/api/organism_census/take');
+  const c=d.census||{};
+  document.getElementById('statsGrid').innerHTML=[
+    {num:c.total_modules||0,label:'Total Modules',color:'var(--vi)'},
+    {num:c.active||0,label:'Active',color:'var(--gn)'},
+    {num:c.dormant||0,label:'Dormant',color:'var(--m)'},
+    {num:c.avg_health,label:'Avg Health',color:'var(--te)'},
+    {num:c.avg_resonance,label:'Avg Resonance',color:'var(--am)'},
+  ].map(s=>`<div class="stat-box"><div class="stat-num" style="color:${s.color}">${s.num}</div><div class="stat-label">${s.label}</div></div>`).join('');
+  document.getElementById('modCount').textContent=`${c.total_modules||0} MODULES`;
+  // Layer bars
+  const lp=document.getElementById('layerPanel');
+  lp.innerHTML='';
+  const maxCount=Math.max(...Object.values(c.layer_distribution||{}));
+  Object.entries(c.layer_distribution||{}).sort((a,b)=>b[1]-a[1]).forEach(([layer,count])=>{
+    const col=LAYER_COLORS[layer]||'var(--ac)';
+    lp.innerHTML+=`<div class="layer-bar"><span class="layer-name">${layer}</span><div class="layer-fill-bg"><div class="layer-fill" style="width:${(count/maxCount)*100}%;background:${col}"></div></div><span class="layer-count">${count}</span></div>`;
+  });
+  // Module grid
+  const mg=document.getElementById('moduleGrid');
+  mg.innerHTML='';
+  (c.modules||[]).forEach(m=>{
+    const chip=document.createElement('div');
+    chip.className='module-chip '+m.status;
+    chip.style.borderColor=LAYER_COLORS[m.layer]||'var(--ac)';
+    chip.textContent=m.name.replace(/_/g,' ');
+    chip.title=`${m.name} | ${m.layer} | health:${m.health} | res:${m.resonance}`;
+    mg.appendChild(chip);
+  });
+  drawHealthCanvas(c);
+  log('censusOut',`<span class="hl">◉ CENSUS COMPLETE</span>\n\n`+`Total: <span class="c">${c.total_modules}</span> | Active: <span class="g">${c.active}</span> | Dormant: ${c.dormant}\n`+`Health: <span class="te">${c.avg_health}</span> | Resonance: <span class="w">${c.avg_resonance}</span>\n`+`Census ID: ${c.id}`);
+}
+
+function drawHealthCanvas(c){
+  const cv=document.getElementById('healthCanvas');
+  const ctx=cv.getContext('2d');
+  cv.width=cv.offsetWidth*2;cv.height=200;ctx.scale(2,2);
+  const w=cv.offsetWidth,h=100,t=Date.now()*0.002;
+  ctx.fillStyle='rgba(4,4,16,0.95)';ctx.fillRect(0,0,w,h);
+  const modules=c.modules||[];
+  modules.forEach((m,i)=>{
+    const x=(i/modules.length)*w;
+    const bh=m.health*30;
+    const col=LAYER_COLORS[m.layer]||'#7c7cf8';
+    ctx.fillStyle=col;ctx.globalAlpha=0.3+m.health*0.5;
+    ctx.fillRect(x,h-bh,w/modules.length-1,bh);
+  });
+  ctx.globalAlpha=1;
+  ctx.fillStyle='rgba(167,139,250,0.2)';ctx.font='8px monospace';
+  ctx.fillText(`health: ${c.avg_health||0} | resonance: ${c.avg_resonance||0} | ${c.total_modules||0} modules`,10,12);
+}
+
+async function history(){
+  const d=await api('/api/organism_census/history');
+  log('censusOut',`<span class="hl">📊 CENSUS HISTORY</span>\n\n`+`Total censuses: <span class="c">${d.total_censuses||0}</span>\n\n`+(d.censuses||[]).map(c=>`[${new Date(c.timestamp*1000).toISOString().slice(11,19)}] modules:${c.total} active:${c.active} health:${c.avg_health}`).join('\n'));
+}
+
+async function ritualInit(){
+  const d=await api('/api/entropic_ritual/initiate');
+  const r=d.ritual||{};
+  log('ritualOut',`<span class="hl">ritual RITUAL COMPLETE</span>\n\n`+`Name: <span class="hl">${r.name||'?'}</span>\n`+`${r.description||'?'}\n`+`Intensity: <span class="w">${r.intensity||0}</span>\n`+`Modules affected: <span class="c">${r.modules_affected||0}</span>\n`+`Effect: <span class="te">${r.effect||'?'}</span>\n\n`+`"${r.narrative||'?'}"`);
+}
+async function ritualHistory(){
+  const d=await api('/api/entropic_ritual/history');
+  log('ritualOut',`<span class="hl">ritual HISTORY</span>\n\n`+`Total: <span class="c">${d.total||0}</span>\n`+`Avg intensity: <span class="w">${d.avg_intensity||0}</span>\n\n`+fmt(d.effect_distribution||{}));
+}
+
+async function courtCase(){
+  const d=await api('/api/memory_court/hear_case');
+  const c=d.case||{};
+  log('courtOut',`<span class="hl">⚖ CASE HEARD</span>\n\n`+`ID: <span class="c">${c.id||'?'}</span>\n`+`Plaintiff: <span class="r">${c.plaintiff_module||'?'}</span>\n`+`Defendant: <span class="hl">${c.defendant_module||'?'}</span>\n`+`Conflict: <span class="w">${c.conflict_type||'?'}</span>\n\n`+`"${c.statement||'?'}"\n\n`+`Evidence:\n`+(c.evidence||[]).map(e=>`  • ${e}`).join('\n')+`\n\n`+`Doctrine: ${c.doctrine_applied||'?'}\n`+`Ruling: <span class="g">${c.ruling||'?'}</span>\n`+" "+c.ruling_text+`\nStrength: <span class="te">${c.resolution_strength||0}</span>`);
+}
+async function courtDocket(){
+  const d=await api('/api/memory_court/docket');
+  log('courtOut',`<span class="hl">📜 DOCKET</span>\n\n`+`Total: <span class="c">${d.total||0}</span>\n\n`+`Rulings:\n${fmt(d.ruling_distribution||{})}\n\n`+`Conflicts:\n${fmt(d.conflict_distribution||{})}`);
+}
+
+async function bootstrapSpawn(){
+  const d=await api('/api/organism_bootstrap/spawn');
+  const b=d.birth||{};
+  log('bootOut',`<span class="hl">🌿 MODULE BORN</span>\n\n`+`Name: <span class="hl">${b.name||'?'}</span>\n`+`${b.description||'?'}\n`+`Parents: ${(b.parent_modules||[]).join(', ')}\n`+`Health: <span class="g">${b.vitality?.health||0}</span>\n`+`Resonance: <span class="w">${b.vitality?.resonance||0}</span>\n`+`Wave: ${b.birth_wave||'?'}`);
+}
+async function bootstrapLineage(){
+  const d=await api('/api/organism_bootstrap/lineage');
+  log('bootOut',`<span class="hl">🧬 LINEAGE</span>\n\n`+`Total births: <span class="c">${d.total||0}</span>\n\n`+`Adjective frequency:\n${fmt(d.adjective_frequency||{})}`);
+}
+
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toISOString().slice(11,19)},1000);
+takeCensus();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

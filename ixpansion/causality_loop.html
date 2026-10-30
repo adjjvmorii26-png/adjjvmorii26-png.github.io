@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave 417 Causality Loop</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a1a0a; color: #a0d0a0; padding: 20px; }
+  h1 { text-align: center; color: #66ff66; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #66aa66; margin-bottom: 20px; }
+  .banner { text-align: center; background: #0a2a0a; border-radius: 14px; padding: 24px; margin-bottom: 20px; border: 1px solid #1a4a1a; }
+  .banner .loops { font-size: 2em; color: #66ff66; font-weight: bold; }
+  .banner .stability { font-size: 1.2em; margin-top: 8px; color: #66ffaa; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto 20px; }
+  .card { background: #0a2a0a; border-radius: 12px; padding: 16px; border: 1px solid #1a4a1a; }
+  .card h3 { color: #66ff66; margin-bottom: 8px; }
+  .stat { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.85em; border-bottom: 1px solid #1a4a1a; }
+  .stat .val { color: #66ff66; font-weight: bold; }
+  .chain { background: #0a1a0a; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; font-size: 0.85em; }
+  .chain .cause { color: #aaffaa; }
+  .chain .effect { color: #66ff66; }
+  .chain .recursive { color: #ffaa00; font-size: 0.75em; }
+  .btn { background: #1a4a1a; color: #66ff66; border: 1px solid #66ff66; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin: 4px; }
+  .btn:hover { background: #66ff66; color: #0a1a0a; }
+  #topologyCanvas { width: 100%; height: 250px; border: 1px solid #1a4a1a; border-radius: 8px; background: #0a1a0a; }
+</style>
+</head>
+<body>
+<h1>🔄 Wave 417 Causality Loop</h1>
+<p class="subtitle">Recursive causality chains that self-reference and evolve</p>
+<div class="banner">
+  <div class="loops">Total Loops: <span id="loops">--</span></div>
+  <div class="stability">Average Stability: <span id="stability">--</span></div>
+</div>
+<div class="grid">
+  <div class="card"><h3>🔗 Causality Chains</h3><div id="chainsContainer"></div></div>
+  <div class="card"><h3>📊 Integrity</h3><div id="integrityContainer"></div></div>
+  <div class="card"><h3>🔁 Temporal Depth</h3><div id="depthContainer"></div></div>
+</div>
+<div style="text-align:center;margin:20px 0">
+  <button class="btn" onclick="build()">🏗️ Build</button>
+  <button class="btn" onclick="chains()">🔗 Chains</button>
+  <button class="btn" onclick="stability()">📐 Stability</button>
+</div>
+<canvas id="topologyCanvas"></canvas>
+<script>
+const API='';
+async function fetchJson(p){const r=await fetch(API+p);return r.json();}
+async function load(){
+  try{
+    const c=await fetchJson('/api/causality-loop?action=build');
+    document.getElementById('loops').textContent=c.total_loops;
+    document.getElementById('stability').textContent=c.average_stability.toFixed(3);
+    document.getElementById('chainsContainer').innerHTML=c.causality_chains.map(ch=>`<div class="chain"><span class="cause">${ch.cause}</span> → <span class="effect">${ch.effect}</span> ${ch.recursive?'<span class="recursive">🔁 recursive</span>':''}</div>`).join('');
+    document.getElementById('integrityContainer').innerHTML=`<div class="stat"><span>Integrity</span><span class="val">${c.causality_integrity.toFixed(3)}</span></div><div class="stat"><span>Recursive</span><span class="val">${c.recursive_chains}</span></div>`;
+    document.getElementById('depthContainer').innerHTML=`<div class="stat"><span>Temporal Depth</span><span class="val">${c.temporal_depth}</span></div><div class="stat"><span>Loop Closed</span><span class="val">${c.loop_closed?'✅':'❌'}</span></div>`;
+    drawTopo(c);
+  }catch(e){console.error(e);}
+}
+async function build(){await fetchJson('/api/causality-loop?action=build');load();}
+async function chains(){const r=await fetchJson('/api/causality-loop?action=chains');document.getElementById('chainsContainer').innerHTML=r.chains.map(ch=>`<div class="chain"><span class="cause">${ch.cause}</span> → <span class="effect">${ch.effect}</span></div>`).join('');document.getElementById('loops').textContent=r.total;}
+async function stability(){const s=await fetchJson('/api/causality-loop?action=stability');document.getElementById('stability').textContent=s.stability.toFixed(3);document.getElementById('loops').textContent=s.loops;}
+function drawTopo(c){const canvas=document.getElementById('topologyCanvas');const ctx=canvas.getContext('2d');canvas.width=canvas.offsetWidth*2;canvas.height=canvas.offsetHeight*2;ctx.scale(2,2);const w=canvas.offsetWidth,h=canvas.offsetHeight;ctx.fillStyle='#0a1a0a';ctx.fillRect(0,0,w,h);const chains=c.causality_chains||[];if(chains.length===0)return;const cx=w/2,cy=h/2,r=Math.min(w,h)*0.35;const pos={};chains.forEach((_,i)=>{const a=(2*Math.PI*i/chains.length)-Math.PI/2;pos[i]={x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)}});ctx.strokeStyle='#1a4a1a';for(let i=0;i<chains.length;i++){ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(pos[i].x,pos[i].y);ctx.stroke();}chains.forEach((ch,i)=>{ctx.beginPath();ctx.arc(pos[i].x,pos[i].y,8,0,2*Math.PI);ctx.fillStyle=ch.recursive?'#ffaa00':'#66ff66';ctx.fill();ctx.fillStyle='#0a1a0a';ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText('C',pos[i].x,pos[i].y+3);});}
+load();setInterval(load,5000);
+</script>
+</body>
+</html>

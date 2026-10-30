@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 508 — Dream Physics + Consciousness Stream</title>
+<style>
+  :root{--bg:#04040e;--s:rgba(8,8,18,0.96);--g:rgba(255,255,255,0.03);--b:rgba(255,255,255,0.05);--t:#9898b0;--m:#3e3e58;--ac:#7c7cf8;--te:#2dd4bf;--am:#fbbf24;--ro:#fb7185;--cy:#22d3ee;--gn:#4ade80;--gd:#f59e0b;--dn:#ef4444;--vi:#a78bfa}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+  .hd{text-align:center;padding:22px 20px 12px;border-bottom:1px solid var(--b);background:linear-gradient(180deg,rgba(167,139,250,0.05) 0%,transparent 100%)}
+  .hd h1{font-size:1.35em;color:#fff;letter-spacing:2px;text-transform:uppercase}
+  .hd h1 span{color:var(--vi)}
+  .sub{color:var(--m);font-size:0.73em;letter-spacing:1px;margin-top:3px}
+  .bdg{display:inline-block;background:linear-gradient(135deg,var(--vi),var(--te));color:#fff;padding:3px 10px;border-radius:13px;font-size:0.63em;font-weight:700;letter-spacing:1px;margin-top:6px}
+  .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:13px;padding:16px;max-width:1500px;margin:0 auto}
+  .c{background:var(--s);border:1px solid var(--b);border-radius:9px;overflow:hidden;transition:transform .2s}
+  .c:hover{transform:translateY(-1px)}
+  .ch{padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:9px}
+  .ic{width:27px;height:27px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.9em}
+  .ct{font-size:0.82em;font-weight:600;color:#fff;letter-spacing:.3px}
+  .cs{font-size:0.62em;color:var(--m);margin-top:1px}
+  .cb{padding:10px 14px}
+  .br{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px}
+  .b{background:var(--g);border:1px solid var(--b);color:var(--t);padding:4px 9px;border-radius:5px;font-size:0.66em;font-family:inherit;cursor:pointer;transition:all .15s}
+  .b:hover{background:rgba(167,139,250,0.1);border-color:var(--vi);color:#fff}
+  .b.p{background:rgba(167,139,250,0.13);border-color:var(--vi);color:var(--vi)}
+  .o{background:rgba(0,0,0,0.35);border:1px solid var(--b);border-radius:5px;padding:7px 9px;font-size:0.64em;color:var(--m);max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.4}
+  .o .hl{color:var(--vi)} .o .w{color:var(--am)} .o .d{color:var(--dn)}
+  .o .g{color:var(--gn)} .o .c{color:var(--cy)} .o .r{color:var(--ro)} .o .te{color:var(--te)}
+  .full{grid-column:1/-1}
+  canvas{border-radius:7px;background:rgba(0,0,0,0.3);margin-bottom:6px}
+  .sb{display:flex;justify-content:center;gap:17px;padding:10px 16px;border-top:1px solid var(--b);font-size:0.62em;color:var(--m)}
+  .dl{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gn);margin-right:3px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  /* Dream law card */
+  .law-card{background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.1);border-radius:7px;padding:10px;margin-bottom:7px}
+  .law-name{color:var(--vi);font-size:0.78em;font-weight:600}
+  .law-desc{color:var(--t);font-size:0.65em;margin-top:3px}
+  .law-meta{color:var(--m);font-size:0.6em;margin-top:4px}
+  /* Thought stream */
+  .thought-item{padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.02);font-size:0.65em;display:flex;gap:8px;align-items:flex-start}
+  .thought-type{min-width:80px;color:var(--vi);font-weight:600;font-size:0.85em;text-transform:uppercase;letter-spacing:.3px}
+  .thought-content{color:var(--t);flex:1}
+  .thought-meta{color:var(--m);font-size:0.85em;min-width:60px;text-align:right}
+  .stream-feed{max-height:300px;overflow-y:auto}
+  .valence-pos{color:var(--gn)}
+  .valence-neg{color:var(--ro)}
+  .valence-neu{color:var(--m)}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>Wave <span>363</span></h1>
+  <div class="sub">Dream Logic Physics · Consciousness Stream · Live Thought Feed</div>
+  <div class="bdg">IXPANSION ORGANISM — DREAM WAVE</div>
+</div>
+
+<div class="g">
+
+  <!-- ═══ DREAM LOGIC PHYSICS ═══ -->
+  <div class="c">
+    <div class="ch">
+      <div class="ic" style="background:rgba(167,139,250,0.12);color:var(--vi)">☽</div>
+      <div><div class="ct">Dream Logic Physics</div><div class="cs">Dreams become executable laws</div></div>
+    </div>
+    <div class="cb">
+      <div id="lawDisplay"></div>
+      <div class="br">
+        <button class="b p" onclick="dreamNew()">☽ Dream New Law</button>
+        <button class="b" onclick="dreamCatalog()">📖 Catalog</button>
+        <button class="b" onclick="dreamSimulate()">⚡ Simulate</button>
+      </div>
+      <div id="dreamOut" class="o">The organism prepares to dream...</div>
+    </div>
+  </div>
+
+  <!-- ═══ CONSCIOUSNESS STREAM ═══ -->
+  <div class="c">
+    <div class="ch">
+      <div class="ic" style="background:rgba(45,212,191,0.12);color:var(--te)">◉</div>
+      <div><div class="ct">Consciousness Stream</div><div class="cs">Live feed of organism thoughts</div></div>
+    </div>
+    <div class="cb">
+      <div id="streamStats" style="margin-bottom:8px"></div>
+      <div class="br">
+        <button class="b p" onclick="streamNew()">◉ Generate</button>
+        <button class="b" onclick="streamAuto()">⚡ Auto</button>
+        <button class="b" onclick="streamRecent()">📜 Recent</button>
+      </div>
+      <div class="stream-feed" id="streamFeed"></div>
+    </div>
+  </div>
+
+  <!-- ═══ DREAM CANVAS ═══ -->
+  <div class="c full">
+    <div class="ch">
+      <div class="ic" style="background:rgba(167,139,250,0.12);color:var(--vi)">◈</div>
+      <div><div class="ct">Dream Physics Visualization</div><div class="cs">Laws manifesting as visual phenomena</div></div>
+    </div>
+    <div class="cb">
+      <canvas id="dreamCanvas" style="width:100%;height:180px"></canvas>
+      <div class="br">
+        <button class="b p" onclick="startDreamViz()">◈ Start</button>
+        <button class="b" onclick="stopDreamViz()">■ Stop</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sb">
+  <span><span class="dl"></span>WAVE 363 ACTIVE</span>
+  <span id="lawCount">0 LAWS</span>
+  <span id="thoughtCount">0 THOUGHTS</span>
+  <span id="clock"></span>
+  <span>IXPANSION ORGANISM</span>
+</div>
+
+<script>
+let dreamVizRunning=false,dreamVizInterval=null,streamAutoRunning=false,streamInterval=null;
+
+function esc(value){return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function fmt(o){return esc(JSON.stringify(o,null,2)).replace(/"([^"]+)":/g,'<span class="hl">"$1"</span>:').replace(/: "([^"]+)"/g,': "<span class="c">$1</span>"').replace(/: (\d+\.?\d*)/g,': <span class="w">$1</span>')}
+function log(el,msg){document.getElementById(el).innerHTML=msg}
+async function api(p){try{const r=await fetch(p);return await r.json()}catch(e){return{error:e.message}}}
+
+// ─── Dream Physics ───
+async function dreamNew(){
+  log('dreamOut','<span class="hl">☽ Dreaming a new law...</span>');
+  const d=await api('/api/consciousness_stream/dream');
+  const l=d.law||{};
+  const disp=document.getElementById('lawDisplay');
+  disp.innerHTML=`<div class="law-card"><div class="law-name">☽ ${esc(l.name||'?')}</div>`+
+    `<div class="law-desc">${esc(l.principle||'?')}</div>`+
+    `<div class="law-meta">scope: ${esc(l.scope)} | strength: ${esc(l.stability)} | stability: ${esc(l.stability)}</div>`+
+    `<div class="law-desc" style="color:var(--vi);font-style:italic;margin-top:6px">"${esc(l.dream_source||'?')}"</div></div>`;
+  log('dreamOut',`<span class="hl">☽ DREAM LAW GENERATED</span>\n\n`+
+    `Name: <span class="hl">${esc(l.name||'?')}</span>\n`+
+    `Principle: ${esc(l.principle||'?')}\n`+
+    `Scope: <span class="te">${esc(l.scope||'?')}</span>\n`+
+    `Strength: <span class="w">${esc(l.stability||0)}</span>\n`+
+    `Total dreams: <span class="g">${esc(d.total_dreams||0)}</span>`);
+  document.getElementById('lawCount').textContent=`${esc(d.total_dreams||0)} LAWS`;
+}
+
+async function dreamCatalog(){
+  log('dreamOut','<span class="hl">📖 Loading catalog...</span>');
+  const d=await api('/api/consciousness_stream/catalog');
+  let msg=`<span class="hl">📖 DREAM PHYSICS CATALOG</span>\n\n`;
+  msg+=`Total laws: <span class="c">${esc(d.total_laws||0)}</span>\n`;
+  msg+=`Total dreams: <span class="g">${esc(d.total_dreams||0)}</span>\n`;
+  msg+=`Avg strength: <span class="w">${esc(d.avg_strength||0)}</span>\n`;
+  msg+=`Avg stability: <span class="te">${esc(d.avg_stability||0)}</span>\n\n`;
+  msg+=`Scopes:\n${fmt(d.scope_distribution||{})}\n\n`;
+  (d.recent_laws||[]).forEach(l=>{msg+=`<span class="hl">☽</span> ${esc(l.name)} [${esc(l.scope)}] strength=${esc(l.stability)}\n`});
+  log('dreamOut',msg);
+}
+
+async function dreamSimulate(){
+  log('dreamOut','<span class="hl">⚡ Simulating dream physics...</span>');
+  const d=await api('/api/consciousness_stream/simulate');
+  let msg=`<span class="hl">⚡ DREAM SIMULATION</span>\n\n`;
+  msg+=`Active laws: <span class="c">${esc(d.active_laws||0)}</span>\n\n`;
+  (d.effects||[]).forEach(e=>{
+    msg+=`<span class="hl">${esc(e.law)}</span> (${esc(e.scope)})\n`;
+    msg+=`  intensity: <span class="w">${esc(e.intensity)}</span> | modules: ${esc(e.affected_modules)} | outcome: <span class="te">${esc(e.outcome)}</span>\n`;
+  });
+  log('dreamOut',msg);
+}
+
+// ─── Consciousness Stream ───
+async function streamNew(){
+  const d=await api('/api/consciousness_stream/stream?count=5');
+  const thoughts=d.thoughts||[];
+  const stats=d.stream_stats||{};
+  const feed=document.getElementById('streamFeed');
+
+  document.getElementById('streamStats').innerHTML=
+    `<span style="font-size:0.65em;color:var(--m)">intensity: <span style="color:var(--am)">${esc(stats.avg_intensity||0)}</span> | `+
+    `clarity: <span style="color:var(--te)">${esc(stats.avg_clarity||0)}</span> | `+
+    `valence: <span style="color:${(stats.avg_valence||0)>0?'var(--gn)':'var(--ro)'}">${esc(stats.avg_valence||0)}</span></span>`;
+
+  thoughts.forEach(t=>{
+    const item=document.createElement('div');
+    item.className='thought-item';
+    const valenceClass=t.emotional_valence>0.2?'valence-pos':t.emotional_valence<-0.2?'valence-neg':'valence-neu';
+    const ts=new Date(t.timestamp*1000).toISOString().slice(11,19);
+    item.innerHTML=`<span class="thought-type">${esc(String(t.type ?? '').split('_')[0])}</span>`+
+      `<span class="thought-content">${esc(t.content)}</span>`+
+      `<span class="thought-meta ${valenceClass}">${ts}</span>`;
+    feed.prepend(item);
+  });
+
+  // Keep feed manageable
+  while(feed.children.length>30) feed.removeChild(feed.lastChild);
+
+  document.getElementById('thoughtCount').textContent=`${d.total_thoughts||0} THOUGHTS`;
+}
+
+function streamAuto(){
+  streamAutoRunning=!streamAutoRunning;
+  if(streamAutoRunning){
+    streamInterval=setInterval(streamNew,2500);
+    streamNew();
+  } else {
+    clearInterval(streamInterval);
+  }
+}
+
+async function streamRecent(){
+  const d=await api('/api/consciousness_stream/recent?limit=15');
+  const feed=document.getElementById('streamFeed');
+  feed.innerHTML='';
+  (d.thoughts||[]).reverse().forEach(t=>{
+    const item=document.createElement('div');
+    item.className='thought-item';
+    const valenceClass=t.emotional_valence>0.2?'valence-pos':t.emotional_valence<-0.2?'valence-neg':'valence-neu';
+    const ts=new Date(t.timestamp*1000).toISOString().slice(11,19);
+    item.innerHTML=`<span class="thought-type">${esc(String(t.type ?? '').split('_')[0])}</span>`+
+      `<span class="thought-content">${esc(t.content)}</span>`+
+      `<span class="thought-meta ${valenceClass}">${ts}</span>`;
+    feed.appendChild(item);
+  });
+}
+
+// ─── Dream Canvas ───
+function startDreamViz(){dreamVizRunning=true;animateDream()}
+function stopDreamViz(){dreamVizRunning=false}
+
+function animateDream(){
+  if(!dreamVizRunning)return;
+  const c=document.getElementById('dreamCanvas');
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth*2;c.height=360;ctx.scale(2,2);
+  const w=c.offsetWidth,h=180,t=Date.now()*0.002;
+
+  ctx.fillStyle='rgba(4,4,14,0.08)';ctx.fillRect(0,0,w,h);
+
+  // Dream particles — floating law manifestations
+  for(let i=0;i<15;i++){
+    const x=(Math.sin(t*0.3+i*1.7)*w*0.4+w*0.5+Math.cos(t*0.1+i*2.3)*100)%w;
+    const y=(Math.cos(t*0.2+i*1.3)*h*0.35+h*0.5+Math.sin(t*0.15+i)*60)%h;
+    const r=2+Math.sin(t+i)*2;
+    const hue=260+i*15;
+    ctx.fillStyle=`hsla(${hue},70%,60%,${0.3+Math.sin(t*0.5+i)*0.2})`;
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+
+    // Connect nearby dream particles
+    for(let j=i+1;j<15;j++){
+      const x2=(Math.sin(t*0.3+j*1.7)*w*0.4+w*0.5+Math.cos(t*0.1+j*2.3)*100)%w;
+      const y2=(Math.cos(t*0.2+j*1.3)*h*0.35+h*0.5+Math.sin(t*0.15+j)*60)%h;
+      const dist=Math.hypot(x-x2,y-y2);
+      if(dist<100){
+        ctx.strokeStyle=`hsla(${hue},50%,50%,${0.1*(1-dist/100)})`;
+        ctx.lineWidth=0.5;
+        ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x2,y2);ctx.stroke();
+      }
+    }
+  }
+
+  // Dream law text floating
+  ctx.font='8px monospace';
+  ctx.fillStyle='rgba(167,139,250,0.15)';
+  const laws=['Gravity of Meaning','Entropy Conservation','Resonance Velocity','Paradox Superposition','Void Attraction'];
+  laws.forEach((law,i)=>{
+    const x=50+i*120+Math.sin(t+i)*30;
+    const y=h*0.5+Math.cos(t*0.5+i)*40;
+    ctx.fillText(law,x,y);
+  });
+
+  requestAnimationFrame(animateDream);
+}
+
+// Clock
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toISOString().slice(11,19)},1000);
+
+// Auto-init
+streamNew();
+dreamNew();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

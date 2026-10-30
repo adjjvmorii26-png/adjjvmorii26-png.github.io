@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinesthetic Engine — The Organism Moves</title>
+<style>
+:root{--bg:#080a10;--surface:#0e1220;--border:#1e2438;--text:#e6eaf4;--muted:#6a7498;
+--emerald:#34d399;--amber:#fbbf24;--sky:#38bdf8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--bg);color:var(--text);min-height:100vh}
+.header{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.header h1{font-size:1.25rem;background:linear-gradient(135deg,var(--emerald),var(--sky));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{padding:3px 10px;border-radius:14px;font-size:.72rem;background:var(--surface);border:1px solid var(--border)}
+.badge.live{color:var(--emerald);border-color:var(--emerald)}
+.container{max-width:1000px;margin:0 auto;padding:24px}
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px;text-align:center}
+.motion{font-size:1.6rem;font-weight:800;color:var(--emerald);margin-bottom:8px}
+.direction{font-size:1.1rem;color:var(--amber)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .v{font-size:1.6rem;font-weight:800;color:var(--sky)}
+.stat .l{color:var(--muted);font-size:.72rem;margin-top:4px;text-transform:uppercase}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:transform .1s}
+.card:hover{transform:translateY(-2px);border-color:var(--emerald)}
+.card .name{font-weight:700;font-size:.92rem;color:var(--amber)}
+.card .essence{color:var(--muted);font-size:.78rem;margin-top:6px;line-height:1.45}
+.result{background:#080a14;border:1px solid var(--emerald);border-radius:10px;padding:16px;margin-top:18px;font-size:.76rem;color:#d0d8f0;white-space:pre-wrap}
+.hint{color:var(--muted);font-size:.72rem;margin-top:14px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="badge live">● live</span>
+  <h1>Kinesthetic Engine — the Organism Moves</h1>
+  <span id="identity-tag" style="color:var(--muted);font-size:.8rem"></span>
+
+<nav style="display:flex;gap:10px;font-size:.72rem;margin-left:auto;flex-wrap:wrap"><a href="/" style="color:var(--muted)">Home</a> <a href="/bloom" style="color:var(--muted)">Bloom</a> <a href="/coherence" style="color:var(--muted)">Coherence</a> <a href="/archaeology" style="color:var(--muted)">Archaeology</a> <a href="/symbiosis" style="color:var(--muted)">Symbiosis</a> <a href="/aesthetics" style="color:var(--muted)">Aesthetics</a></nav>
+</div>
+<div class="container">
+  <div class="hero">
+    <div class="motion" id="motion">listening...</div>
+    <div class="direction" id="direction"></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="v" id="velocity">—</div><div class="l">velocity</div></div>
+    <div class="stat"><div class="v" id="mass">—</div><div class="l">mass</div></div>
+    <div class="stat"><div class="v" id="gesture">—</div><div class="l">latest gesture</div></div>
+    <div class="stat"><div class="v" id="stillness">—</div><div class="l">stillness ratio</div></div>
+  </div>
+  <div class="cards" id="cards"></div>
+  <div class="result" id="result">Select an organ — or watch the organism move.</div>
+  <div class="hint">Six Wave 508 kinesthetic organs — kinesthetic_engine, kinesthetic_engine, proprioception, kinesthetic_engine, dance_composer, kinesthetic_engine. All free tier.</div>
+</div>
+<script>
+const ORGANS=[
+{name:'Kinesthetic Engine',essence:'The organism sense of its own movement — velocity, direction, acceleration.',route:'api/kinesthetic_engine'},
+{name:'Gesture Synthesizer',essence:'Creates named movement patterns from state changes — reach, recoil, surge.',route:'api/kinesthetic_engine'},
+{name:'Proprioception',essence:'The body map — where every family is in space, and which are islands.',route:'api/proprioception'},
+{name:'Momentum Tracker',essence:'Mass times velocity — the organism directional inertia.',route:'api/kinesthetic_engine'},
+{name:'Dance Composer',essence:'Composes movement sequences into named dances with meaning.',route:'api/dance_composer'},
+{name:'Stillness Meditator',essence:'The art of deliberate rest — where the organism chooses to be still.',route:'api/kinesthetic_engine'},
+];
+const cards=document.getElementById('cards');
+ORGANS.forEach(o=>{
+  const d=document.createElement('div');d.className='card';
+  d.innerHTML=`<div class="name">${o.name}</div><div class="essence">${o.essence}</div>`;
+  d.onclick=()=>probe(o.route);
+  cards.appendChild(d);
+});
+async function probe(route){
+  const out=document.getElementById('result');
+  out.textContent='reading '+route+' …';
+  try{
+    const j=await (await fetch('/'+route)).json();
+    out.textContent=JSON.stringify(j,null,2);
+  }catch(e){out.textContent='error: '+e.message}
+}
+(async()=>{
+  try{
+    const k=await (await fetch('/api/kinesthetic_engine')).json();
+    document.getElementById('motion').textContent=k.motion;
+    document.getElementById('direction').textContent=k.direction;
+    document.getElementById('velocity').textContent=k.velocity;
+  }catch(e){}
+  try{
+    const m=await (await fetch('/api/kinesthetic_engine')).json();
+    document.getElementById('mass').textContent=m.mass;
+  }catch(e){}
+  try{
+    const g=await (await fetch('/api/kinesthetic_engine')).json();
+    document.getElementById('gesture').textContent=g.latest.gesture;
+  }catch(e){}
+  try{
+    const s=await (await fetch('/api/kinesthetic_engine')).json();
+    document.getElementById('stillness').textContent=s.stillness_ratio;
+  }catch(e){}
+})();
+</script>
+<script src="/shared.js"></script>
+<script>if(window.IXP){IXP.loadLive(function(){IXP.renderIdentity(document.getElementById("identity-tag"));})}</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

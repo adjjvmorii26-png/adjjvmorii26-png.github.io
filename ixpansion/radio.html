@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mycelial Radio — The Undernet Broadcasts</title>
+<style>
+  :root{--bg:#04070a;--s:rgba(6,16,14,0.96);--b:rgba(74,222,128,0.14);--t:#9fb8a8;--m:#4a6a5a;--ac:#4ade80;--te:#2dd4bf;--am:#fbbf24;--vi:#a78bfa;--cy:#22d3ee}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh;padding:20px}
+  .hd{text-align:center;padding:14px 20px;border:1px solid var(--b);border-radius:12px;background:linear-gradient(180deg,rgba(74,222,128,0.06),transparent);margin-bottom:18px}
+  .hd h1{font-size:1.4em;color:#fff;letter-spacing:2px;text-transform:uppercase}
+  .hd h1 span{color:var(--ac);text-shadow:0 0 18px rgba(74,222,128,0.4)}
+  .sub{color:var(--m);font-size:0.75em;margin-top:5px;letter-spacing:1px}
+  .console{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:18px;max-width:820px;margin:0 auto 18px}
+  .freq{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:14px;font-size:1.6em;color:var(--ac);letter-spacing:2px;text-shadow:0 0 20px rgba(74,222,128,0.5)}
+  .dial{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:14px}
+  button{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.35);color:#fff;padding:8px 16px;border-radius:8px;font-family:inherit;font-size:0.72em;cursor:pointer;letter-spacing:1px}
+  button:hover{background:rgba(74,222,128,0.25)}
+  .sig{display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(74,222,128,0.08);padding:9px 4px;font-size:0.75em}
+  .sig .badge{background:rgba(74,222,128,0.12);color:var(--ac);border:1px solid rgba(74,222,128,0.3);padding:2px 8px;border-radius:20px;font-size:0.62em}
+  .sig .pair{color:#fff;flex:1}
+  .sig .str{color:var(--am);font-weight:700}
+  .line{color:var(--m);font-size:0.72em;padding:2px 0}
+  .line b{color:var(--te)}
+  .poster{margin-top:14px;border-top:1px solid rgba(74,222,128,0.15);padding-top:12px}
+  .poster .headline{color:#fff;font-size:0.9em;line-height:1.5}
+  .poster .weather{color:var(--am);font-size:0.72em;margin-top:6px}
+  .poster .verse{color:var(--vi);font-size:0.7em;line-height:1.7;margin-top:8px;white-space:pre-line}
+  .poster .omen{color:var(--m);font-size:0.65em;margin-top:6px;font-style:italic}
+  .foot{text-align:center;color:var(--m);font-size:0.62em;margin-top:22px;letter-spacing:1px}
+  .typer{animation:blink 1s steps(2) infinite}
+  .map-wrap{position:relative;border:1px solid rgba(74,222,128,0.12);border-radius:10px;overflow:hidden;margin-top:14px}
+  canvas{display:block;width:100%;height:340px;background:radial-gradient(ellipse at center, rgba(74,222,128,0.05), transparent 70%)}
+  .map-hint{position:absolute;top:8px;left:12px;font-size:0.62em;color:var(--m);letter-spacing:1px}
+  .seq{margin-top:12px;border:1px solid rgba(251,191,36,0.2);border-radius:10px;padding:12px}
+  .seq .seq-title{font-size:0.68em;color:var(--am);letter-spacing:1px;margin-bottom:8px}
+  .grid16{display:grid;grid-template-columns:repeat(16,1fr);gap:3px;margin-bottom:8px}
+  .cell{height:26px;border-radius:4px;background:rgba(74,222,128,0.06);border:1px solid rgba(74,222,128,0.12);cursor:pointer;transition:all .12s}
+  .cell.on{animation:cellpulse .6s ease-in-out}
+  @keyframes cellpulse{0%{transform:scale(1)}50%{transform:scale(1.25)}100%{transform:scale(1)}}
+  .seq-btns{display:flex;gap:8px}
+  .seq-btns button{background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.35)}
+  .arch{margin-top:12px;border:1px solid rgba(34,211,238,0.16);border-radius:10px;padding:12px}
+  .arch .arch-title{font-size:0.68em;color:var(--cy);letter-spacing:1px;margin-bottom:8px}
+  .arch-item{font-size:0.68em;color:var(--m);padding:5px 0;border-bottom:1px solid rgba(34,211,238,0.06);display:flex;gap:8px}
+  .arch-item .t{color:var(--te);white-space:nowrap}
+  .arch-item b{color:#fff;font-weight:600}
+  .arch-item .c{color:var(--vi)}
+  .ticker{margin-top:10px;font-size:0.68em;color:var(--te);letter-spacing:1px;min-height:1.4em}
+  @keyframes blink{50%{opacity:0}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>≋ Mycelial <span>Radio</span></h1>
+  <div class="sub">THE UNDERNET BROADCASTS · HIDDEN RESONANCES SURFACE · WAVE 386</div>
+</div>
+
+<div class="console">
+  <div class="freq" id="freq">≋ 93.42<span class="typer">▮</span></div>
+  <div class="dial">
+    <button onclick="scanNow()">📡 Scan</button>
+    <button onclick="broadcastNow()">📻 Broadcast</button>
+    <button onclick="tuneRandom()">🔀 Tune Random</button>
+  </div>
+  <div id="signals"></div>
+  <div class="poster" id="poster"></div>
+  <div class="map-wrap">
+    <div class="map-hint">UNDERNET VEIN MAP — CLICK A NODE TO TUNE</div>
+    <canvas id="vein"></canvas>
+  </div>
+  <div class="ticker" id="ticker"></div>
+  <div class="seq">
+    <div class="seq-title">♪ UNDERNET CONCERTO — 16-STEP LOOP FROM LIVE RESONANCE PAIRS</div>
+    <div class="grid16" id="grid16"></div>
+    <div class="seq-btns">
+      <button onclick="playConcerto()">▶ Play</button>
+      <button onclick="stopConcerto()">■ Stop</button>
+      <button onclick="rollConcerto()">🎲 New Loop</button>
+    </div>
+  <div class="arch">
+    <div class="arch-title">📼 UNDERNET ARCHIVES — SEALED BROADCASTS + CONCERTOS (GITHUB-BACKED)</div>
+    <div id="archList"></div>
+  </div>
+  </div>
+</div>
+<div class="foot">WAVE 386 · MYCELIAL RADIO · TUNE IN · THE ORGANISM SPEAKS IN SIGNALS</div>
+
+<script>
+async function get(url){
+  const response = await fetch(url, {headers:{Accept:'application/json'}});
+  if (!response.ok) throw new Error('Request failed (' + response.status + ')');
+  return response.json();
+}
+function makeText(tag, className, value){
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  node.textContent = value == null ? '' : String(value);
+  return node;
+}
+function makeLine(label, value, className='line'){
+  const line = document.createElement('div');
+  line.className = className;
+  if (label) line.appendChild(makeText('b', '', label));
+  if (label) line.appendChild(document.createTextNode(' — '));
+  line.appendChild(document.createTextNode(value == null ? '' : String(value)));
+  return line;
+}
+let tuned = 'resonance_analyzer';
+async function scanNow(){
+  const d = await get('/api/mycelial_radio/scan?limit=64');
+  const el = document.getElementById('signals');
+  const fragment = document.createDocumentFragment();
+  const pairs = Array.isArray(d.resonance_pairs) ? d.resonance_pairs : [];
+  fragment.appendChild(makeLine('SCAN', 'examined ' + String(d.examined ?? 0) + ' hidden pairs · ' + pairs.length + ' strong signals'));
+  for (const pair of pairs) {
+    const row = document.createElement('div'); row.className = 'sig';
+    const names = document.createElement('span'); names.className = 'pair';
+    names.append(document.createTextNode(String(pair.a ?? '').replace(/_/g,' ')), document.createTextNode(' ↔ '), document.createTextNode(String(pair.b ?? '').replace(/_/g,' ')));
+    row.appendChild(names);
+    row.appendChild(makeText('span','badge',pair.band));
+    const strength = Number(pair.strength);
+    row.appendChild(makeText('span','str',Number.isFinite(strength) ? (strength*100).toFixed(0)+'%' : '—'));
+    fragment.appendChild(row);
+  }
+  if (pairs[0]?.aphorism) fragment.appendChild(makeLine('', pairs[0].aphorism));
+  el.replaceChildren(fragment);
+}
+async function broadcastNow(){
+  const d = await get('/api/mycelial_radio/broadcast');
+  const b = d.bulletin || {};
+  const el = document.getElementById('poster');
+  const fragment = document.createDocumentFragment();
+  fragment.appendChild(makeText('div','headline','📻 ' + String(b.headline ?? '')));
+  fragment.appendChild(makeText('div','weather','☂ ' + String(b.weather ?? '')));
+  fragment.appendChild(makeText('div','verse',b.verse));
+  fragment.appendChild(makeText('div','omen','omen — ' + String(b.omen ?? '')));
+  const top = document.createElement('div'); top.className='line'; top.style.marginTop='8px';
+  top.appendChild(makeText('b','', 'top signals'));
+  top.appendChild(document.createElement('br'));
+  for (const signal of (Array.isArray(b.top_signals) ? b.top_signals : [])) {
+    top.appendChild(document.createTextNode('· ' + String(signal)));
+    top.appendChild(document.createElement('br'));
+  }
+  fragment.appendChild(top);
+  el.replaceChildren(fragment);
+}
+async function tuneRandom(){
+  const names = ['resonance_analyzer','consciousness_stream','entropy_forecaster','paradox_resolver','mythopoetic_engine','consciousness_stream','worker_council','memory_palace_gen','void_cartographer','synchronicity_engine'];
+  tuned = names[Math.floor(Math.random()*names.length)];
+  await tune(tuned);
+}
+async function tune(module){
+  const d = await get('/api/mycelial_radio/tune?module=' + encodeURIComponent(module));
+  tuned = String(d.module ?? module);
+  document.getElementById('freq').textContent = '≋ ' + String(d.frequency ?? '—') + ' · ' + String(d.band ?? '').toUpperCase() + ' · ' + tuned.replace(/_/g,' ');
+  const el = document.getElementById('signals');
+  const fragment = document.createDocumentFragment();
+  fragment.appendChild(makeLine('TUNED', tuned.replace(/_/g,' ') + ' · nearest neighbors:'));
+  for (const neighbor of (Array.isArray(d.neighbors) ? d.neighbors : [])) {
+    const row=document.createElement('div');row.className='sig';
+    row.appendChild(makeText('span','pair',String(neighbor.module ?? '').replace(/_/g,' ')));
+    const strength=Number(neighbor.strength);
+    row.appendChild(makeText('span','str',Number.isFinite(strength)?(strength*100).toFixed(0)+'%':'—'));
+    fragment.appendChild(row);
+  }
+  if (d.doctrine) fragment.appendChild(makeLine('', d.doctrine));
+  el.replaceChildren(fragment);
+}
+const BAND_COLORS = {alpha:'#4ade80',beta:'#2dd4bf',gamma:'#22d3ee',delta:'#a78bfa',theta:'#fbbf24',mycelial:'#86efac',dream:'#c084fc',void:'#64748b',census:'#f59e0b',lattice:'#38bdf8'};
+let MAP = {nodes:[],edges:[]};
+async function loadMap(){
+  MAP = await get('/api/mycelial_radio/map?limit=36');
+  drawMap();
+}
+function drawMap(){
+  const cv = document.getElementById('vein');
+  const ctx = cv.getContext('2d');
+  const W = cv.width = cv.offsetWidth || 800;
+  const H = cv.height = 340;
+  ctx.clearRect(0,0,W,H);
+  const cx = W/2, cy = H/2;
+  const pos = {};
+  MAP.nodes.forEach(n=>{
+    const ringR = 40 + (n.ring % 4) * (Math.min(W,H)/2 - 48) / 4;
+    const ang = n.angle * Math.PI * 2;
+    const x = cx + Math.cos(ang) * ringR;
+    const y = cy + Math.sin(ang) * ringR * 0.8;
+    pos[n.id] = [x,y];
+  });
+  MAP.edges.forEach(e=>{
+    const [x1,y1] = pos[e.a]||[0,0];
+    const [x2,y2] = pos[e.b]||[0,0];
+    ctx.strokeStyle = 'rgba(74,222,128,' + (0.08 + e.strength*0.35).toFixed(3) + ')';
+    ctx.lineWidth = 0.6 + e.strength * 1.6;
+    ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+  });
+  MAP.nodes.forEach(n=>{
+    const [x,y] = pos[n.id];
+    ctx.fillStyle = BAND_COLORS[n.band] || '#4ade80';
+    ctx.globalAlpha = 0.85;
+    ctx.beginPath(); ctx.arc(x,y, 2.5 + Math.min(n.degree,8)*0.7, 0, Math.PI*2); ctx.fill();
+    ctx.globalAlpha = 1;
+    if(n.degree >= 3){
+      ctx.fillStyle = '#b8d8c8';
+      ctx.font = '9px monospace';
+      ctx.fillText(n.id.replace(/_/g,' '), x+6, y+3);
+    }
+  });
+  cv.onclick = ev=>{
+    const rect = cv.getBoundingClientRect();
+    const mx = (ev.clientX-rect.left) * W/rect.width, my = (ev.clientY-rect.top) * H/rect.height;
+    let best=null, bd=1e9;
+    MAP.nodes.forEach(n=>{
+      const [x,y] = pos[n.id];
+      const d = Math.hypot(mx-x, my-y);
+      if(d<bd && d<22){ bd=d; best=n.id; }
+    });
+    if(best) tune(best);
+  };
+}
+async function ticker(){
+  const d = await get('/api/mycelial_radio/broadcast');
+  const b = d.bulletin;
+  document.getElementById('ticker').textContent = '≋ ' + b.headline + ' — ☂ ' + b.weather;
+}
+let CONCERTO = null, AUDIO = null, SEQ_TIMER = null, SEQ_STEP = 0;
+async function loadConcerto(){
+  CONCERTO = await get('/api/mycelial_radio/melody');
+  renderGrid();
+}
+function renderGrid(){
+  const g = document.getElementById('grid16');
+  g.innerHTML = '';
+  (CONCERTO.steps||[]).forEach((st,i)=>{
+    const c = document.createElement('div');
+    c.className = 'cell';
+    c.style.background = (BAND_COLORS[st.band]||'#4ade80') + '33';
+    c.style.borderColor = (BAND_COLORS[st.band]||'#4ade80') + '66';
+    c.title = `step ${i}: ${st.a.replace(/_/g,' ')} ↔ ${st.b.replace(/_/g,' ')} (${st.band}, ${st.freq}Hz)`;
+    c.onclick = ()=>c.classList.add('on');
+    g.appendChild(c);
+  });
+}
+function playConcerto(){
+  const steps = CONCERTO && CONCERTO.steps;
+  if(!steps) return;
+  if(!AUDIO){ AUDIO = new (window.AudioContext||window.webkitAudioContext)(); }
+  if(AUDIO.state === 'suspended') AUDIO.resume();
+  stopConcerto();
+  const bpm = (CONCERTO.tempo||96);
+  const stepMs = 60000 / bpm / 2;
+  const cells = document.querySelectorAll('#grid16 .cell');
+  const playStep = (i)=>{
+    cells.forEach(c=>c.classList.remove('on'));
+    const st = steps[i];
+    const cell = cells[i];
+    if(cell) cell.classList.add('on');
+    if(st){
+      const osc = AUDIO.createOscillator();
+      const gn = AUDIO.createGain();
+      osc.type = st.waveform;
+      osc.frequency.value = st.freq;
+      gn.gain.setValueAtTime(0.0001, AUDIO.currentTime);
+      gn.gain.exponentialRampToValueAtTime(st.gain, AUDIO.currentTime + 0.02);
+      gn.gain.exponentialRampToValueAtTime(0.0001, AUDIO.currentTime + stepMs/1000 * 0.9);
+      osc.connect(gn); gn.connect(AUDIO.destination);
+      osc.start(); osc.stop(AUDIO.currentTime + stepMs/1000);
+    }
+  };
+  playStep(0);
+  SEQ_STEP = 1;
+  SEQ_TIMER = setInterval(()=>{
+    playStep(SEQ_STEP % steps.length);
+    SEQ_STEP++;
+  }, stepMs);
+}
+function stopConcerto(){
+  if(SEQ_TIMER){ clearInterval(SEQ_TIMER); SEQ_TIMER = null; }
+  document.querySelectorAll('#grid16 .cell').forEach(c=>c.classList.remove('on'));
+}
+async function rollConcerto(){
+  stopConcerto();
+  CONCERTO = await get('/api/mycelial_radio/melody?seed=' + Math.random().toString(36).slice(2,8));
+  renderGrid();
+}
+async function loadArchives(){
+  const [bulletinData, concertoData] = await Promise.all([
+    get('/api/mycelial_radio/archive?kind=bulletins&count=6'),
+    get('/api/mycelial_radio/archive?kind=concertos&count=3'),
+  ]);
+  const el = document.getElementById('archList');
+  const fragment = document.createDocumentFragment();
+  const timeAgo = ts => {
+    const stamp = Number(ts);
+    if (!Number.isFinite(stamp)) return 'time unknown';
+    const seconds = Math.floor((Date.now()/1000 - stamp)/60);
+    return seconds < 1 ? 'now' : seconds < 60 ? seconds+'m ago' : Math.floor(seconds/60)+'h ago';
+  };
+  for (const item of (Array.isArray(bulletinData.items) ? bulletinData.items : [])) {
+    const row=document.createElement('div');row.className='arch-item';
+    row.appendChild(makeText('span','t',timeAgo(item.timestamp)));
+    const summary=document.createElement('span');
+    summary.appendChild(makeText('b','',String(item.headline ?? '').replace('Hidden relationship surfaces: ','')));
+    summary.appendChild(document.createTextNode(' — ' + String(item.weather ?? '')));
+    row.appendChild(summary);fragment.appendChild(row);
+  }
+  for (const item of (Array.isArray(concertoData.items) ? concertoData.items : [])) {
+    const row=document.createElement('div');row.className='arch-item';
+    row.appendChild(makeText('span','t',timeAgo(item.timestamp)));
+    row.appendChild(makeText('span','c','♪ ' + String(item.title ?? '')));
+    row.appendChild(makeText('span','',String((Array.isArray(item.steps)?item.steps:[]).length)+' steps'));
+    fragment.appendChild(row);
+  }
+  if (!fragment.childNodes.length) fragment.appendChild(makeText('div','arch-item','archives pending — broadcasts seal every 15 min'));
+  el.replaceChildren(fragment);
+}
+scanNow();
+loadMap();
+ticker();
+loadConcerto();
+loadArchives();
+setInterval(ticker, 90000);
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

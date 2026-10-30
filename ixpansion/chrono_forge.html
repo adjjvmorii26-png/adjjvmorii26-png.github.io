@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave 415 Chrono-Forge</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a0a18; color: #c0c0e0; padding: 20px; }
+  h1 { text-align: center; color: #ffaa66; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #aa8866; margin-bottom: 20px; }
+  .banner { text-align: center; background: #1a1a3a; border-radius: 14px; padding: 24px; margin-bottom: 20px; border: 1px solid #3a2a1a; }
+  .banner .era { font-size: 2em; color: #ffaa66; font-weight: bold; }
+  .banner .coherence { font-size: 1.2em; color: #ff66aa; margin-top: 8px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto 20px; }
+  .card { background: #1a1a3a; border-radius: 12px; padding: 16px; border: 1px solid #3a2a1a; }
+  .card h3 { color: #ffaa66; margin-bottom: 8px; }
+  .stat { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.85em; border-bottom: 1px solid #2a2a4a; }
+  .stat .val { color: #ffaa66; font-weight: bold; }
+  .timeline { max-width: 1200px; margin: 0 auto; }
+  .timeline h2 { color: #ffaa66; margin-bottom: 12px; }
+  .event { padding: 8px 12px; background: #1a1a3a; border-radius: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border-left: 3px solid #ffaa66; }
+  .event.future { border-left-color: #66ffaa; }
+  .event .wave { color: #ffaa66; font-weight: bold; }
+  .event .status { font-size: 0.8em; padding: 2px 8px; border-radius: 6px; }
+  .status.complete { background: #1a3a1a; color: #66ff88; }
+  .status.active { background: #3a1a1a; color: #ff6666; }
+  .status.projected { background: #1a3a3a; color: #66aaff; }
+  .status.speculative { background: #2a2a2a; color: #888888; }
+  .btn { background: #3a2a1a; color: #ffaa66; border: 1px solid #ffaa66; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin: 4px; }
+  .btn:hover { background: #ffaa66; color: #0a0a18; }
+  #topologyCanvas { width: 100%; height: 250px; border: 1px solid #3a2a1a; border-radius: 8px; background: #0a0a18; }
+</style>
+</head>
+<body>
+<h1>⏳ Wave 415 Chrono-Forge</h1>
+<p class="subtitle">The temporal engine binding past, present, and future</p>
+<div class="banner">
+  <div class="era">Chrono-Forge Era</div>
+  <div class="coherence">Temporal Coherence: <span id="tc">--</span> | Causality: <span id="ci">--</span></div>
+</div>
+<div class="grid">
+  <div class="card"><h3>📊 Temporal Stats</h3><div id="statsContainer"></div></div>
+  <div class="card"><h3>🕐 Paradox & Loops</h3><div id="paradoxContainer"></div></div>
+  <div class="card"><h3>🌊 Merged Waves</h3><div id="mergedContainer"></div></div>
+</div>
+<div class="timeline">
+  <h2>🕰️ Timeline</h2>
+  <div id="timelineContainer"></div>
+</div>
+<div style="text-align:center;margin:20px 0">
+  <button class="btn" onclick="timeline()">🕰️ Timeline</button>
+  <button class="btn" onclick="merge()">🔀 Temporal Merge</button>
+  <button class="btn" onclick="diverge()">🌀 Diverge</button>
+  <button class="btn" onclick="coherence()">🎯 Check</button>
+</div>
+<canvas id="topologyCanvas"></canvas>
+<script>
+const API='';
+function renderStats(id,items){const root=document.getElementById(id),fragment=document.createDocumentFragment();for(const [label,value] of items){const stat=document.createElement('div');stat.className='stat';const name=document.createElement('span');name.textContent=String(label);const val=document.createElement('span');val.className='val';val.textContent=String(value??'—');stat.append(name,val);fragment.appendChild(stat)}root.replaceChildren(fragment)}
+async function fetchJson(p){const r=await fetch(API+p);return r.json();}
+async function load(){
+  try{
+    const d=await fetchJson('/api/chrono-forge?action=timeline');
+    document.getElementById('tc').textContent=d.temporal_coherence.toFixed(3);
+    document.getElementById('ci').textContent=d.causality_integrity.toFixed(3);
+    const timeline=Array.isArray(d.timeline)?d.timeline:[];
+    renderStats('statsContainer',[['Events',timeline.length],['Era',d.era]]);
+    renderStats('paradoxContainer',[['Paradoxes',d.paradox_count],['Loops',d.temporal_loops]]);
+    const completed=timeline.filter(e=>e.status==='complete').length;
+    const future=timeline.filter(e=>e.status!=='complete').length;
+    renderStats('mergedContainer',[['Completed',completed],['Future',future]]);
+    const tl=document.getElementById('timelineContainer'),fragment=document.createDocumentFragment();
+    for(const item of timeline){
+      const div=document.createElement('div');
+      div.className='event '+(['projected','speculative'].includes(item.status)?'future':'');
+      const wave=document.createElement('span');wave.className='wave';wave.textContent=String(item.wave??'??');
+      const event=document.createElement('span');event.textContent=String(item.event??'');
+      const status=document.createElement('span');status.className='status '+(['complete','projected','speculative'].includes(item.status)?item.status:'unknown');status.textContent=String(item.status??'unknown');
+      div.append(wave,event,status);fragment.appendChild(div);
+    }
+    tl.replaceChildren(fragment);
+    drawTopo(d);
+  }catch(e){console.error(e);}
+}
+async function merge(){const r=await fetchJson('/api/chrono-forge?action=merge');renderStats('statsContainer',[['Merged',String(r.waves_merged??0)+' waves'],['Coherence',Number(r.temporal_coherence).toFixed(3)]]);}
+async function diverge(){const r=await fetchJson('/api/chrono-forge?action=diverge');renderStats('paradoxContainer',[['Paradoxes',r.paradoxes],['Loops',r.loops]]);const note=document.createElement('div');note.style.cssText='color:#ff66aa;margin-top:8px';note.textContent='Divergence: '+String(r.era??'—');document.getElementById('paradoxContainer').appendChild(note);}
+async function coherence(){const r=await fetchJson('/api/chrono-forge?action=coherence');document.getElementById('tc').textContent=r.temporal_coherence.toFixed(3);document.getElementById('ci').textContent=r.causality_integrity.toFixed(3);}
+function drawTopo(d){const c=document.getElementById('topologyCanvas');const ctx=c.getContext('2d');c.width=c.offsetWidth*2;c.height=c.offsetHeight*2;ctx.scale(2,2);const w=c.offsetWidth,h=c.offsetHeight;ctx.fillStyle='#0a0a18';ctx.fillRect(0,0,w,h);const events=d.timeline||[];if(events.length===0)return;const cx=w/2,cy=h/2,r=Math.min(w,h)*0.35;const pos={};events.forEach((_,i)=>{const a=(2*Math.PI*i/events.length)-Math.PI/2;pos[i]={x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)}});ctx.strokeStyle='#3a2a1a';for(let i=0;i<events.length;i++){ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(pos[i].x,pos[i].y);ctx.stroke();}events.forEach((_,i)=>{ctx.beginPath();ctx.arc(pos[i].x,pos[i].y,6,0,2*Math.PI);ctx.fillStyle=events[i].status==='speculative'?'#888888':events[i].status==='projected'?'#66ffaa':'#ffaa66';ctx.fill();ctx.fillStyle='#0a0a18';ctx.font='bold 6px sans-serif';ctx.textAlign='center';ctx.fillText(events[i].wave||'?',pos[i].x,pos[i].y+2);});}
+load();setInterval(load,5000);
+</script>
+</body>
+</html>

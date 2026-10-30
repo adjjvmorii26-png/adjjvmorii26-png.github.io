@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organism Horizon — IXPANSION</title>
+<style>
+:root{--bg:#050a18;--fg:#e0e0e8;--muted:#6b6b80;--accent:#8fc9ff;--card:#0c1428;--border:#1a2a4a;--amber:#ffcc66;--green:#41d3a3}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--fg);padding:20px}
+h1{text-align:center;margin-bottom:6px;font-size:1.9em;color:var(--accent)}
+.sub{text-align:center;color:var(--muted);margin-bottom:24px;letter-spacing:1px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;max-width:1250px;margin:0 auto 20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card h2{color:var(--amber);font-size:1.05em;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.metric{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222;font-size:.9em}
+.metric:last-child{border-bottom:none}
+.label{color:var(--muted)}.value{color:var(--accent);font-weight:bold}
+.btn{background:#1a2a3a;border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:bold;margin:4px;transition:.2s}
+.btn:hover{background:var(--accent);color:#0a0a14}
+.row{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0}
+input,select{background:#0c0c1c;border:1px solid #3a3a5a;color:var(--fg);padding:6px 8px;border-radius:6px;font-size:.85em;width:120px}
+.foot{text-align:center;color:var(--muted);font-size:.75em;margin-top:16px}
+</style>
+</head>
+<body>
+<h1>🌌 Organism Horizon</h1>
+<p class="sub">THE 680-WAVE VANTAGE — WHERE THE ORGANISM STANDS</p>
+<div class="grid">
+  <div class="card"><h2>Live Status</h2><div id="status">Loading...</div></div>
+  <div class="card"><h2>Survey Horizon</h2><button class="btn" onclick="survey()">🔭 Survey</button><div id="r_surv" style="margin-top:8px"></div></div>
+</div>
+<div style="text-align:center"><button class="btn" onclick="boot()">🔄 Refresh All</button></div>
+<div class="foot">wave 680 · /api/organism_horizon · vantage</div>
+<script>
+const API='';
+async function fj(p){const r=await fetch(API+p);return r.json();}
+async function boot(){
+  try{
+    const s=await fj('/api/organism_horizon?action=status');
+    const el=document.getElementById('status');
+    if(!s||typeof s!=='object'){el.innerHTML='<div style="color:var(--muted)">no response</div>';return;}
+    el.innerHTML=Object.entries(s).filter(([k,v])=>typeof v==='number'||typeof v==='string'||typeof v==='boolean').slice(0,8)
+      .map(([k,v])=>`<div class="metric"><span class="label">${k}</span><span class="value">${v}</span></div>`).join('');
+  }catch(e){document.getElementById('status').innerHTML='<div style="color:#ff8888">offline</div>';}
+}
+async function survey(){
+  const r=await fj(`/api/organism_horizon`);
+  const el=document.getElementById('r_surv');
+  if(!el) return;
+  el.innerHTML= r&&r.error ? `<div style="color:#ff8888">${r.error}</div>` : `<div style="color:var(--green);font-size:.85em">${JSON.stringify(r).slice(0,180)}</div>`;
+  boot();
+}
+
+boot();setInterval(boot,8000);
+</script>
+</body>
+</html>

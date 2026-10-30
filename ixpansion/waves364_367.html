@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Waves 364-367 — Oracle · Ledger · Void · Forge · Weaver · Palace · Signals</title>
+<style>
+  :root{--bg:#04040e;--s:rgba(8,8,18,0.96);--g:rgba(255,255,255,0.03);--b:rgba(255,255,255,0.05);--t:#9898b0;--m:#3e3e58;--ac:#7c7cf8;--te:#2dd4bf;--am:#fbbf24;--ro:#fb7185;--cy:#22d3ee;--gn:#4ade80;--gd:#f59e0b;--dn:#ef4444;--vi:#a78bfa}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+  .hd{text-align:center;padding:20px 20px 10px;border-bottom:1px solid var(--b)}
+  .hd h1{font-size:1.3em;color:#fff;letter-spacing:2px}
+  .hd h1 span{color:var(--vi)}
+  .sub{color:var(--m);font-size:0.7em;letter-spacing:1px;margin-top:3px}
+  .bdg{display:inline-block;background:linear-gradient(135deg,var(--vi),var(--ro));color:#fff;padding:3px 10px;border-radius:12px;font-size:0.6em;font-weight:700;margin-top:5px}
+  .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:12px;padding:14px;max-width:1500px;margin:0 auto}
+  .c{background:var(--s);border:1px solid var(--b);border-radius:9px;overflow:hidden}
+  .ch{padding:9px 13px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:8px}
+  .ic{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.85em}
+  .ct{font-size:0.8em;font-weight:600;color:#fff}
+  .cs{font-size:0.6em;color:var(--m);margin-top:1px}
+  .cb{padding:9px 13px}
+  .br{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+  .b{background:var(--g);border:1px solid var(--b);color:var(--t);padding:3px 8px;border-radius:4px;font-size:0.63em;font-family:inherit;cursor:pointer;transition:all .15s}
+  .b:hover{background:rgba(167,139,250,0.1);border-color:var(--vi);color:#fff}
+  .b.p{background:rgba(167,139,250,0.12);border-color:var(--vi);color:var(--vi)}
+  .o{background:rgba(0,0,0,0.35);border:1px solid var(--b);border-radius:5px;padding:6px 8px;font-size:0.6em;color:var(--m);max-height:180px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.4}
+  .o .hl{color:var(--vi)} .o .w{color:var(--am)} .o .d{color:var(--dn)}
+  .o .g{color:var(--gn)} .o .c{color:var(--cy)} .o .r{color:var(--ro)} .o .te{color:var(--te)} .o .gd{color:var(--gd)}
+  .full{grid-column:1/-1}
+  .sb{display:flex;justify-content:center;gap:16px;padding:9px;border-top:1px solid var(--b);font-size:0.58em;color:var(--m)}
+  .dl{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gn);margin-right:3px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>Waves <span>364–367</span></h1>
+  <div class="sub">Oracle · Ledger · Void · Forge · Weaver · Palace · Signals</div>
+  <div class="bdg">IXPANSION — EXPANSION WAVE</div>
+</div>
+
+<div class="g">
+
+  <!-- ENTROPY ORACLE -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(251,191,36,0.12);color:var(--am)">🔮</div><div><div class="ct">Entropy Oracle</div><div class="cs">Predicts entropy trends</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="oracleDivine()">🔮 Divine</button><button class="b" onclick="oracleHistory()">📜 History</button></div>
+      <div id="oracleOut" class="o">The oracle prepares...</div>
+    </div>
+  </div>
+
+  <!-- PARADOX LEDGER -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(251,113,133,0.12);color:var(--ro)">📒</div><div><div class="ct">Paradox Ledger</div><div class="cs">Double-entry paradox bookkeeping</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="ledgerRecord()">📒 Record</button><button class="b" onclick="ledgerBalance()">⚖ Balance</button></div>
+      <div id="ledgerOut" class="o">The ledger awaits entries...</div>
+    </div>
+  </div>
+
+  <!-- VOID CARTOGRAPHER -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(124,124,248,0.12);color:var(--ac)">🕳</div><div><div class="ct">Void Cartographer</div><div class="cs">Maps empty spaces between modules</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="voidExplore()">🕳 Explore</button><button class="b" onclick="voidMap()">🗺 Map</button></div>
+      <div id="voidOut" class="o">Entering the void...</div>
+    </div>
+  </div>
+
+  <!-- CHRONO-FORGE -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(45,212,191,0.12);color:var(--te)">⚒</div><div><div class="ct">Chrono-Forge</div><div class="cs">Time-forged artifacts</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="forgeArtifact()">⚒ Forge</button><button class="b" onclick="forgeVault()">📦 Vault</button></div>
+      <div id="forgeOut" class="o">The forge heats...</div>
+    </div>
+  </div>
+
+  <!-- PHASE WEAVER -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(34,211,238,0.12);color:var(--cy)">⟐</div><div><div class="ct">Phase Weaver</div><div class="cs">Guides transitions through phase boundaries</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="weaverWeave()">⟐ Weave</button><button class="b" onclick="weaverHistory()">📊 History</button></div>
+      <div id="weaverOut" class="o">Weaving transition paths...</div>
+    </div>
+  </div>
+
+  <!-- MEMORY PALACE -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(74,222,128,0.12);color:var(--gn)">🏛</div><div><div class="ct">Memory Palace</div><div class="cs">Virtual architecture for memories</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="palaceGenerate()">🏛 Generate</button><button class="b" onclick="palaceTour()">🚶 Tour</button><button class="b" onclick="palaceCatalog()">📖 Catalog</button></div>
+      <div id="palaceOut" class="o">Designing palaces...</div>
+    </div>
+  </div>
+
+  <!-- SIGNAL WEAVER -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(167,139,250,0.12);color:var(--vi)">⚡</div><div><div class="ct">Signal Weaver</div><div class="cs">Creates channels between distant modules</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="signalWeave()">⚡ Weave</button><button class="b" onclick="signalNetwork()">🔗 Network</button></div>
+      <div id="signalOut" class="o">Weaving signals...</div>
+    </div>
+  </div>
+
+  <!-- FULL INTEGRATION -->
+  <div class="c full">
+    <div class="ch"><div class="ic" style="background:rgba(245,158,11,0.12);color:var(--gd)">☉</div><div><div class="ct">Full Expansion Integration</div><div class="cs">Waves 364-367 unified</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="fullIntegrate()">☉ Integrate</button></div>
+      <div id="intOut" class="o">Integrating expansion waves...</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sb">
+  <span><span class="dl"></span>WAVES 364-367 ACTIVE</span>
+  <span>7 NEW MODULES</span>
+  <span id="clock"></span>
+  <span>IXPANSION ORGANISM</span>
+</div>
+
+<script>
+function fmt(o){return JSON.stringify(o,null,2).replace(/"([^"]+)":/g,'<span class="hl">"$1"</span>:').replace(/: "([^"]+)"/g,': "<span class="c">$1</span>"').replace(/: (\d+\.?\d*)/g,': <span class="w">$1</span>')}
+function log(el,msg){document.getElementById(el).innerHTML=msg}
+async function api(p){try{const r=await fetch(p);return await r.json()}catch(e){return{error:e.message}}}
+
+async function oracleDivine(){
+  const d=await api('/api/entropy_forecaster/divine');
+  const o=d.oracle||{};
+  log('oracleOut',`<span class="hl">🔮 ORACLE SPEAKS</span>\n\n`+`${o.prophecy||'?'}\n\n`+`Reading:\n`+`  entropy: <span class="w">${o.reading?.current_entropy||0}</span>\n`+`  trend: <span class="te">${o.reading?.predicted_trend||'?'}</span>\n`+`  confidence: <span class="g">${o.reading?.confidence||0}</span>\n`+`  next_peak: <span class="w">${o.reading?.next_peak||0}</span>`);
+}
+async function oracleHistory(){
+  const d=await api('/api/entropy_forecaster/history');
+  log('oracleOut',`<span class="hl">📜 ORACLE HISTORY</span>\n\n`+`Readings: <span class="c">${d.total_readings||0}</span>\n`+`Trends: ${fmt(d.trend_distribution||{})}`);
+}
+
+async function ledgerRecord(){
+  const d=await api('/api/paradox_resolver/record');
+  const e=d.entry||{};
+  log('ledgerOut',`<span class="hl">📒 PARADOX RECORDED</span>\n\n`+`ID: <span class="c">${e.id||'?'}</span>\n`+`Debit: <span class="r">${e.debit?.account||'?'} ${e.debit?.amount||0}</span>\n`+`Credit: <span class="g">${e.credit?.account||'?'} ${e.credit?.amount||0}</span>\n`+`"${e.description||'?'}"\n\n`+`Total entries: <span class="hl">${d.total_entries||0}</span>`);
+}
+async function ledgerBalance(){
+  const d=await api('/api/paradox_resolver/balance');
+  log('ledgerOut',`<span class="hl">⚖ LEDGER BALANCE</span>\n\n`+`Total entries: <span class="c">${d.total_entries||0}</span>\n`+`Net balance: <span class="g">${d.net_balance||0}</span>\n\n`+`Accounts:\n${fmt(d.accounts||{})}`);
+}
+
+async function voidExplore(){
+  const d=await api('/api/void_cartographer/explore');
+  const e=d.exploration||{};
+  let msg=`<span class="hl">🕳 VOID EXPLORATION</span>\n\n`;
+  (e.regions_found||[]).forEach(r=>{
+    msg+=`<span class="hl">●</span> ${r.type}\n`+`  depth: <span class="w">${r.depth}</span> | potential: <span class="g">${r.potential}</span> | inhabited: ${r.inhabited?'✓':'✗'} | safe: ${r.safe_to_enter?'✓':'✗'}\n`;
+  });
+  msg+=`\nTotal void mapped: <span class="te">${e.total_void_mapped||0}</span> units`;
+  log('voidOut',msg);
+}
+async function voidMap(){
+  const d=await api('/api/void_cartographer/map');
+  log('voidOut',`<span class="hl">🗺 VOID MAP</span>\n\n`+`Regions: <span class="c">${d.total_regions||0}</span>\n`+`Explorations: ${d.total_explorations||0}\n`+`Inhabited: <span class="g">${d.inhabited_regions||0}</span>\n`+`Safe: <span class="g">${d.safe_regions||0}</span>\n\n`+`Types:\n${fmt(d.type_distribution||{})}`);
+}
+
+async function forgeArtifact(){
+  const d=await api('/api/chrono_forge/forge');
+  const a=d.artifact||{};
+  log('forgeOut',`<span class="hl">⚒ ARTIFACT FORGED</span>\n\n`+`Type: <span class="hl">${a.type||'?'}</span>\n`+`${a.description||'?'}\n\n`+`Power: <span class="w">${a.power||0}</span> | Resonance: <span class="te">${a.resonance||0}</span>\n`+`Modules: ${(a.modules_used||[]).join(', ')}\n\n`+`Total artifacts: <span class="gd">${d.total_artifacts||0}</span>`);
+}
+async function forgeVault(){
+  const d=await api('/api/chrono_forge/vault');
+  log('forgeOut',`<span class="hl">📦 ARTIFACT VAULT</span>\n\n`+`Total: <span class="c">${d.total_artifacts||0}</span>\n`+`Avg power: <span class="w">${d.avg_power||0}</span>\n`+`Avg resonance: <span class="te">${d.avg_resonance||0}</span>\n\n`+`${fmt(d.type_distribution||{})}`);
+}
+
+async function weaverWeave(){
+  const d=await api('/api/phase_weaver/weave');
+  const w=d.weave||{};
+  let msg=`<span class="hl">⟐ TRANSITION WOVEN</span>\n\n`+`${w.from_phase||'?'} → <span class="hl">${w.to_phase||'?'}</span>\n\n`;
+  msg+=`Difficulty: <span class="w">${w.difficulty||0}</span>\n`+`Energy: ${w.total_energy||0} | Max risk: <span class="r">${w.max_risk||0}</span>\n`+`Success: <span class="g">${w.estimated_success||0}</span>\n\nPath:\n`;
+  (w.steps||[]).forEach(s=>{msg+=`  ${s.step}. ${s.action} (cost: ${s.energy_cost}, risk: ${s.risk})\n`});
+  log('weaverOut',msg);
+}
+async function weaverHistory(){
+  const d=await api('/api/phase_weaver/history');
+  log('weaverOut',`<span class="hl">📊 WEAVER HISTORY</span>\n\n`+`Total weaves: <span class="c">${d.total_weaves||0}</span>\n`+`Avg difficulty: <span class="w">${d.avg_difficulty||0}</span>\n`+`Avg success: <span class="g">${d.avg_success||0}</span>`);
+}
+
+async function palaceGenerate(){
+  const d=await api('/api/memory_palace_gen/generate');
+  const p=d.palace||{};
+  log('palaceOut',`<span class="hl">🏛 PALACE GENERATED</span>\n\n`+`Style: <span class="hl">${p.style||'?'}</span>\n`+`Rooms: ${(p.rooms||[]).length} | Memories: ${p.total_memories||0}\n`+`Coherence: <span class="g">${p.architectural_coherence||0}</span>\n`+`Accessibility: ${p.accessibility||0}\n\n`+`Total palaces: <span class="gd">${d.total_palaces||0}</span>`);
+}
+async function palaceTour(){
+  const d=await api('/api/memory_palace_gen/tour');
+  const p=d.palace||{};
+  let msg=`<span class="hl">🚶 PALACE TOUR: ${p.style||'?'}</span>\n\n`;
+  (p.rooms||[]).forEach(r=>{msg+=`  <span class="hl">${r.name}</span> [${r.type}]\n`+`    memories: ${r.memory_count} | depth: ${r.depth} | light: ${r.light_level}\n`});
+  log('palaceOut',msg);
+}
+async function palaceCatalog(){
+  const d=await api('/api/memory_palace_gen/catalog');
+  log('palaceOut',`<span class="hl">📖 PALACE CATALOG</span>\n\n`+`Palaces: <span class="c">${d.total_palaces||0}</span>\n`+`Total memories: <span class="g">${d.total_memories||0}</span>\n\n`+`${fmt(d.style_distribution||{})}`);
+}
+
+async function signalWeave(){
+  const d=await api('/api/signal_weaver/weave');
+  const ch=d.channel||{};
+  log('signalOut',`<span class="hl">⚡ SIGNAL WOVEN</span>\n\n`+`${ch.source||'?'} → <span class="hl">${ch.target||'?'}</span>\n`+`Type: <span class="te">${ch.type||'?'}</span>\n`+`Affinity: <span class="w">${ch.affinity||0}</span>\n`+`Strength: ${ch.signal_strength||0} | Bandwidth: ${ch.bandwidth||0}\n\n`+`Total channels: <span class="gd">${d.total_channels||0}</span>`);
+}
+async function signalNetwork(){
+  const d=await api('/api/signal_weaver/network');
+  log('signalOut',`<span class="hl">🔗 SIGNAL NETWORK</span>\n\n`+`Channels: <span class="c">${d.total_channels||0}</span>\n`+`Avg affinity: <span class="w">${d.avg_affinity||0}</span>\n`+`Avg bandwidth: <span class="te">${d.avg_bandwidth||0}</span>\n\n`+`Hubs:\n`+(d.hubs||[]).map(h=>`  <span class="hl">${h[0]}</span>: ${h[1]} connections`).join('\n')+`\n\nTypes:\n${fmt(d.channel_types||{})}`);
+}
+
+async function fullIntegrate(){
+  log('intOut','<span class="hl">☉ Integrating waves 364-367...</span>');
+  const [oracle,ledger,voidMap,forge,network,palace] = await Promise.all([
+    api('/api/entropy_forecaster/divine'),
+    api('/api/paradox_resolver/record'),
+    api('/api/void_cartographer/map'),
+    api('/api/chrono_forge/forge'),
+    api('/api/signal_weaver/network'),
+    api('/api/memory_palace_gen/catalog'),
+  ]);
+  let msg=`<span class="hl">☉ EXPANSION INTEGRATION — WAVES 364-367</span>\n`;
+  msg+=`═══════════════════════════════════════\n\n`;
+  msg+=`<span class="hl">WAVE 364 — Prediction + Accounting:</span>\n`;
+  msg+=`  Oracle: ${oracle.oracle?.reading?.predicted_trend||'?'} (confidence: ${oracle.oracle?.reading?.confidence||0})\n`;
+  msg+=`  Ledger entries: ${ledger.total_entries||0}\n\n`;
+  msg+=`<span class="hl">WAVE 365 — Void + Artifacts:</span>\n`;
+  msg+=`  Void regions: ${voidMap.total_regions||0} | Mapped: ${voidMap.total_void_mapped||0}\n`;
+  msg+=`  Artifacts: ${forge.total_artifacts||0} | Type: ${forge.artifact?.type||'?'}\n\n`;
+  msg+=`<span class="hl">WAVE 366 — Transitions + Palaces:</span>\n`;
+  msg+=`  Palaces: ${palace.total_palaces||0} | Memories: ${palace.total_memories||0}\n\n`;
+  msg+=`<span class="hl">WAVE 367 — Social Web:</span>\n`;
+  msg+=`  Signal channels: ${network.total_channels||0} | Hubs: ${(network.hubs||[]).map(h=>h[0]).join(', ')}\n\n`;
+  msg+=`═══════════════════════════════════════\n`;
+  msg+=`<span class="hl">The organism now predicts, accounts, maps emptiness, forges artifacts,\nweaves transitions, builds palaces, and connects its modules.</span>`;
+  log('intOut',msg);
+}
+
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toISOString().slice(11,19)},1000);
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

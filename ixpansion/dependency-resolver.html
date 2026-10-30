@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dependency Resolver — IXPANSION</title>
+<style>
+:root{--bg:#0a0a14;--fg:#e0e0e8;--muted:#6b6b80;--cyan:#41b3a3;--card:#14142a;--border:#2a2a44;--green:#41d3a3;--amber:#ffcc66;--red:#e05a5a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--fg);padding:20px}
+.header{text-align:center;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:16px}
+h1{font-size:2em;background:linear-gradient(135deg,var(--amber),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--muted);margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1400px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card h2{color:var(--amber);font-size:1.1em;margin-bottom:12px}
+.metric{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222}
+.metric:last-child{border-bottom:none}
+.label{color:var(--muted)}
+.value{color:var(--cyan);font-weight:bold}
+.btn{border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;margin:4px}
+.btn-amber{background:var(--amber);color:#0a0a14}
+.btn-green{background:var(--green);color:#0a0a14}
+.btn-red{background:var(--red);color:#fff}
+.btn:hover{opacity:0.9}
+.circular{padding:8px;background:#2a1a1a;border:1px solid var(--red);border-radius:6px;margin:4px 0;font-size:0.85em}
+.debt-bar{height:8px;border-radius:4px;background:#333;overflow:hidden;margin:4px 0}
+.debt-fill{height:100%;border-radius:4px}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🔍 Dependency Resolver</h1>
+  <p class="sub">Import graph, circular detection, technical debt scoring</p>
+  <span class="badge" id="scanned" style="background:#2a2a44;color:var(--amber);padding:4px 12px;border-radius:12px">scans: 0</span>
+  <span class="badge" id="modules" style="background:#2a2a44;color:var(--green);padding:4px 12px;border-radius:12px">modules: 0</span>
+</div>
+<div class="grid">
+  <div class="card">
+    <h2>▶ Actions</h2>
+    <button class="btn btn-amber" onclick="scan()">Run Scan</button>
+    <button class="btn btn-green" onclick="versions()">Version Check</button>
+    <button class="btn btn-red" onclick="dupes()">Find Duplicates</button>
+    <div id="action-result" style="margin-top:12px"></div>
+  </div>
+  <div class="card">
+    <h2>🦞 Circular Imports</h2>
+    <div id="circular">Run scan to detect circular imports</div>
+  </div>
+  <div class="card">
+    <h2>📊 Technical Debt (Top 10)</h2>
+    <div id="debt">Run scan to view debt scores</div>
+  </div>
+  <div class="card">
+    <h2>✅ Version Check</h2>
+    <div id="versions">Click "Version Check" to run</div>
+  </div>
+  <div class="card" style="grid-column:1/-1">
+    <h2>⚠️ Duplicate Actions (4+ modules)</h2>
+    <div id="dupes">Click "Find Duplicates" to scan</div>
+  </div>
+</div>
+<script>
+const HOST='';
+async function api(action){
+  const r = await fetch(HOST+'/api/dependency_resolver?action='+action);
+  return r.json();
+}
+async function scan(){
+  document.getElementById('action-result').textContent='Scanning...';
+  const r = await fetch(HOST+'/api/dependency_resolver?action=scan');
+  const d = await r.json();
+  document.getElementById('scanned').textContent='scans: '+d.tick;
+  document.getElementById('modules').textContent='modules: '+d.modules_scanned;
+  document.getElementById('action-result').innerHTML=
+    `<div class="metric"><span class="label">Total Debt</span><span class="value">${d.total_debt}</span></div>
+     <div class="metric"><span class="label">Avg Debt</span><span class="value">${d.avg_debt}</span></div>`;
+  document.getElementById('circular').innerHTML=d.circular_imports.length?
+    d.circular_imports.map(c=>`<div class="circular">${c.join(' → ')}</div>`).join(''):'<div style="color:var(--green)">✅ No circular imports</div>';
+  document.getElementById('debt').innerHTML=d.highest_debt.map(([n,v])=>{
+    const pct=Math.round(v*100);
+    const col=v>0.5?'var(--red)':v>0.3?'var(--amber)':'var(--green)';
+    return `<div style="margin:4px 0"><span style="font-size:0.85em">${n}</span><div class="debt-bar"><div class="debt-fill" style="width:${pct}%;background:${col}"></div></div><span style="font-size:0.8em;color:${col}">${v}</span></div>`;
+  }).join('');
+}
+async function versions(){
+  const r = await api('version_check');
+  document.getElementById('versions').innerHTML=
+    `<div class="metric"><span class="label">Consistent</span><span class="value" style="color:${r.consistent?'var(--green)':'var(--red)'}">${r.consistent?'✅ Yes':'❌ Conflict'}</span></div>
+     ${Object.entries(r.versions).map(([k,v])=>`<div class="metric"><span class="label">${k}</span><span class="value">${v}</span></div>`).join('')}`;
+  document.getElementById('action-result').innerHTML=
+    `<div class="metric"><span class="label">Versions</span><span class="value">${Object.keys(r.versions).length} files checked</span></div>`;
+}
+async function dupes(){
+  const r = await api('duplicates');
+  const dups=r.duplicate_actions||{};
+  const keys=Object.keys(dups);
+  document.getElementById('action-result').innerHTML=
+    `<div class="metric"><span class="label">Duplicate actions</span><span class="value">${keys.length}</span></div>`;
+  document.getElementById('dupes').innerHTML=keys.length?
+    keys.map(a=>`<div class="metric"><span class="label">${a}</span><span class="value">${dups[a].length} modules: ${dups[a].slice(0,3).join(', ')}${dups[a].length>3?'...':''}</span></div>`).join(''):'<div style="color:var(--green)">✅ No duplicate action groups</div>';
+}
+</script>
+</body>
+</html>

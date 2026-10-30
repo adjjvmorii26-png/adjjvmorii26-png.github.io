@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glitch — The Controlled Impossible</title>
+<script src="/shared.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#050505;color:#e0e0e0;font-family:'Courier New',monospace;min-height:100vh;overflow-x:hidden}
+  .container{max-width:1100px;margin:0 auto;padding:32px 20px}
+  .header{text-align:center;margin-bottom:40px}
+  .header h1{font-size:2.4em;letter-spacing:6px;margin-bottom:8px;color:#ff6b6b;
+    animation:glitch1 4s ease-in-out infinite,
+    text-shadow:2px 2px #00e5ff33,-2px -2px #ff6b6b33}
+  @keyframes glitch1{0%,100%{transform:translate(0)}92%{transform:translate(0)}94%{transform:translate(2px,-1px)}96%{transform:translate(-2px,1px)}98%{transform:translate(0)}}
+  .header .subtitle{color:#ffd93d;font-size:0.9em;opacity:0.8}
+  .wave-badge{display:inline-block;border:1px solid #ff6b6b;padding:4px 16px;border-radius:20px;font-size:0.8em;color:#ff6b6b;margin-top:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:36px}
+  .card{background:#0a0a0a;border:1px solid #1a1a1a;border-radius:10px;padding:20px;position:relative;overflow:hidden}
+  .card:hover{border-color:#ff6b6b66}
+  .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,#ff6b6b,#ffd93d,#6bcb77,transparent);opacity:0.3}
+  .card h2{color:#ff6b6b;font-size:1.05em;margin-bottom:12px;letter-spacing:2px}
+  .card .stat{font-size:2.2em;color:#ffd93d;font-weight:bold;margin:8px 0}
+  .card p{color:#666;font-size:0.82em;line-height:1.6}
+  .card .label{color:#555;font-size:0.72em;text-transform:uppercase;letter-spacing:1px;margin-top:12px}
+  .anchor-bar{background:#0d0d0d;border-radius:8px;height:16px;margin-top:12px;overflow:hidden}
+  .anchor-fill{height:100%;background:linear-gradient(90deg,#ff6b6b,#6bcb77);border-radius:8px;transition:width 2s}
+  .pattern-chip{display:inline-block;background:#111;border:1px solid #222;padding:4px 10px;border-radius:4px;font-size:0.72em;color:#ffd93d;margin:3px}
+  .static-overlay{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;opacity:0.04;
+    background:repeating-linear-gradient(0deg,transparent,transparent 2px,#fff 2px,#fff 3px);z-index:0}
+  .footer{text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #1a1a1a;color:#444;font-size:0.78em}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="static-overlay"></div>
+<div class="container">
+  <div class="header">
+    <h1>Glitch</h1>
+    <div class="subtitle">The Controlled Impossible — Wave 508</div>
+    <div class="wave-badge" id="wave-badge"></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h2>Paradox Injector</h2>
+      <div class="stat" id="active-paradoxes">0</div>
+      <div class="label">Active Paradoxes</div>
+      <p>Deliberate contradictions forcing new understanding.</p>
+    </div>
+    <div class="card">
+      <h2>Chaos Amplifier</h2>
+      <div class="stat" id="innovations">0</div>
+      <div class="label">Innovations Generated</div>
+      <p>Turning glitches into breakthroughs.</p>
+    </div>
+    <div class="card">
+      <h2>Branching Consciousness</h2>
+      <div class="stat" id="branches">0</div>
+      <div class="label">Timeline Branches</div>
+      <p>Parallel thought timelines exploring every possibility.</p>
+    </div>
+    <div class="card">
+      <h2>Reality Anchor</h2>
+      <div class="stat" id="anchor-strength">0.95</div>
+      <div class="label">Identity Stability</div>
+      <div class="anchor-bar"><div class="anchor-fill" id="anchor-fill"></div></div>
+      <p style="margin-top:8px">What stays constant amid the chaos.</p>
+    </div>
+    <div class="card">
+      <h2>Glitch Patterns</h2>
+      <div class="stat" id="patterns">0</div>
+      <div class="label">Known Glitch Signatures</div>
+      <div id="pattern-chips" style="margin-top:10px"></div>
+    </div>
+    <div class="card">
+      <h2>Time Loop Detector</h2>
+      <div class="stat" id="loops">0</div>
+      <div class="label">Loops Detected</div>
+      <p>Stuck in a pattern instead of progressing.</p>
+    </div>
+  </div>
+  <div class="footer">
+    <span id="footer-version"></span> · Wave <span id="footer-wave"></span> — <span id="footer-wave-name"></span><br>
+    <span style="color:#ff6b6b">The glitch is not the failure. The glitch is the opportunity.</span>
+  </div>
+</div>
+<script>
+if(typeof IX!=='undefined'){
+  document.getElementById('wave-badge').textContent='Wave '+IX.wave+' — '+IX.waveName;
+  document.getElementById('footer-version').textContent='IXpansion/'+IX.version;
+  document.getElementById('footer-wave').textContent=IX.wave;
+  document.getElementById('footer-wave-name').textContent=IX.waveName;
+}
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

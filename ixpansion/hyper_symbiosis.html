@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PROJECT HYPER-SYMBIOSIS // 4D Neural Ecosystem</title>
+    <style>
+        :root {
+            --bg: #030508;
+            --panel: rgba(10, 14, 24, 0.82);
+            --cyan: #00f3ff;
+            --emerald: #00ff88;
+            --magenta: #ff0055;
+            --gold: #ffb700;
+            --border: rgba(0, 243, 255, 0.25);
+            --font: 'JetBrains Mono', 'Fira Code', monospace, sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background: var(--bg); font-family: var(--font); color: #c8e0f8; }
+        
+        #canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+
+        .hud-panel {
+            position: absolute; z-index: 10;
+            background: var(--panel); backdrop-filter: blur(16px);
+            border: 1px solid var(--border); border-radius: 12px;
+            padding: 18px; box-shadow: 0 12px 40px rgba(0, 0, 0, 0.85);
+        }
+
+        .hud-left { top: 20px; left: 20px; width: 340px; }
+        .hud-right { top: 20px; right: 20px; width: 280px; }
+
+        h1 { font-size: 0.85rem; letter-spacing: 2px; color: var(--cyan); text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+        .badge { font-size: 0.55rem; padding: 2px 6px; background: var(--magenta); color: #fff; border-radius: 4px; font-weight: bold; }
+
+        .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+        .metric-card { background: rgba(0, 0, 0, 0.5); padding: 8px 10px; border-radius: 6px; border-left: 3px solid var(--cyan); }
+        .metric-card.pred { border-left-color: var(--magenta); }
+        .metric-card.food { border-left-color: var(--gold); }
+        .metric-val { font-size: 1.2rem; font-weight: 700; color: #fff; }
+        .metric-lbl { font-size: 0.6rem; color: #6a7d94; text-transform: uppercase; }
+
+        .control-group { margin-bottom: 10px; }
+        label { display: flex; justify-content: space-between; font-size: 0.7rem; margin-bottom: 4px; color: #8fa4be; }
+        input[type=range] { width: 100%; accent-color: var(--cyan); cursor: pointer; }
+
+        .tool-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+        .btn {
+            padding: 8px 4px; border-radius: 6px; border: 1px solid var(--border);
+            background: rgba(0, 243, 255, 0.05); color: var(--cyan); font-size: 0.65rem;
+            font-family: var(--font); cursor: pointer; transition: all 0.2s ease; text-align: center;
+        }
+        .btn:hover, .btn.active { background: var(--cyan); color: #000; font-weight: bold; }
+        .btn.magenta { border-color: rgba(255, 0, 85, 0.4); color: var(--magenta); }
+        .btn.magenta:hover, .btn.magenta.active { background: var(--magenta); color: #fff; }
+
+        canvas.sparkline { width: 100%; height: 40px; background: rgba(0, 0, 0, 0.4); border-radius: 4px; margin-top: 4px; }
+
+        #inspector {
+            display: none; position: absolute; bottom: 20px; left: 20px; z-index: 10;
+            width: 340px; background: var(--panel); border: 1px solid var(--border);
+            border-radius: 12px; padding: 14px; backdrop-filter: blur(16px);
+        }
+    
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+
+    <!-- LEFT HUD: Controls & Metrics -->
+    <div class="hud-panel hud-left">
+        <h1>HYPER-SYMBIOSIS v5.0 <span class="badge">4D ENGINE</span></h1>
+        
+        <div class="metric-grid">
+            <div class="metric-card">
+                <div class="metric-val" id="val-gatherers">0</div>
+                <div class="metric-lbl">Gatherers ($\circ$)</div>
+            </div>
+            <div class="metric-card pred">
+                <div class="metric-val" id="val-predators">0</div>
+                <div class="metric-lbl">Predators ($\Delta$)</div>
+            </div>
+            <div class="metric-card food">
+                <div class="metric-val" id="val-nodes">0</div>
+                <div class="metric-lbl">Quantum Nodes ($\star$)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-val" id="val-gen">1</div>
+                <div class="metric-lbl">Max Generation</div>
+            </div>
+        </div>
+
+        <div class="control-group">
+            <label><span>4D Fold Velocity</span><span id="lbl-warp">0.012</span></label>
+            <input type="range" id="slider-warp" min="0" max="0.04" step="0.001" value="0.012">
+        </div>
+        <div class="control-group">
+            <label><span>Neural Mutation Rate</span><span id="lbl-mut">8%</span></label>
+            <input type="range" id="slider-mut" min="0.01" max="0.30" step="0.01" value="0.08">
+        </div>
+
+        <div style="margin-top: 12px;">
+            <label>Intervention Tools</label>
+            <div class="tool-grid">
+                <button class="btn active" id="tool-feed" onclick="setTool('feed')">Spawn Food</button>
+                <button class="btn" id="tool-well" onclick="setTool('well')">Black Hole</button>
+                <button class="btn magenta" id="tool-pred" onclick="setTool('pred')">Apex Hunt</button>
+            </div>
+        </div>
+
+        <div style="margin-top: 14px; display: flex; gap: 8px;">
+            <button class="btn" style="flex:1" onclick="toggleAudio()" id="btn-audio">Enable Audio Synthesizer</button>
+            <button class="btn magenta" style="flex:1" onclick="resetEcosystem()">Re-Seed Biosphere</button>
+        </div>
+    </div>
+
+    <!-- RIGHT HUD: Real-time Telemetry -->
+    <div class="hud-panel hud-right">
+        <h1>Ecosystem Telemetry</h1>
+        <div style="margin-bottom: 10px;">
+            <label>Population History</label>
+            <canvas id="spark-pop" class="sparkline"></canvas>
+        </div>
+        <div>
+            <label>System Entropy</label>
+            <canvas id="spark-entropy" class="sparkline"></canvas>
+        </div>
+    </div>
+
+    <!-- AGENT INSPECTOR -->
+    <div id="inspector">
+        <h1 style="margin-bottom:6px;">Agent Genome Inspector</h1>
+        <div id="inspector-body" style="font-size:0.7rem; line-height:1.4; color:#a0b8d0;">
+            Click any organism to inspect its 4D coordinates and neural weight matrix.
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // System Parameters
+        let warpVelocity = 0.012;
+        let mutationRate = 0.08;
+        let currentTool = 'feed';
+        let maxGen = 1;
+        let selectedAgent = null;
+
+        // Audio Synth Engine
+        let audioCtx = null;
+        let oscMain = null;
+        let gainMain = null;
+        let audioEnabled = false;
+
+        function initAudio() {
+            if (audioCtx) return;
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            oscMain = audioCtx.createOscillator();
+            gainMain = audioCtx.createGain();
+            
+            oscMain.type = 'sine';
+            oscMain.frequency.setValueAtTime(110, audioCtx.currentTime);
+            gainMain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            
+            oscMain.connect(gainMain);
+            gainMain.connect(audioCtx.destination);
+            oscMain.start();
+            audioEnabled = true;
+            document.getElementById('btn-audio').innerText = 'Audio: Active';
+            document.getElementById('btn-audio').classList.add('active');
+        }
+
+        function toggleAudio() {
+            if (!audioCtx) {
+                initAudio();
+            } else {
+                if (audioEnabled) {
+                    gainMain.gain.setValueAtTime(0, audioCtx.currentTime);
+                    audioEnabled = false;
+                    document.getElementById('btn-audio').innerText = 'Enable Audio Synthesizer';
+                    document.getElementById('btn-audio').classList.remove('active');
+                } else {
+                    gainMain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    audioEnabled = true;
+                    document.getElementById('btn-audio').innerText = 'Audio: Active';
+                    document.getElementById('btn-audio').classList.add('active');
+                }
+            }
+        }
+
+        function playEventTone(freq, duration = 0.1) {
+            if (!audioEnabled || !audioCtx) return;
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        // 4D Organism Class
+        class Organism {
+            constructor(x, y, z, w, type = 'gatherer', gen = 1, weights = null) {
+                this.x = x || (Math.random() - 0.5) * width * 0.7;
+                this.y = y || (Math.random() - 0.5) * height * 0.7;
+                this.z = z || (Math.random() - 0.5) * 400;
+                this.w = w || (Math.random() - 0.5) * 400;
+
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.vz = (Math.random() - 0.5) * 2;
+                this.vw = (Math.random() - 0.5) * 2;
+
+                this.type = type; // 'gatherer' or 'predator'
+                this.gen = gen;
+                this.energy = type === 'gatherer' ? 120 : 200;
+
+                // 4x4 Neural Weight Matrix
+                this.brain = weights || Array.from({ length: 4 }, () => 
+                    Array.from({ length: 4 }, () => (Math.random() - 0.5) * 2)
+                );
+            }
+
+            evaluateBrain(inputs) {
+                // Multiplies 4D inputs [distFood, distPred, distMate, depthW] by brain matrix
+                let outputs = [0, 0, 0, 0];
+                for (let i = 0; i < 4; i++) {
+                    for (let j = 0; j < 4; j++) {
+                        outputs[i] += inputs[j] * this.brain[i][j];
+                    }
+                    outputs[i] = Math.tanh(outputs[i]); // Activation function
+                }
+                return outputs;
+            }
+
+            update(foodNodes, predators, gatherers) {
+                // 4D Spatial Rotation (ZW & XW planes)
+                let cosA = Math.cos(warpVelocity);
+                let sinA = Math.sin(warpVelocity);
+                let zN = this.z * cosA - this.w * sinA;
+                let wN = this.z * sinA + this.w * cosA;
+                this.z = zN; this.w = wN;
+
+                // Find nearest targets
+                let nearestFood = this.findNearest(foodNodes);
+                let nearestPred = this.findNearest(predators);
+                let nearestGatherer = this.findNearest(gatherers);
+
+                let inputs = [
+                    nearestFood ? nearestFood.dist / 500 : 1.0,
+                    nearestPred ? nearestPred.dist / 500 : 1.0,
+                    nearestGatherer ? nearestGatherer.dist / 500 : 1.0,
+                    this.w / 400
+                ];
+
+                let forces = this.evaluateBrain(inputs);
+
+                // Apply neural forces
+                let speedScale = this.type === 'predator' ? 2.2 : 1.6;
+                this.vx += forces[0] * 0.15;
+                this.vy += forces[1] * 0.15;
+                this.vz += forces[2] * 0.15;
+                this.vw += forces[3] * 0.15;
+
+                // Clamp velocity
+                let currentSpeed = Math.hypot(this.vx, this.vy, this.vz, this.vw);
+                if (currentSpeed > speedScale) {
+                    this.vx = (this.vx / currentSpeed) * speedScale;
+                    this.vy = (this.vy / currentSpeed) * speedScale;
+                }
+
+                // Move
+                this.x += this.vx; this.y += this.vy;
+                this.z += this.vz; this.w += this.vw;
+
+                // Boundary reflection
+                const limit = Math.min(width, height) * 0.42;
+                if (Math.hypot(this.x, this.y) > limit) {
+                    this.vx -= (this.x / limit) * 0.2;
+                    this.vy -= (this.y / limit) * 0.2;
+                }
+
+                // Metabolic decay
+                this.energy -= this.type === 'predator' ? 0.18 : 0.09;
+            }
+
+            findNearest(targetArray) {
+                let minDist = Infinity;
+                let target = null;
+                for (let t of targetArray) {
+                    if (t === this) continue;
+                    let d = Math.hypot(this.x - t.x, this.y - t.y, this.z - t.z);
+                    if (d < minDist) {
+                        minDist = d;
+                        target = t;
+                    }
+                }
+                return target ? { entity: target, dist: minDist } : null;
+            }
+
+            draw() {
+                // 4D to 2D Perspective Projection
+                let fov = 420;
+                let scale = fov / (fov + this.z + 220);
+                let screenX = width / 2 + this.x * scale;
+                let screenY = height / 2 + this.y * scale;
+
+                let size = Math.max(1.5, (this.type === 'predator' ? 6 : 3.5) * scale);
+                let alpha = Math.min(1, Math.max(0.25, scale - 0.15));
+
+                ctx.save();
+                ctx.translate(screenX, screenY);
+
+                if (this.type === 'gatherer') {
+                    let hue = (160 + this.w * 0.4) % 360;
+                    ctx.fillStyle = `hsla(${hue}, 100%, 60%, ${alpha})`;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, size, 0, Math.PI * 2);
+                    ctx.fill();
+                } else {
+                    ctx.fillStyle = `rgba(255, 0, 85, ${alpha})`;
+                    ctx.shadowBlur = 12;
+                    ctx.shadowColor = '#ff0055';
+                    ctx.beginPath();
+                    ctx.moveTo(0, -size * 1.5);
+                    ctx.lineTo(size, size);
+                    ctx.lineTo(-size, size);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                if (selectedAgent === this) {
+                    ctx.strokeStyle = '#00f3ff';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, size + 6, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        // Energy Node Class
+        class QuantumNode {
+            constructor(x, y) {
+                let ang = Math.random() * Math.PI * 2;
+                let dist = Math.random() * Math.min(width, height) * 0.35;
+                this.x = x || Math.cos(ang) * dist;
+                this.y = y || Math.sin(ang) * dist;
+                this.z = (Math.random() - 0.5) * 300;
+                this.w = (Math.random() - 0.5) * 300;
+                this.value = 60;
+            }
+
+            draw() {
+                let fov = 420;
+                let scale = fov / (fov + this.z + 220);
+                let screenX = width / 2 + this.x * scale;
+                let screenY = height / 2 + this.y * scale;
+
+                ctx.fillStyle = 'rgba(255, 183, 0, 0.9)';
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = '#ffb700';
+                ctx.beginPath();
+                ctx.arc(screenX, screenY, 3 * scale, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        // Initialize Simulation State
+        let gatherers = Array.from({ length: 120 }, () => new Organism(null, null, null, null, 'gatherer'));
+        let predators = Array.from({ length: 8 }, () => new Organism(null, null, null, null, 'predator'));
+        let foodNodes = Array.from({ length: 24 }, () => new QuantumNode());
+
+        // Sparkline History Buffers
+        let popHistory = new Array(50).fill(0);
+        let entropyHistory = new Array(50).fill(0);
+
+        function resetEcosystem() {
+            gatherers = Array.from({ length: 120 }, () => new Organism(null, null, null, null, 'gatherer'));
+            predators = Array.from({ length: 8 }, () => new Organism(null, null, null, null, 'predator'));
+            foodNodes = Array.from({ length: 24 }, () => new QuantumNode());
+            maxGen = 1;
+            selectedAgent = null;
+            document.getElementById('inspector').style.display = 'none';
+        }
+
+        function setTool(tool) {
+            currentTool = tool;
+            document.querySelectorAll('.tool-grid .btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`tool-${tool}`).classList.add('active');
+        }
+
+        // Interactive Canvas Clicks
+        canvas.addEventListener('click', (e) => {
+            let clickX = e.clientX - width / 2;
+            let clickY = e.clientY - height / 2;
+
+            // Check if user clicked an existing organism
+            let clicked = null;
+            [...gatherers, ...predators].forEach(a => {
+                if (Math.hypot(a.x - clickX, a.y - clickY) < 20) clicked = a;
+            });
+
+            if (clicked) {
+                selectedAgent = clicked;
+                inspectAgent(clicked);
+                return;
+            }
+
+            // Otherwise execute tool action
+            if (currentTool === 'feed') {
+                foodNodes.push(new QuantumNode(clickX, clickY));
+                playEventTone(520, 0.08);
+            } else if (currentTool === 'pred') {
+                predators.push(new Organism(clickX, clickY, 0, 0, 'predator'));
+                playEventTone(180, 0.2);
+            } else if (currentTool === 'well') {
+                [...gatherers, ...predators].forEach(a => {
+                    let d = Math.hypot(a.x - clickX, a.y - clickY);
+                    if (d < 300) {
+                        a.vx -= (a.x - clickX) * 0.08;
+                        a.vy -= (a.y - clickY) * 0.08;
+                    }
+                });
+                playEventTone(90, 0.3);
+            }
+        });
+
+        function inspectAgent(agent) {
+            let inspector = document.getElementById('inspector');
+            let body = document.getElementById('inspector-body');
+            inspector.style.display = 'block';
+
+            let typeColor = agent.type === 'gatherer' ? '#00f3ff' : '#ff0055';
+            body.innerHTML = `
+                <div style="color:${typeColor}; font-weight:bold; margin-bottom:4px;">
+                    Type: ${agent.type.toUpperCase()} (Gen ${agent.gen})
+                </div>
+                <div>Energy: ${agent.energy.toFixed(1)} | 4D Depth (w): ${agent.w.toFixed(1)}</div>
+                <div style="margin-top:6px; font-weight:bold;">Neural Brain Weights Matrix:</div>
+                <pre style="background:rgba(0,0,0,0.5); padding:6px; border-radius:4px; margin-top:2px; font-size:0.6rem;">${
+                    agent.brain.map(row => row.map(v => (v>=0?'+':'')+v.toFixed(2)).join(' ')).join('\n')
+                }</pre>
+            `;
+        }
+
+        // Sliders
+        document.getElementById('slider-warp').addEventListener('input', (e) => {
+            warpVelocity = parseFloat(e.target.value);
+            document.getElementById('lbl-warp').innerText = warpVelocity.toFixed(3);
+        });
+        document.getElementById('slider-mut').addEventListener('input', (e) => {
+            mutationRate = parseFloat(e.target.value);
+            document.getElementById('lbl-mut').innerText = Math.round(mutationRate * 100) + '%';
+        });
+
+        // Render Sparkline Graphs
+        function drawSparkline(canvasId, data, color) {
+            let c = document.getElementById(canvasId);
+            let cx = c.getContext('2d');
+            c.width = c.clientWidth;
+            c.height = c.clientHeight;
+
+            cx.clearRect(0, 0, c.width, c.height);
+            cx.strokeStyle = color;
+            cx.lineWidth = 1.5;
+            cx.beginPath();
+
+            let max = Math.max(...data, 1);
+            let step = c.width / (data.length - 1);
+
+            data.forEach((val, i) => {
+                let x = i * step;
+                let y = c.height - (val / max) * (c.height - 6) - 3;
+                if (i === 0) cx.moveTo(x, y);
+                else cx.lineTo(x, y);
+            });
+            cx.stroke();
+        }
+
+        // Main Engine Loop
+        function render() {
+            ctx.fillStyle = 'rgba(3, 5, 8, 0.22)';
+            ctx.fillRect(0, 0, width, height);
+
+            // 1. Draw Energy Nodes
+            foodNodes.forEach(f => f.draw());
+
+            // 2. Update & Draw Gatherers
+            for (let i = gatherers.length - 1; i >= 0; i--) {
+                let g = gatherers[i];
+                g.update(foodNodes, predators, gatherers);
+                g.draw();
+
+                // Feed on Food
+                foodNodes.forEach((f, fIdx) => {
+                    if (Math.hypot(g.x - f.x, g.y - f.y) < 16) {
+                        g.energy += f.value;
+                        foodNodes[fIdx] = new QuantumNode();
+
+                        // Reproduction / Mitosis
+                        if (g.energy > 220) {
+                            g.energy /= 2;
+                            let nextGen = g.gen + 1;
+                            if (nextGen > maxGen) maxGen = nextGen;
+
+                            // Mutate Neural Brain
+                            let newBrain = g.brain.map(row => row.map(w => {
+                                return Math.random() < mutationRate ? w + (Math.random() - 0.5) * 0.5 : w;
+                            }));
+
+                            gatherers.push(new Organism(g.x, g.y, g.z, g.w, 'gatherer', nextGen, newBrain));
+                            playEventTone(880, 0.05);
+                        }
+                    }
+                });
+
+                if (g.energy <= 0) gatherers.splice(i, 1);
+            }
+
+            // 3. Update & Draw Predators
+            for (let i = predators.length - 1; i >= 0; i--) {
+                let p = predators[i];
+                p.update(foodNodes, predators, gatherers);
+                p.draw();
+
+                // Hunt Gatherers
+                gatherers.forEach((g, gIdx) => {
+                    if (Math.hypot(p.x - g.x, p.y - g.y) < 18) {
+                        p.energy += 80;
+                        gatherers.splice(gIdx, 1);
+                        playEventTone(240, 0.1);
+
+                        // Predator Reproduction
+                        if (p.energy > 340) {
+                            p.energy /= 2;
+                            predators.push(new Organism(p.x, p.y, p.z, p.w, 'predator', p.gen + 1));
+                        }
+                    }
+                });
+
+                if (p.energy <= 0) predators.splice(i, 1);
+            }
+
+            // Balance populations
+            if (gatherers.length < 20) gatherers.push(new Organism(null, null, null, null, 'gatherer'));
+            if (foodNodes.length < 15) foodNodes.push(new QuantumNode());
+
+            // Audio Modulation based on Swarm Centroid
+            if (audioEnabled && oscMain && gatherers.length > 0) {
+                let avgX = gatherers.reduce((s, a) => s + a.x, 0) / gatherers.length;
+                let targetFreq = 110 + (avgX / width) * 220;
+                oscMain.frequency.setTargetAtTime(Math.max(60, targetFreq), audioCtx.currentTime, 0.1);
+            }
+
+            // Update Metrics
+            document.getElementById('val-gatherers').innerText = gatherers.length;
+            document.getElementById('val-predators').innerText = predators.length;
+            document.getElementById('val-nodes').innerText = foodNodes.length;
+            document.getElementById('val-gen').innerText = maxGen;
+
+            // Update Sparklines
+            if (Math.random() < 0.1) {
+                popHistory.shift();
+                popHistory.push(gatherers.length + predators.length);
+                drawSparkline('spark-pop', popHistory, '#00f3ff');
+
+                entropyHistory.shift();
+                let entropy = Math.abs(Math.sin(Date.now() * 0.001) * 2 + warpVelocity * 100);
+                entropyHistory.push(entropy);
+                drawSparkline('spark-entropy', entropyHistory, '#ff0055');
+            }
+
+            if (selectedAgent) inspectAgent(selectedAgent);
+
+            requestAnimationFrame(render);
+        }
+
+        render();
+    </script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

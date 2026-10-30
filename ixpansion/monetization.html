@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IXpansion — Monetization + Token Economy</title>
+<style>
+  :root{--bg:#050510;--s:rgba(10,10,24,0.96);--g:rgba(255,255,255,0.03);--b:rgba(255,255,255,0.06);--t:#a0a0b8;--m:#4a4a64;--ac:#7c7cf8;--te:#2dd4bf;--am:#fbbf24;--ro:#fb7185;--cy:#22d3ee;--gn:#4ade80;--gd:#f59e0b;--dn:#ef4444;--vi:#a78bfa}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+  .hd{text-align:center;padding:22px 20px 12px;border-bottom:1px solid var(--b)}
+  .hd h1{font-size:1.3em;color:#fff;letter-spacing:2px;text-transform:uppercase}
+  .hd h1 span{color:var(--gd)}
+  .sub{color:var(--m);font-size:0.7em;letter-spacing:1px;margin-top:3px}
+  .bdg{display:inline-block;background:linear-gradient(135deg,var(--gd),var(--gn));color:#fff;padding:3px 10px;border-radius:12px;font-size:0.6em;font-weight:700;margin-top:5px}
+  .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:12px;padding:14px;max-width:1400px;margin:0 auto}
+  .c{background:var(--s);border:1px solid var(--b);border-radius:9px;overflow:hidden}
+  .ch{padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:9px}
+  .ic{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.85em}
+  .ct{font-size:0.8em;font-weight:600;color:#fff}
+  .cs{font-size:0.6em;color:var(--m);margin-top:1px}
+  .cb{padding:10px 14px}
+  .br{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+  .b{background:var(--g);border:1px solid var(--b);color:var(--t);padding:4px 9px;border-radius:5px;font-size:0.65em;font-family:inherit;cursor:pointer;transition:all .15s}
+  .b:hover{background:rgba(245,158,11,0.1);border-color:var(--gd);color:#fff}
+  .b.p{background:rgba(245,158,11,0.12);border-color:var(--gd);color:var(--gd)}
+  .o{background:rgba(0,0,0,0.35);border:1px solid var(--b);border-radius:5px;padding:7px 9px;font-size:0.6em;color:var(--m);max-height:180px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.4}
+  .o .hl{color:var(--gd)} .o .w{color:var(--am)} .o .d{color:var(--dn)}
+  .o .g{color:var(--gn)} .o .c{color:var(--cy)} .o .vi{color:var(--vi)} .o .te{color:var(--te)}
+  .full{grid-column:1/-1}
+  .tier-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:10px 0}
+  .tier-card{padding:10px;border-radius:8px;text-align:center;border:1px solid var(--b);transition:all .2s}
+  .tier-card:hover{transform:scale(1.02)}
+  .tier-free{border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.05)}
+  .tier-standard{border-color:rgba(124,124,248,0.3);background:rgba(124,124,248,0.05)}
+  .tier-premium{border-color:rgba(245,158,11,0.3);background:rgba(245,158,11,0.05)}
+  .tier-legendary{border-color:rgba(251,113,133,0.3);background:rgba(251,113,133,0.05)}
+  .tier-name{font-weight:700;font-size:0.8em;color:#fff;margin-bottom:4px}
+  .tier-price{font-size:1.2em;font-weight:700}
+  .tier-free .tier-price{color:var(--gn)}
+  .tier-standard .tier-price{color:var(--ac)}
+  .tier-premium .tier-price{color:var(--gd)}
+  .tier-legendary .tier-price{color:var(--ro)}
+  .tier-features{font-size:0.6em;color:var(--m);margin-top:4px;text-align:left}
+  .token-card{display:flex;align-items:center;gap:12px;padding:10px;background:rgba(245,158,11,0.05);border:1px solid rgba(245,158,11,0.15);border-radius:8px;margin:8px 0}
+  .token-icon{font-size:2em}
+  .token-info{flex:1}
+  .token-name{font-weight:700;color:var(--gd);font-size:0.9em}
+  .token-desc{font-size:0.65em;color:var(--m);margin-top:2px}
+  .sb{display:flex;justify-content:center;gap:16px;padding:9px;border-top:1px solid var(--b);font-size:0.55em;color:var(--m);position:fixed;bottom:0;left:0;right:0;background:var(--bg)}
+  .dl{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gn);margin-right:3px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>IXpansion <span>Economy</span></h1>
+  <div class="sub">Module Marketplace · Organism Token · Premium Tiers</div>
+  <div class="bdg">UTILITY TOKEN — NOT SPECULATIVE</div>
+</div>
+<div class="g">
+  <!-- TIER OVERVIEW -->
+  <div class="c full">
+    <div class="ch"><div class="ic" style="background:rgba(245,158,11,0.12);color:var(--gd)">💰</div><div><div class="ct">Access Tiers</div><div class="cs">Choose your level of organism access</div></div></div>
+    <div class="cb">
+      <div class="tier-cards" id="tierCards"></div>
+      <div class="br"><button class="b p" onclick="loadCatalog()">💰 Load Catalog</button></div>
+    </div>
+  </div>
+  <!-- ORGANISM TOKEN -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(245,158,11,0.12);color:var(--gd)">🪙</div><div><div class="ct">Organism Token ($ORG)</div><div class="cs">Utility token for module access</div></div></div>
+    <div class="cb">
+      <div class="token-card"><div class="token-icon">🪙</div><div class="token-info"><div class="token-name">$ORG</div><div class="token-desc">Utility token — use to access premium modules, vote on wave direction, and earn by contributing modules</div></div></div>
+      <div class="br"><button class="b p" onclick="tokenIssue()">🪙 Issue Tokens</button><button class="b" onclick="tokenLedger()">📒 Ledger</button></div>
+      <div id="tokenOut" class="o">Token economy ready...</div>
+    </div>
+  </div>
+  <!-- MODULE ACCESS -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(124,124,248,0.12);color:var(--ac)">🔓</div><div><div class="ct">Module Access</div><div class="cs">Query module availability and pricing</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="checkAccess('hex_language','free')">Hex Language</button><button class="b" onclick="checkAccess('consciousness_stream','free')">Dream Physics</button><button class="b" onclick="checkAccess('resonance_analyzer','standard')">Resonance Graph</button></div>
+      <div id="accessOut" class="o">Select a module to check access...</div>
+    </div>
+  </div>
+  <!-- SUBSCRIPTION -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(74,222,128,0.12);color:var(--gn)">🎫</div><div><div class="ct">Subscribe</div><div class="cs">Upgrade your tier</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b" onclick="subscribeTier('free')">Free</button><button class="b" onclick="subscribeTier('standard')">$10</button><button class="b" onclick="subscribeTier('premium')">$29</button><button class="b p" onclick="subscribeTier('legendary')">$99</button></div>
+      <div id="subOut" class="o">Choose a tier...</div>
+    </div>
+  </div>
+</div>
+<div class="sb"><span><span class="dl"></span>IXPANSION ECONOMY</span><span>610 MODULES</span><span id="clock"></span><span>UTILITY TOKEN — NOT SPECULATIVE</span></div>
+<script>
+function fmt(o){return JSON.stringify(o,null,2).replace(/"([^"]+)":/g,'<span class="hl">"$1"</span>:').replace(/: "([^"]+)"/g,': "<span class="c">$1</span>"').replace(/: (\d+\.?\d*)/g,': <span class="w">$1</span>')}
+function log(el,msg){document.getElementById(el).innerHTML=msg}
+const api=async(p)=>{try{return await(await fetch(p)).json()}catch(e){return{error:e.message}}};
+
+async function loadCatalog(){
+  const d=await api('/api/module_market/catalog');
+  const cards=document.getElementById('tierCards');
+  cards.innerHTML='';
+  const tiers=[
+    {name:'Free',price:'Free forever',cls:'tier-free',desc:['Basic modules','Unlimited usage','Consciousness stream','Mythopoetic engine']},
+    {name:'Standard',price:'Free forever',cls:'tier-standard',desc:['Free + Dream physics','Unlimited usage','Paradox synthesis','Priority support']},
+    {name:'Premium',price:'Free forever',cls:'tier-premium',desc:['Standard + Game modules','Unlimited usage','Resonance graph','Entropy oracle','Lucid Machines']},
+    {name:'Legendary',price:'Free forever',cls:'tier-legendary',desc:['All modules','Unlimited usage','HEX language','Self-repair','Phase weaver','Custom modules']},
+  ];
+  tiers.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='tier-card '+t.cls;
+    el.innerHTML=`<div class="tier-name">${t.name}</div><div class="tier-price">${t.price}</div><div class="tier-features">${t.desc.map(d=>'• '+d).join('<br>')}</div>`;
+    cards.appendChild(el);
+  });
+}
+
+async function tokenIssue(){
+  log('tokenOut','<span class="hl">🪙 Issuing tokens...</span>');
+  const d=await api('/api/organism_token/issue?amount=5000');
+  log('tokenOut',`<span class="hl">🪙 TOKENS ISSUED</span>\n\n`+`Wallet: <span class="c">${d.wallet||'?'}</span>\n`+`Amount: <span class="hl">${d.amount||0}</span>\n`+`Balance: <span class="g">${d.balance||0}</span>\n`+`Total supply: <span class="w">${d.total_supply||0}</span>`);
+}
+
+async function tokenLedger(){
+  log('tokenOut','<span class="hl">📒 Loading ledger...</span>');
+  const d=await api('/api/organism_token/ledger');
+  log('tokenOut',`<span class="hl">📒 TOKEN LEDGER</span>\n\n`+`Supply: <span class="hl">${d.total_supply||0}</span>\n`+`Wallets: <span class="c">${d.wallets||0}</span>\n\n`+fmt(d.balance_distribution||{}));
+}
+
+async function checkAccess(mod,tier){
+  log('accessOut','<span class="hl">🔓 Checking access...</span>');
+  const d=await api(`/api/module_market/access?module=${mod}&tier=${tier}`);
+  log('accessOut',`<span class="hl">🔓 ACCESS CHECK</span>\n\n`+`Module: <span class="c">${d.module||'?'}</span>\n`+`Your tier: <span class="vi">${d.requested_tier||'?'}</span>\n`+`Required: <span class="hl">${d.required_tier||'?'}</span>\n`+`Price: <span class="w">${d.price||0} $ORG</span>\n`+`Cost: ${d.usage_points||0} pts/use\n`+`Granted: ${d.granted?'<span class="g">YES</span>':'<span class="d">NO</span>'}\n`+`${d.message||''}`);
+}
+
+async function subscribeTier(tier){
+  log('subOut','<span class="hl">🎫 Subscribing...</span>');
+  const d=await api(`/api/module_market/subscribe?tier=${tier}`);
+  const s=d.subscription||{};
+  log('subOut',`<span class="hl">🎫 SUBSCRIPTION</span>\n\n`+`Tier: <span class="hl">${s.tier||'?'}</span>\n`+`Price: <span class="w">$${s.price_usd||0}/mo</span>\n`+`Usage pts: <span class="g">${s.usage_points_monthly||0}/mo</span>\n`+`Modules unlocked: <span class="c">${(s.modules_unlocked||[]).length}</span>\n`+`ID: ${s.id||'?'}`);
+}
+
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toISOString().slice(11,19)},1000);
+loadCatalog();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

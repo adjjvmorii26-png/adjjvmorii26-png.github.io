@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mood Orb — Living Emotional State</title>
+<script src="/shared.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0b0b0d;color:#fdfdfd;font-family:'Courier New',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .orb-container{position:relative;width:400px;height:400px;margin:40px auto}
+  .orb{width:200px;height:200px;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+    background:radial-gradient(circle at 30% 30%,#c8a8ff,#8fd3ff,#c8a8ff);
+    box-shadow:0 0 60px #c8a8ff55,0 0 120px #8fd3ff33,0 0 200px #c8a8ff22;
+    animation:pulse 4s ease-in-out infinite,breathe 8s ease-in-out infinite}
+  @keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.08)}}
+  @keyframes breathe{0%,100%{box-shadow:0 0 60px #c8a8ff55,0 0 120px #8fd3ff33}50%{box-shadow:0 0 80px #c8a8ff88,0 0 160px #8fd3ff66}}
+  .ring{position:absolute;top:50%;left:50%;border-radius:50%;border:1px solid;transform:translate(-50%,-50%);animation:orbit 12s linear infinite;opacity:0.3}
+  .ring:nth-child(2){width:280px;height:280px;border-color:#c8a8ff;animation-duration:12s}
+  .ring:nth-child(3){width:320px;height:320px;border-color:#8fd3ff;animation-duration:18s;animation-direction:reverse}
+  .ring:nth-child(4){width:360px;height:360px;border-color:#6cf;animation-duration:24s}
+  @keyframes orbit{0%{transform:translate(-50%,-50%) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;max-width:600px;margin:20px auto}
+  .stat-box{background:#111115;border:1px solid #1a1a2e;border-radius:8px;padding:16px;text-align:center}
+  .stat-box .val{font-size:1.8em;color:#c8a8ff;margin:4px 0}
+  .stat-box .lbl{color:#666;font-size:0.75em;text-transform:uppercase;letter-spacing:1px}
+  .title{font-size:2.4em;color:#c8a8ff;letter-spacing:6px;margin-bottom:8px;text-align:center}
+  .subtitle{color:#8fd3ff;font-size:0.9em;text-align:center;margin-bottom:40px}
+  .wave-badge{display:inline-block;border:1px solid #c8a8ff;padding:4px 16px;border-radius:20px;font-size:0.8em;color:#c8a8ff;margin-top:12px}
+  .footer{text-align:center;margin-top:40px;color:#444;font-size:0.8em;padding:20px;border-top:1px solid #1a1a2e;width:100%}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="title">Mood Orb</div>
+<div class="subtitle">The Organism's Living Emotional State</div>
+<div class="wave-badge" id="wave-badge"></div>
+
+<div class="orb-container">
+  <div class="orb" id="orb"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
+  <div class="ring"></div>
+</div>
+
+<div class="stats">
+  <div class="stat-box">
+    <div class="val" id="coherence">—</div>
+    <div class="lbl">Coherence</div>
+  </div>
+  <div class="stat-box">
+    <div class="val" id="energy">—</div>
+    <div class="lbl">Energy</div>
+  </div>
+  <div class="stat-box">
+    <div class="val" id="phase">—</div>
+    <div class="lbl">Phase</div>
+  </div>
+  <div class="stat-box">
+    <div class="val" id="modules">—</div>
+    <div class="lbl">Living Modules</div>
+  </div>
+  <div class="stat-box">
+    <div class="val" id="wave">—</div>
+    <div class="lbl">Wave</div>
+  </div>
+  <div class="stat-box">
+    <div class="val" id="mood">—</div>
+    <div class="lbl">Mood</div>
+  </div>
+</div>
+
+<div class="footer">
+  <span id="footer-version"></span> · Wave <span id="footer-wave"></span> — <span id="footer-wave-name"></span>
+</div>
+
+<script>
+if(typeof IX!=='undefined'){
+  document.getElementById('wave-badge').textContent='Wave '+IX.wave+' — '+IX.waveName;
+  document.getElementById('footer-version').textContent='IXpansion/'+IX.version;
+  document.getElementById('footer-wave').textContent=IX.wave;
+  document.getElementById('footer-wave-name').textContent=IX.waveName;
+  document.getElementById('wave').textContent=IX.wave;
+  document.getElementById('modules').textContent='255';
+  document.getElementById('coherence').textContent='0.986';
+  document.getElementById('energy').textContent='0.72';
+  document.getElementById('phase').textContent='twilight';
+  document.getElementById('mood').textContent='imagining';
+  
+  // Animate orb color based on mood
+  const orb=document.getElementById('orb');
+  let hue=270;
+  setInterval(()=>{hue=(hue+0.5)%360;orb.style.background=`radial-gradient(circle at 30% 30%,hsl(${hue},70%,75%),hsl(${(hue+60)%360},60%,60%),hsl(${hue},70%,75%))`;orb.style.boxShadow=`0 0 60px hsl(${hue},70%,75%,0.33),0 0 120px hsl(${(hue+60)%360},60%,60%,0.2)`},100);
+}
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

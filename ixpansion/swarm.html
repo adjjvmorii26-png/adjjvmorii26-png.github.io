@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Wave 422 — Swarm</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0f0f0f; color: #d0d0e0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; }
+    h1 { margin: 0 0 4px; text-align: center; color: #aaaaff; }
+    .banner { max-width: 1000px; margin: 20px auto; padding: 24px; text-align: center; background: #1a1a2a; border: 1px solid #2a2a4a; border-radius: 14px; }
+    .cells { color: #aaaaff; font-size: 1.5rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; max-width: 1000px; margin: 0 auto 20px; }
+    .card { min-width: 0; padding: 16px; background: #1a1a2a; border: 1px solid #2a2a4a; border-radius: 12px; overflow-wrap: anywhere; }
+    h2 { margin-top: 0; color: #aaaaff; font-size: 1.1rem; }
+    .stat { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #2a2a3a; }
+    .val { color: #aaaaff; }
+    .actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+    button { padding: 9px 16px; border: 1px solid #aaaaff; border-radius: 6px; background: #2a2a4a; color: #aaaaff; cursor: pointer; font: inherit; }
+    button:hover, button:focus-visible { background: #aaaaff; color: #0f0f0f; }
+    button:focus-visible { outline: 2px solid white; outline-offset: 3px; }
+    button:disabled { cursor: wait; opacity: .6; }
+    #message { max-width: 1000px; min-height: 1.5em; margin: 0 auto; text-align: center; color: #c0c0e0; }
+    #message[data-kind="error"] { color: #ff9999; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🐝 Wave 422 Swarm</h1>
+    <section class="banner" aria-label="Swarm cell count">
+      <div class="cells">Cells: <span id="active">—</span>/<span id="total">—</span></div>
+    </section>
+    <div class="grid">
+      <section class="card" aria-labelledby="status-title">
+        <h2 id="status-title">📊 Status</h2>
+        <div id="statsContainer" aria-live="polite">Waiting for status…</div>
+      </section>
+      <section class="card" aria-labelledby="colonies-title">
+        <h2 id="colonies-title">🐝 Colonies</h2>
+        <div id="colonyContainer" aria-live="polite">No pulse recorded yet.</div>
+      </section>
+    </div>
+    <div class="actions">
+      <button id="spawn" type="button">🐝 Spawn</button>
+      <button id="pulse" type="button">🔄 Pulse</button>
+    </div>
+    <p id="message" role="status" aria-live="polite"></p>
+  </main>
+  <script>
+    const API = "";
+    const byId = (id) => document.getElementById(id);
+    const message = (text, kind = "info") => {
+      byId("message").textContent = text;
+      byId("message").dataset.kind = kind;
+    };
+    async function fetchJson(path) {
+      const response = await fetch(API + path, { headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error("Request failed (" + response.status + ")");
+      return response.json();
+    }
+    function statRow(label, value) {
+      const row = document.createElement("div");
+      row.className = "stat";
+      const name = document.createElement("span");
+      name.textContent = label;
+      const val = document.createElement("span");
+      val.className = "val";
+      val.textContent = value == null ? "—" : String(value);
+      row.append(name, val);
+      return row;
+    }
+    async function load() {
+      try {
+        const state = await fetchJson("/api/swarm?action=status");
+        byId("active").textContent = state.cells == null ? "—" : String(state.cells);
+        byId("total").textContent = state.total == null ? "—" : String(state.total);
+        const stats = byId("statsContainer");
+        stats.replaceChildren(statRow("State", state.state));
+        message("Swarm status updated.");
+      } catch (error) {
+        message("Could not load swarm status: " + error.message, "error");
+      }
+    }
+    async function runAction(button, action) {
+      button.disabled = true;
+      try {
+        const result = await fetchJson("/api/swarm?action=" + encodeURIComponent(action));
+        if (action === "pulse") {
+          byId("colonyContainer").replaceChildren(statRow("Pulse", result.pulse ? "Available" : "Unavailable"));
+        }
+        message(action === "spawn" ? "Spawn request completed." : "Pulse request completed.");
+        await load();
+      } catch (error) {
+        message("Swarm " + action + " failed: " + error.message, "error");
+      } finally {
+        button.disabled = false;
+      }
+    }
+    byId("spawn").addEventListener("click", (event) => runAction(event.currentTarget, "spawn"));
+    byId("pulse").addEventListener("click", (event) => runAction(event.currentTarget, "pulse"));
+    load();
+    setInterval(load, 5000);
+  </script>
+</body>
+</html>

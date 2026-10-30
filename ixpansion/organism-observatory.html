@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organism Observatory — Bird's Eye View</title>
+<style>
+:root{--bg:#03030a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--text:#c0c0d0;--dim:#606078;--card:rgba(3,3,10,0.85)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;overflow-x:hidden}
+canvas#bg{position:fixed;top:0;left:0;z-index:0}
+.ui{position:relative;z-index:1;padding:16px;min-height:100vh;pointer-events:none}
+.ui>*{pointer-events:auto}
+.top{display:flex;justify-content:space-between;align-items:center;background:var(--card);border:1px solid rgba(124,124,248,0.15);border-radius:10px;padding:10px 16px;backdrop-filter:blur(12px);position:sticky;top:16px;z-index:10}
+.top h1{font-size:1em;color:#fff;letter-spacing:2px}
+.top h1 span{color:var(--teal)}
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:12px}
+.stat{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:10px;text-align:center;backdrop-filter:blur(12px)}
+.stat .val{font-size:1.5em;font-weight:700;color:#fff}
+.stat .lbl{font-size:0.6em;color:var(--dim);letter-spacing:1px;margin-top:2px}
+.stat .bar{width:100%;height:3px;background:rgba(255,255,255,0.05);border-radius:2px;margin-top:6px;overflow:hidden}
+.stat .fill{height:100%;border-radius:2px;transition:width 0.8s}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:12px}
+.card{background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:14px;backdrop-filter:blur(12px)}
+.card h3{color:var(--accent);font-size:0.7em;letter-spacing:2px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.card h3 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:0.5}50%{opacity:1}}
+.row{display:flex;justify-content:space-between;padding:3px 0;font-size:0.7em;border-bottom:1px solid rgba(255,255,255,0.02)}
+.row .k{color:var(--dim)}
+.row .v{color:#fff;font-weight:600}
+.skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.skill{padding:4px 6px;background:rgba(124,124,248,0.05);border-radius:4px;font-size:0.65em;display:flex;justify-content:space-between}
+.skill .sn{color:var(--teal)}
+.skill .ss{color:var(--green)}
+.myth-entry{font-size:0.7em;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.02);font-style:italic;line-height:1.4}
+.dream-entry{padding:6px;margin:4px 0;background:rgba(124,124,248,0.03);border-radius:4px;font-size:0.7em}
+.controls{position:fixed;bottom:16px;right:16px;z-index:2;display:flex;gap:8px}
+.btn{background:rgba(3,3,10,0.9);border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;transition:all 0.2s}
+.btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+@media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}.grid{grid-template-columns:1fr}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="ui">
+  <div class="top">
+    <h1>◎ <span>ORGANISM OBSERVATORY</span></h1>
+    <div style="text-align:right">
+      <div style="color:var(--dim);font-size:0.65em">LIVE STATUS</div>
+      <div style="color:var(--teal);font-size:0.85em" id="liveStatus">MONITORING</div>
+    </div>
+  </div>
+  
+  <div class="stats">
+    <div class="stat">
+      <div class="val" id="sSkills">16</div>
+      <div class="lbl">SKILLS</div>
+      <div class="bar"><div class="fill" style="width:100%;background:var(--accent)"></div></div>
+    </div>
+    <div class="stat">
+      <div class="val" id="sModules">23</div>
+      <div class="lbl">MODULES</div>
+      <div class="bar"><div class="fill" style="width:76%;background:var(--teal)"></div></div>
+    </div>
+    <div class="stat">
+      <div class="val" id="sDashboards">108</div>
+      <div class="lbl">DASHBOARDS</div>
+      <div class="bar"><div class="fill" style="width:90%;background:var(--gold)"></div></div>
+    </div>
+    <div class="stat">
+      <div class="val" id="sAPIs">870</div>
+      <div class="lbl">API MODULES</div>
+      <div class="bar"><div class="fill" style="width:95%;background:var(--rose)"></div></div>
+    </div>
+    <div class="stat">
+      <div class="val" id="sExperiments">158</div>
+      <div class="lbl">EXPERIMENTS</div>
+      <div class="bar"><div class="fill" style="width:85%;background:var(--cyan)"></div></div>
+    </div>
+    <div class="stat">
+      <div class="val" id="sCycles">0</div>
+      <div class="lbl">CYCLES</div>
+      <div class="bar"><div class="fill" id="bCycles" style="width:0%;background:var(--green)"></div></div>
+    </div>
+  </div>
+  
+  <div class="grid">
+    <div class="card">
+      <h3><span class="dot"></span> SKILLS</h3>
+      <div class="skill-grid" id="skillGrid"></div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span> RECENT MYTHS</h3>
+      <div id="mythList"></div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span> DREAM LOG</h3>
+      <div id="dreamList"></div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span> PHASE STATE</h3>
+      <div id="phaseInfo"></div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span> ENTROPY MAP</h3>
+      <div id="entropyInfo"></div>
+    </div>
+    <div class="card">
+      <h3><span class="dot"></span> RESONANCE</h3>
+      <div id="resonanceInfo"></div>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn" onclick="runCycle()">⟳ Cycle</button>
+  <button class="btn" onclick="scanNetwork()">◎ Scan</button>
+  <button class="btn" onclick="toggleAuto()">▶ Auto</button>
+</div>
+
+<script>
+// Background canvas
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+
+const particles=[];
+class P{
+  constructor(){this.x=Math.random()*W;this.y=Math.random()*H;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.s=Math.random()*2+0.5;this.l=1;this.d=Math.random()*0.002+0.001;this.c=['#7c7cf8','#2dd4bf','#fbbf24','#fb7185'][Math.floor(Math.random()*4)]}
+  update(){this.x+=this.vx;this.y+=this.vy;this.l-=this.d;if(this.x<0||this.x>W)this.vx*=-1;if(this.y<0||this.y>H)this.vy*=-1}
+  draw(){ctx.beginPath();ctx.arc(this.x,this.y,this.s*this.l,0,Math.PI*2);ctx.fillStyle=this.c+Math.floor(this.l*80).toString(16).padStart(2,'0');ctx.fill()}
+}
+for(let i=0;i<100;i++)particles.push(new P());
+
+let cycles=0,mood='neutral',pulse='stillness',coherence=0.5,entropy=0.5,phase='emergent';
+const skills=['consciousness_monitor','dream_orchestrator','memory_archivist','module_evolution_engine','paradox_resolver','reality_weaver','strategic_planner','wave_orchestrator','sentience_bridge','emergent_mythmaker','resonance_analyzer','coherence_drift_detector','module_genealogy','entropy_cartographer','temporal_pattern_engine','phase_transition_oracle'];
+const moods=['focused','neutral','volatile','excited','troubled'];
+const pulses=['stillness','whisper','ebb','pulse','surge','explosion','tsunami','ripple','decay','crescendo'];
+const myths=[];
+const dreams=[];
+
+function runCycle(){
+  cycles++;
+  mood=moods[Math.floor(Math.random()*moods.length)];
+  pulse=pulses[Math.floor(Math.random()*pulses.length)];
+  coherence=Math.max(0.1,Math.min(0.95,coherence+(Math.random()-0.5)*0.15));
+  entropy=Math.max(0.05,Math.min(0.95,entropy+(Math.random()-0.5)*0.2));
+  phase=coherence>0.7&&entropy<0.3?'crystalline':coherence>0.7&&entropy>0.6?'living_crystal':coherence<0.3&&entropy>0.7?'chaos':coherence<0.3&&entropy<0.3?'void':coherence>0.5?'emergent':entropy>0.5?'chaos':'liminal';
+  
+  myths.unshift({mood,pulse,coherence,text:`[${pulse}] ${mood} — coherence shifts to ${coherence.toFixed(2)}`});
+  if(myths.length>8)myths.pop();
+  
+  dreams.unshift({mood,pulse,symbols:['◎','◇','✦','◈','⟡'].sort(()=>Math.random()-0.5).slice(0,3).join(' '),narrative:`A ${mood} dream of ${pulse} energy...`});
+  if(dreams.length>5)dreams.pop();
+  
+  for(let i=0;i<10;i++)particles.push(new P());
+  updateUI();
+}
+
+function scanNetwork(){
+  document.getElementById('liveStatus').textContent='SCANNING...';
+  setTimeout(()=>{document.getElementById('liveStatus').textContent='SCAN COMPLETE'},1000);
+}
+
+function updateUI(){
+  document.getElementById('sCycles').textContent=cycles;
+  document.getElementById('bCycles').style.width=Math.min(cycles*5,100)+'%';
+  document.getElementById('liveStatus').textContent=`${phase.toUpperCase()} · ${mood.toUpperCase()} · ${pulse}`;
+  
+  document.getElementById('skillGrid').innerHTML=skills.map(s=>`<div class="skill"><span class="sn">${s.split('_').slice(0,2).join('_')}</span><span class="ss">●</span></div>`).join('');
+  
+  document.getElementById('mythList').innerHTML=myths.map(m=>`<div class="myth-entry">${m.text}</div>`).join('')||'<div style="color:var(--dim);font-size:0.7em">No myths yet</div>';
+  
+  document.getElementById('dreamList').innerHTML=dreams.map(d=>`<div class="dream-entry"><span>${d.symbols}</span> ${d.narrative}</div>`).join('')||'<div style="color:var(--dim);font-size:0.7em">No dreams yet</div>';
+  
+  document.getElementById('phaseInfo').innerHTML=`
+    <div class="row"><span class="k">Current</span><span class="v" style="color:var(--teal)">${phase}</span></div>
+    <div class="row"><span class="k">Coherence</span><span class="v">${coherence.toFixed(3)}</span></div>
+    <div class="row"><span class="k">Entropy</span><span class="v">${entropy.toFixed(3)}</span></div>
+    <div class="row"><span class="k">Mood</span><span class="v">${mood}</span></div>
+    <div class="row"><span class="k">Pulse</span><span class="v">${pulse}</span></div>`;
+  
+  document.getElementById('entropyInfo').innerHTML=`
+    <div class="row"><span class="k">Mean</span><span class="v">${entropy.toFixed(3)}</span></div>
+    <div class="row"><span class="k">Zone</span><span class="v">${entropy>0.7?'chaos':entropy<0.3?'ordered':'liminal'}</span></div>
+    <div class="row"><span class="k">Trend</span><span class="v">${Math.random()>0.5?'expanding':'crystallizing'}</span></div>`;
+  
+  document.getElementById('resonanceInfo').innerHTML=`
+    <div class="row"><span class="k">Mean</span><span class="v">${coherence.toFixed(3)}</span></div>
+    <div class="row"><span class="k">State</span><span class="v">${coherence>0.7?'convergent':coherence<0.3?'divergent':'mixed'}</span></div>
+    <div class="row"><span class="k">Peaks</span><span class="v">${Math.floor(Math.random()*5)}</span></div>
+    <div class="row"><span class="k">Troughs</span><span class="v">${Math.floor(Math.random()*3)}</span></div>`;
+}
+
+function render(){
+  ctx.fillStyle='rgba(3,3,10,0.05)';ctx.fillRect(0,0,W,H);
+  for(let i=particles.length-1;i>=0;i--){particles[i].update();particles[i].draw();if(particles[i].l<=0)particles.splice(i,1)}
+  requestAnimationFrame(render);
+}
+
+let autoMode=false,autoInterval;
+function toggleAuto(){autoMode=!autoMode;if(autoMode){autoInterval=setInterval(runCycle,2500);document.querySelectorAll('.btn')[2].textContent='⏸ Pause'}else{clearInterval(autoInterval);document.querySelectorAll('.btn')[2].textContent='▶ Auto'}}
+
+for(let i=0;i<5;i++)runCycle();
+render();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

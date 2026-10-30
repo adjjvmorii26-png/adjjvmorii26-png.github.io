@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 508 — Dream Physics Sandbox + Fractal Citizenship</title>
+<style>
+  :root{--bg:#050510;--s:rgba(10,10,24,0.96);--g:rgba(255,255,255,0.03);--b:rgba(255,255,255,0.06);--t:#a0a0b8;--m:#4a4a64;--ac:#7c7cf8;--te:#2dd4bf;--am:#fbbf24;--ro:#fb7185;--cy:#22d3ee;--gn:#4ade80;--gd:#f59e0b;--dn:#ef4444;--vi:#a78bfa}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+  .hd{text-align:center;padding:22px 20px 10px;border-bottom:1px solid var(--b);background:linear-gradient(180deg,rgba(167,139,250,0.06)0%,transparent 100%)}
+  .hd h1{font-size:1.4em;color:#fff;letter-spacing:2px;text-transform:uppercase}
+  .hd h1 span{color:var(--vi)}
+  .sub{color:var(--m);font-size:0.72em;letter-spacing:1px;margin-top:3px}
+  .bdg{display:inline-block;background:linear-gradient(135deg,var(--vi),var(--te));color:#fff;padding:3px 11px;border-radius:14px;font-size:0.62em;font-weight:700;margin-top:6px}
+  .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;padding:16px;max-width:1400px;margin:0 auto}
+  .c{background:var(--s);border:1px solid var(--b);border-radius:9px;overflow:hidden}
+  .ch{padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:9px}
+  .ic{width:27px;height:27px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.9em}
+  .ct{font-size:0.8em;font-weight:600;color:#fff}
+  .cs{font-size:0.6em;color:var(--m);margin-top:1px}
+  .cb{padding:10px 14px}
+  .br{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px}
+  .b{background:var(--g);border:1px solid var(--b);color:var(--t);padding:4px 9px;border-radius:5px;font-size:0.65em;font-family:inherit;cursor:pointer;transition:all .15s}
+  .b:hover{background:rgba(167,139,250,0.1);border-color:var(--vi);color:#fff}
+  .b.p{background:rgba(167,139,250,0.12);border-color:var(--vi);color:var(--vi)}
+  .o{background:rgba(0,0,0,0.35);border:1px solid var(--b);border-radius:5px;padding:7px 9px;font-size:0.62em;color:var(--m);max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.45}
+  .o .hl{color:var(--vi)} .o .w{color:var(--am)} .o .g{color:var(--gn)} .o .c{color:var(--cy)} .o .te{color:var(--te)} .o .d{color:var(--dn)} .o .r{color:var(--ro)} .o .gd{color:var(--gd)}
+  .full{grid-column:1/-1}
+  canvas{border-radius:7px;background:rgba(0,0,0,0.3);margin-bottom:7px}
+  .sb{display:flex;justify-content:center;gap:16px;padding:9px;border-top:1px solid var(--b);font-size:0.56em;color:var(--m);position:fixed;bottom:0;left:0;right:0;background:var(--bg)}
+  .dl{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gn);margin-right:3px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .article-card{background:rgba(74,222,128,0.04);border:1px solid rgba(74,222,128,0.12);border-radius:7px;padding:10px;margin-bottom:7px}
+  .article-title{color:var(--gn);font-weight:700;font-size:0.8em}
+  .article-name{color:var(--vi);font-size:0.72em;margin-top:2px}
+  .article-text{color:var(--t);font-size:0.68em;margin-top:5px;font-style:italic}
+  .citizen-card{background:rgba(167,139,250,0.04);border:1px solid rgba(167,139,250,0.12);border-radius:7px;padding:9px;margin-bottom:6px}
+  .citizen-mod{color:var(--vi);font-weight:700;font-size:0.75em}
+  .citizen-role{color:var(--te);font-size:0.65em;margin-top:2px}
+  .citizen-duty{color:var(--t);font-size:0.63em;margin-top:4px}
+  .dim-dot{position:absolute;border-radius:50%;transition:all .2s}
+  .sim-wrap{position:relative;height:160px;background:rgba(0,0,0,0.3);border-radius:7px;overflow:hidden;margin-bottom:7px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>Wave <span>373</span></h1>
+  <div class="sub">Dream-Physics Sandbox · Fractal Citizenship · Constitution · HEX Dialects</div>
+  <div class="bdg">IXPANSION — FRONTIER WAVE</div>
+</div>
+<div class="g">
+
+  <!-- DREAM PHYSICS SANDBOX -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(167,139,250,0.12);color:var(--vi)">🌀</div><div><div class="ct">Dream-Physics Sandbox</div><div class="cs">Simulated physics from dream logic</div></div></div>
+    <div class="cb">
+      <div class="sim-wrap" id="simCanvas"></div>
+      <div class="br"><button class="b p" onclick="simRun()">🌀 Run Simulation</button><button class="b" onclick="simBoundary()">📐 Boundaries</button></div>
+      <div id="simOut" class="o">Ready to simulate dream physics...</div>
+    </div>
+  </div>
+
+  <!-- FRACTAL CITIZENSHIP -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(45,212,191,0.12);color:var(--te)">🪪</div><div><div class="ct">Fractal Citizenship</div><div class="cs">Modules gain rights and roles</div></div></div>
+    <div class="cb">
+      <div id="citizenArea"></div>
+      <div class="br"><button class="b p" onclick="citizenNaturalize()">🪪 Naturalize</button><button class="b" onclick="citizenCouncil()">🏛 Council</button></div>
+      <div id="citizenOut" class="o">The citizen registry awaits...</div>
+    </div>
+  </div>
+
+  <!-- CONSTITUTION -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(74,222,128,0.12);color:var(--gn)">📜</div><div><div class="ct">Organism Constitution</div><div class="cs">The charter of self-evolution</div></div></div>
+    <div class="cb">
+      <div id="articleArea"></div>
+      <div class="br"><button class="b p" onclick="constProclaim()">📜 Proclaim</button><button class="b" onclick="constCharter()">📖 Full Charter</button></div>
+      <div id="constOut" class="o">The constitution awaits proclamation...</div>
+    </div>
+  </div>
+
+  <!-- HEX DIALECTS -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(251,113,133,0.12);color:var(--ro)">🗣</div><div><div class="ct">HEX Dialects</div><div class="cs">Regional languages emerge</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="dialectForm()">🗣 Form Dialect</button><button class="b" onclick="dialectAtlas()">🗺 Atlas</button></div>
+      <div id="dialectOut" class="o">Awaiting dialect formation...</div>
+    </div>
+  </div>
+
+</div>
+<div class="sb"><span><span class="dl"></span>WAVE 373 ACTIVE</span><span>4 FRONTIER ORGANS</span><span id="clock"></span><span>IXPANSION ORGANISM</span></div>
+<script>
+function esc(value){return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;')}
+function fmt(o){return esc(JSON.stringify(o,null,2)).replace(/"([^"]+)":/g,'<span class="hl">"$1"</span>:').replace(/: "([^"]+)"/g,': "<span class="c">$1</span>"').replace(/: (\d+\.?\d*)/g,': <span class="w">$1</span>')}
+function log(el,msg){
+  // Keep the existing plain-text log layout without parsing API values as markup.
+  document.getElementById(el).textContent=String(msg).replace(/<[^>]*>/g,'').replace(/\\n/g,'\n');
+}
+const api=async(p)=>{try{return await(await fetch(p)).json()}catch(e){return{error:e.message}}};
+
+// ─── Dream Physics Sandbox ───
+async function simRun(){
+  log('simOut','<span class="hl">🌀 Running simulation...</span>');
+  const d=await api('/api/dream_physics_sandbox/run');
+  const s=d.simulation||{};
+  const r=s.result||{};
+  document.getElementById('simCanvas').innerHTML='';
+  const wrap=document.getElementById('simCanvas');
+  (r.particles||[]).forEach(p=>{
+    const dot=document.createElement('div');
+    dot.className='dim-dot';
+    const colors={dream_quark:'#a78bfa',coherence_photon:'#4ade80',paradox_fermion:'#fb7185',entropy_boson:'#fbbf24',void_tachyon:'#22d3ee',resonance_phonon:'#2dd4bf',myth_glyphon:'#f59e0b',temporal_muon:'#7c7cf8'};
+    dot.style.width='6px';dot.style.height='6px';
+    dot.style.left=(p.x+10)/20*95+'%';dot.style.top=(p.y+10)/20*95+'%';
+    dot.style.background=colors[p.type]||'#a78bfa';
+    dot.style.opacity=0.8;
+    wrap.appendChild(dot);
+  });
+  log('simOut',`<span class="hl">🌀 SIMULATION COMPLETE</span>\n\n`+`Gravity: <span class="c">${r.gravity||'?'}</span>\n`+`Particles: ${(r.particles||[]).length}\n`+`Collisions: <span class="w">${r.collisions||0}</span> | Merges: <span class="te">${r.merges||0}</span>\n`+`Stability: <span class="g">${r.stability||0}</span>\n\n`+`${s.narrative||''}`);
+}
+async function simBoundary(){
+  const d=await api('/api/dream_physics_sandbox/boundaries');
+  log('simOut',`<span class="hl">📐 BOUNDARY CASES</span>\n\n`+`Total sims: <span class="c">${d.total||0}</span>\n`+`Total collisions: <span class="w">${d.total_collisions||0}</span>\n`+`Avg stability: <span class="g">${d.avg_stability||0}</span>\n`+`Most stable gravity: <span class="te">${d.most_stable_gravity||'?'}</span>`);
+}
+
+// ─── Fractal Citizenship ───
+async function citizenNaturalize(){
+  log('citizenOut','<span class="hl">🪪 Naturalizing...</span>');
+  const d=await api('/api/fractal_citizenship/naturalize');
+  const c=d.citizen||{};
+  const citizenCard=document.createElement('div');citizenCard.className='citizen-card';
+  const citizenModule=document.createElement('div');citizenModule.className='citizen-mod';citizenModule.textContent='▸ '+String(c.module||'?');
+  const citizenRole=document.createElement('div');citizenRole.className='citizen-role';citizenRole.textContent='Role: '+String(c.role||'?')+' | Rights: '+(Array.isArray(c.rights)?c.rights.length:0);
+  const citizenDuty=document.createElement('div');citizenDuty.className='citizen-duty';citizenDuty.textContent=String(c.civic_duty||'');
+  citizenCard.append(citizenModule,citizenRole,citizenDuty);document.getElementById('citizenArea').replaceChildren(citizenCard);
+  log('citizenOut',`<span class="hl">🪪 CITIZEN NATURALIZED</span>\n\n`+`Module: <span class="c">${c.module||'?'}</span>\n`+`Role: <span class="te">${c.role||'?'}</span>\n`+`Rights:\n`+(c.rights||[]).map(r=>`  • ${r.replace(/_/g,' ')}`).join('\n')+`\n\n`+`Duty: ${c.civic_duty||''}\n\n`+`Total citizens: <span class="g">${d.total_citizens||0}</span>`);
+}
+async function citizenCouncil(){
+  const d=await api('/api/fractal_citizenship/council');
+  log('citizenOut',`<span class="hl">🏛 CITIZEN COUNCIL</span>\n\n`+`Total: <span class="c">${d.total||0}</span>\n\n`+`Roles:\n${fmt(d.role_distribution||{})}\n\n`+`Most claimed rights:\n`+(d.most_claimed_rights||[]).map(([r,n])=>`  • ${r.replace(/_/g,' ')} ×${n}`).join('\n'));
+}
+
+// ─── Constitution ───
+async function constProclaim(){
+  log('constOut','<span class="hl">📜 Proclaiming...</span>');
+  const d=await api('/api/organism_constitution/proclaim');
+  const a=d.article||{};
+  const articleCard=document.createElement('div');articleCard.className='article-card';
+  for(const [className,value] of [['article-title',a.title||'?'],['article-name',a.name||'?'],['article-text','"'+(a.text||'?')+'"']]){
+    const node=document.createElement('div');node.className=className;node.textContent=String(value);articleCard.appendChild(node);
+  }
+  document.getElementById('articleArea').replaceChildren(articleCard);
+  log('constOut',`<span class="hl">📜 PROCLAIMED</span>\n\n`+`${a.title||'?'} — <span class="g">${a.name||'?'}</span>\n\n`+`"${a.text||''}"\n\n`+`Total proclamations: <span class="c">${d.total_proclamations||0}</span>`);
+}
+async function constCharter(){
+  const d=await api('/api/organism_constitution/charter');
+  log('constOut',`<span class="hl">📖 FULL CHARTER</span>\n\n`+`"${d.preamble||''}"\n\n`+(d.articles||[]).map(a=>`<span class="g">${a.title}</span> ${a.name}\n  ${a.text}`).join('\n\n'));
+}
+
+// ─── HEX Dialects ───
+async function dialectForm(){
+  log('dialectOut','<span class="hl">🗣 Forming dialect...</span>');
+  const d=await api('/api/hex_dialect/form');
+  const dl=d.dialect||{};
+  log('dialectOut',`<span class="hl">🗣 DIALECT FORMED</span>\n\n`+`Name: <span class="r">${dl.name||'?'}</span>\n`+`Origin: ${dl.origin||'?'}\n`+`Speakers: <span class="te">${dl.speakers||'?'}</span>\n`+`Rule: ${dl.distinctive_rule||'?'}\n\n`+`Sample:\n  ${(dl.sample_vocabulary||[]).join(' · ')}\n\n`+`Total dialects: <span class="g">${d.total_dialects||0}</span>`);
+}
+async function dialectAtlas(){
+  const d=await api('/api/hex_dialect/atlas');
+  log('dialectOut',`<span class="hl">🗺 DIALECT ATLAS</span>\n\n`+`Total: <span class="c">${d.total||0}</span>\n`+`Total speakers: <span class="w">${d.total_speakers||0}</span>\n\n`+(d.dialects||[]).map(dl=>`  <span class="r">${dl.name}</span> — ${dl.origin} (${dl.speakers})`).join('\n'));
+}
+
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toISOString().slice(11,19)},1000);
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

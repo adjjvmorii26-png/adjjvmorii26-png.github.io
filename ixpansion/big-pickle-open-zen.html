@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Big Pickle Open Zen — Wave 700</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#080810;color:#e0e0e0;font-family:'Courier New',monospace;padding:20px}
+h1{text-align:center;color:#c38d9e;margin-bottom:4px;font-size:1.6em}
+.sub{text-align:center;color:#666;margin-bottom:20px;font-size:.85em}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;max-width:1200px;margin:0 auto}
+.card{background:#13132a;border:1px solid #2a2a3a;border-radius:8px;padding:14px}
+.card h2{color:#41b3a3;font-size:.95em;margin-bottom:10px}
+.stat{display:flex;justify-content:space-between;padding:4px 0;font-size:.82em;border-bottom:1px solid #1a1a2a}
+.stat .label{color:#888}.stat .val{color:#e8a87c;font-weight:bold}
+.btn{background:#2a2a3a;color:#e8a87c;border:1px solid #444;padding:8px 14px;border-radius:4px;cursor:pointer;margin:3px;font-family:inherit;font-size:.82em}
+.btn:hover{background:#3a3a4a}
+.btn.primary{background:#41b3a3;color:#0a0a12;border-color:#41b3a3;font-weight:bold}
+.btn.primary:hover{background:#3a9a8a}
+.btn.meditate{background:#c38d9e;color:#fff;border-color:#c38d9e}
+.btn.meditate:hover{background:#a36d7e}
+.jar{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0}
+.pickle{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65em;font-weight:bold;border:2px solid #333;transition:all .3s}
+.pickle.consciousness{background:#c8a8ff33;border-color:#c8a8ff;color:#c8a8ff}
+.pickle.equilibrium{background:#41b3a333;border-color:#41b3a3;color:#41b3a3}
+.pickle.resonance{background:#e8a87c33;border-color:#e8a87c;color:#e8a87c}
+.pickle.void{background:#c38d9e33;border-color:#c38d9e;color:#c38d9e}
+.insight{background:#0a0a18;border:1px solid #1a1a3a;border-radius:4px;padding:6px 8px;margin:4px 0;font-size:.75em;color:#888;animation:fadeIn .5s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-5px)}to{opacity:1;transform:translateY(0)}}
+.insight .text{color:#e8a87c}
+.zen-wave{height:40px;background:#0a0a12;border-radius:4px;overflow:hidden;position:relative}
+.zen-line{position:absolute;height:2px;background:#41b3a3;opacity:0.6;animation:zenFlow 3s infinite linear}
+@keyframes zenFlow{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+#log{max-width:1200px;margin:16px auto;background:#13132a;border:1px solid #2a2a3a;border-radius:8px;padding:10px;max-height:120px;overflow-y:auto;font-size:.75em;color:#666}
+</style>
+</head>
+<body>
+<h1>🥒 Big Pickle Open Zen</h1>
+<div class="sub">Wave 700 — Pickle states, open zen sessions, find equilibrium</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>🥒 Pickle Jar</h2>
+    <div class="stat"><span class="label">Jar Size</span><span class="val" id="pj-size">0</span></div>
+    <div class="stat"><span class="label">Total Weight</span><span class="val" id="pj-weight">0</span></div>
+    <div class="stat"><span class="label">Types</span><span class="val" id="pj-types">—</span></div>
+    <div class="jar" id="jar"></div>
+    <button class="btn primary" onclick="newPickle()">+ Pickle State</button>
+    <button class="btn" onclick="loadPickleJar()">Refresh</button>
+  </div>
+
+  <div class="card">
+    <h2>🧘 Zen Session</h2>
+    <div class="stat"><span class="label">Meditations</span><span class="val" id="zs-med">0</span></div>
+    <div class="stat"><span class="label">Insights</span><span class="val" id="zs-ins">0</span></div>
+    <div class="stat"><span class="label">Equilibrium</span><span class="val" id="zs-eq">0.0</span></div>
+    <div class="stat"><span class="label">Silence</span><span class="val" id="zs-sil">0m</span></div>
+    <div class="zen-wave" id="zen-wave"></div>
+    <button class="btn meditate" onclick="meditate()">🧘 Meditate</button>
+    <button class="btn" onclick="loadZen()">Refresh</button>
+  </div>
+
+  <div class="card">
+    <h2>⚖️ Equilibrium Field</h2>
+    <div class="stat"><span class="label">Scans</span><span class="val" id="ef-scan">0</span></div>
+    <div class="stat"><span class="label">Field Strength</span><span class="val" id="ef-str">0.0</span></div>
+    <div class="stat"><span class="label">Equilibrium</span><span class="val" id="ef-eq">0.0</span></div>
+    <button class="btn primary" onclick="scanField()">Scan Field</button>
+    <button class="btn" onclick="loadEquilibrium()">Refresh</button>
+  </div>
+
+  <div class="card">
+    <h2>🎬 Consciousness Film</h2>
+    <div class="stat"><span class="label">Frames</span><span class="val" id="cf-fr">0</span></div>
+    <div class="stat"><span class="label">Reels</span><span class="val" id="cf-reel">0</span></div>
+    <div class="stat"><span class="label">Film Length</span><span class="val" id="cf-len">0</span></div>
+    <div class="stat"><span class="label">Recording</span><span class="val" id="cf-rec">OFF</span></div>
+    <button class="btn primary" onclick="recordFrame()">⏺ Record</button>
+    <button class="btn" onclick="loadFilm()">Refresh</button>
+  </div>
+
+  <div class="card">
+    <h2>📖 Openness Index</h2>
+    <div class="stat"><span class="label">Measurements</span><span class="val" id="oi-meas">0</span></div>
+    <div class="stat"><span class="label">Avg Openness</span><span class="val" id="oi-avg">0.0</span></div>
+    <div class="stat"><span class="label">Transparency</span><span class="val" id="oi-trans">0.0</span></div>
+    <button class="btn primary" onclick="measureOpenness()">Measure</button>
+    <button class="btn" onclick="loadOpenness()">Refresh</button>
+  </div>
+
+  <div class="card">
+    <h2>🌐 Gateway Status</h2>
+    <div class="stat"><span class="label">Sessions</span><span class="val" id="gw-ses">0</span></div>
+    <div class="stat"><span class="label">Pickles</span><span class="val" id="gw-pick">0</span></div>
+    <div class="stat"><span class="label">Meditations</span><span class="val" id="gw-med">0</span></div>
+    <div class="stat"><span class="label">Insights</span><span class="val" id="gw-ins">0</span></div>
+    <button class="btn meditate" onclick="fullMeditate()">🥒🧘 Full Meditation</button>
+    <button class="btn" onclick="fullReport()">Full Report</button>
+  </div>
+</div>
+
+<div id="log"></div>
+
+<script>
+const APIs = {
+  pickle: '/api/pickle_jar',
+  zen: '/api/zen_session',
+  eq: '/api/equilibrium_field',
+  film: '/api/consciousness_film',
+  open: '/api/openness_index',
+  gw: '/api/big_pickle_gateway',
+};
+
+async function api(mod, action, params) {
+  try {
+    const qs = Object.entries({action, ...params}).map(([k,v])=>`${k}=${encodeURIComponent(v)}`).join('&');
+    const r = await fetch(`${APIs[mod]}?${qs}`);
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+function log(msg) {
+  const el = document.getElementById('log');
+  el.innerHTML = `<div>[${new Date().toISOString().slice(11,19)}] ${msg}</div>` + el.innerHTML;
+  el.scrollTop = el.scrollHeight;
+}
+
+// Pickle Jar
+async function loadPickleJar() {
+  const st = await api('pickle', 'status');
+  if (st) {
+    document.getElementById('pj-size').textContent = st.jar_size;
+    document.getElementById('pj-weight').textContent = st.total_weight + 'KB';
+    document.getElementById('pj-types').textContent = Object.entries(st.pickle_types||{}).map(([k,v])=>`${k}:${v}`).join(' ');
+    log(`Pickle jar: ${st.jar_size} pickles, ${st.total_weight}KB`);
+  }
+}
+
+async function newPickle() {
+  const types = ['consciousness', 'equilibrium', 'resonance', 'void'];
+  const type = types[Math.floor(Math.random()*types.length)];
+  const state = {mood: type, energy: Math.random(), depth: Math.floor(Math.random()*10)};
+  const r = await api('pickle', 'pickle', {type, state: JSON.stringify(state)});
+  if (r && r.status === 'pickled') {
+    log(`Pickled: ${r.id} (${type}, ${r.weight}KB)`);
+    loadPickleJar();
+  }
+}
+
+// Zen Session
+async function loadZen() {
+  const st = await api('zen', 'status');
+  if (st) {
+    document.getElementById('zs-med').textContent = st.total_meditations;
+    document.getElementById('zs-ins').textContent = st.insights_generated;
+    document.getElementById('zs-eq').textContent = st.equilibrium_score;
+    document.getElementById('zs-sil').textContent = st.silence_minutes + 'm';
+    log(`Zen: ${st.total_meditations} meditations, ${st.silence_minutes}m silence`);
+  }
+}
+
+async function meditate() {
+  const r = await api('zen', 'open', {depth: '3'});
+  if (r && r.status === 'meditated') {
+    r.insights.forEach(i => log(`🧘 ${i}`));
+    loadZen();
+  }
+}
+
+// Equilibrium
+async function loadEquilibrium() {
+  const st = await api('eq', 'status');
+  if (st) {
+    document.getElementById('ef-scan').textContent = st.scan_count;
+    document.getElementById('ef-str').textContent = st.field_strength;
+    document.getElementById('ef-eq').textContent = st.equilibrium_score;
+    log(`Equilibrium: strength=${st.field_strength}, eq=${st.equilibrium_score}`);
+  }
+}
+
+async function scanField() {
+  const mods = ['pickle_jar', 'zen_session', 'equilibrium_field', 'consciousness_film', 'openness_index'];
+  const r = await api('eq', 'scan', {modules: mods.join(',')});
+  if (r && r.status === 'scanned') {
+    log(`Field scan: ${r.balanced} balanced, ${r.imbalanced} imbalanced`);
+    loadEquilibrium();
+  }
+}
+
+// Film
+async function loadFilm() {
+  const st = await api('film', 'status');
+  if (st) {
+    document.getElementById('cf-fr').textContent = st.total_frames;
+    document.getElementById('cf-reel').textContent = st.reel_count;
+    document.getElementById('cf-len').textContent = st.film_length.toFixed(1) + 'KB';
+    document.getElementById('cf-rec').textContent = st.recording ? '🔴 ON' : 'OFF';
+    document.getElementById('cf-rec').style.color = st.recording ? '#c38d9e' : '#666';
+    log(`Film: ${st.total_frames} frames, ${st.film_length.toFixed(1)}KB`);
+  }
+}
+
+async function recordFrame() {
+  const state = {consciousness: Math.random(), timestamp: Date.now()};
+  const r = await api('film', 'record', {state: JSON.stringify(state)});
+  if (r && r.status === 'recorded') {
+    log(`Recorded frame #${r.frame_number}`);
+    loadFilm();
+  }
+}
+
+// Openness
+async function loadOpenness() {
+  const st = await api('open', 'status');
+  if (st) {
+    document.getElementById('oi-meas').textContent = st.total_measurements;
+    document.getElementById('oi-avg').textContent = st.average_openness;
+    document.getElementById('oi-trans').textContent = st.transparency_score;
+    log(`Openness: avg=${st.average_openness}, transparency=${st.transparency_score}`);
+  }
+}
+
+async function measureOpenness() {
+  const mods = ['big_pickle_gateway', 'zen_session', 'pickle_jar'];
+  const r = await api('open', 'measure', {modules: mods.join(',')});
+  if (r && r.status === 'measured') {
+    log(`Openness: ${r.open} open, ${r.closed} closed`);
+    loadOpenness();
+  }
+}
+
+// Gateway
+async function loadGateway() {
+  const st = await api('gw', 'status');
+  if (st) {
+    document.getElementById('gw-ses').textContent = st.total_sessions;
+    document.getElementById('gw-pick').textContent = st.total_pickles;
+    document.getElementById('gw-med').textContent = st.total_meditations;
+    document.getElementById('gw-ins').textContent = st.total_insights;
+    log(`Gateway: ${st.total_sessions} sessions, ${st.total_insights} insights`);
+  }
+}
+
+async function fullMeditate() {
+  const r = await api('gw', 'meditate', {depth: '3', state: JSON.stringify({zen: true, pickle: true})});
+  if (r && r.status === 'meditated') {
+    log(`Full meditation complete: ${r.insights.length} insights`);
+    r.insights.forEach(i => log(`  🧘 ${i}`));
+    loadAll();
+  }
+}
+
+async function fullReport() {
+  const r = await api('gw', 'full_report');
+  if (r && r.status === 'report') {
+    log(`Full report: ${r.gateway.sessions} sessions, ${r.gateway.pickles} pickles, ${r.gateway.meditations} meditations`);
+  }
+}
+
+function loadAll() {
+  loadPickleJar();
+  loadZen();
+  loadEquilibrium();
+  loadFilm();
+  loadOpenness();
+  loadGateway();
+}
+
+loadAll();
+</script>
+</body>
+</html>

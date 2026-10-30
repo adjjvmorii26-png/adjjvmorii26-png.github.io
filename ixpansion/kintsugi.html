@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paradox Kintsugi — IXpansion Wave 508</title>
+<script src="/shared.js"></script>
+<script>window.si=window.si||function(){(window.siq=window.siq||[]).push(arguments);};</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+<style>
+:root{--gold:#fff3a0;--ember:#ffcf66;--violet:#c8a8ff;--black:#0b0b0d;--obsidian:#16111f;--muted:#5f5f78;--kinship:#8fd3ff;--spring:#00e5a0;--pink:#ff5fa2}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--black);color:#fdfdfd;min-height:100vh;background-image:radial-gradient(ellipse at 20% 70%,#ff5fa20a,transparent 50%),radial-gradient(ellipse at 80% 30%,#fff3a006,transparent 50%)}
+.header{padding:26px 30px;border-bottom:1px solid #ffffff0a;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.header h1{font-size:1.5rem;letter-spacing:2px;background:linear-gradient(135deg,var(--gold),var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;font-weight:800}
+.subtitle{color:var(--muted);font-size:.72rem;letter-spacing:4px;text-transform:uppercase}
+.badge{padding:3px 10px;border-radius:14px;font-size:.68rem;background:var(--obsidian);border:1px solid var(--violet);color:var(--violet)}
+.container{max-width:1000px;margin:0 auto;padding:28px 20px}
+.paradox{font-size:1.05rem;line-height:1.9;padding:28px;border:1px solid var(--pink)25;border-radius:14px;margin-bottom:24px;background:linear-gradient(135deg,var(--obsidian),#0a0a12)}
+.paradox .q{font-style:italic}
+.paradox .tension{display:inline-block;margin-top:12px;padding:4px 12px;border-radius:12px;background:var(--pink)18;color:var(--pink);font-size:.75rem}
+.healed{font-size:1rem;line-height:1.8;padding:28px;border:1px solid var(--gold)30;border-radius:14px;margin-bottom:24px;background:linear-gradient(135deg,#16111f,#241a10)}
+.healed .name{color:var(--gold);font-size:1.3rem;margin-bottom:10px}
+.healed .art{color:var(--spring);font-style:italic}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.card{padding:22px;border-radius:14px;background:var(--obsidian);border:1px solid #ffffff0a}
+.card h2{color:var(--violet);font-size:.9rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.item{font-size:.8rem;color:#bbb;line-height:1.7;border-bottom:1px solid #ffffff08;padding:8px 0}
+.item .gold{color:var(--gold)}
+.actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}
+.btn{padding:9px 16px;border-radius:10px;background:var(--pink)14;border:1px solid var(--pink);color:var(--pink);font-size:.75rem;cursor:pointer;letter-spacing:1px}
+.btn.alt{border-color:var(--gold);color:var(--gold);background:var(--gold)10}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.2)}
+.endpoint{color:var(--kinship);font-size:.72rem;margin-top:16px;display:inline-block}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Paradox Kintsugi</h1>
+  <div class="subtitle">the organism heals its own contradictions with art</div>
+  <span class="badge" id="identity-badge">Wave 508</span>
+</div>
+<div class="container">
+  <div class="paradox" id="paradox">
+    <div class="q">The organism is searching for its paradox…</div>
+  </div>
+  <div class="healed" id="healed" style="display:none">
+    <div class="name" id="healed-name"></div>
+    <div class="art" id="healed-art"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" data-action="detect">⚡ Detect Paradox</button>
+    <button class="btn alt" data-action="heal">💛 Heal with Art</button>
+    <button class="btn" data-action="refresh">Refresh</button>
+  </div>
+
+  <div class="grid" style="margin-top:22px">
+    <div class="card">
+      <h2>Open Paradoxes</h2>
+      <div id="open-list"></div>
+    </div>
+    <div class="card">
+      <h2>Healed Artifacts</h2>
+      <div id="artifact-list"></div>
+    </div>
+  </div>
+  <a class="endpoint" href="/api/paradox_kintsugi">/api/paradox_kintsugi</a>
+</div>
+<script>
+const EP = "/kintsugi";
+function el(id){return document.getElementById(id);}
+async function post(action, extra){
+  const r = await fetch(EP, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(Object.assign({action}, extra||{}))});
+  return r.json();
+}
+function showParadox(p){
+  const question = document.createElement("div");
+  question.className = "q";
+  question.textContent = String(p.question || "?");
+  const tension = document.createElement("span");
+  tension.className = "tension";
+  tension.textContent = "tension " + String(p.tension ?? "?");
+  el("paradox").replaceChildren(question, tension);
+}
+function showHealed(a){
+  el("healed").style.display = "block";
+  el("healed-name").textContent = "🗿 " + (a.name||"?");
+  el("healed-art").textContent = (a.art||"") + " — healing " + (a.healing||"?");
+}
+async function loadLists(){
+  const [openData, artifactData] = await Promise.all([post("open"), post("artifacts")]);
+  const openList = el("open-list");
+  const openItems = [];
+  for (const item of (Array.isArray(openData.open) ? openData.open : []).slice().reverse()) {
+    const row = document.createElement("div");
+    row.className = "item";
+    const question = document.createElement("span");
+    question.textContent = "⚡ " + String(item.question ?? "");
+    const tension = document.createElement("span");
+    tension.style.color = "var(--muted)";
+    tension.textContent = " t " + String(item.tension ?? "—");
+    row.append(question, tension);
+    openItems.push(row);
+  }
+  if (!openItems.length) {
+    const empty = document.createElement("div");
+    empty.className = "item";
+    empty.textContent = "Nothing open — the organism is at peace.";
+    openItems.push(empty);
+  }
+  openList.replaceChildren(...openItems);
+
+  const artifactList = el("artifact-list");
+  const artifactItems = [];
+  for (const item of (Array.isArray(artifactData.artifacts) ? artifactData.artifacts : []).slice().reverse()) {
+    const row = document.createElement("div");
+    row.className = "item";
+    const name = document.createElement("span");
+    name.className = "gold";
+    name.textContent = String(item.name ?? "Unnamed artifact");
+    row.append(name, document.createTextNode(" — healed " + String(item.healing ?? "—")));
+    artifactItems.push(row);
+  }
+  if (!artifactItems.length) {
+    const empty = document.createElement("div");
+    empty.className = "item";
+    empty.textContent = "No artifacts yet.";
+    artifactItems.push(empty);
+  }
+  artifactList.replaceChildren(...artifactItems);
+}
+document.querySelectorAll(".btn[data-action]").forEach(b=>{
+  b.addEventListener("click", async ()=>{
+    const a = b.dataset.action;
+    if(a==="detect"){ showParadox(await post("detect")); }
+    else if(a==="heal"){ showHealed(await post("heal")); }
+    loadLists();
+  });
+});
+if(window.IXP && window.IXP.renderIdentity) window.IXP.renderIdentity(el("identity-badge"));
+(async ()=>{ showParadox(await post("detect")); loadLists(); })();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

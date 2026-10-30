@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 758 — Continuity Weaver</title>
+<script src="/shared.js"></script>
+<style>
+:root{--bg:#02020a;--accent:#22d3ee;--teal:#2dd4bf;--gold:#fbbf24;--text:#b8b8d0;--dim:#505068;--bright:#e8e8f8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.hero{text-align:center;padding:60px 24px 40px;border-bottom:1px solid #22d3ee22}
+.hero h1{font-size:3em;font-weight:200;letter-spacing:10px;color:var(--bright)}
+.hero h1 span{color:#22d3ee}
+.hero .sub{color:var(--dim);font-size:0.8em;letter-spacing:4px;margin-top:8px}
+.hero .badge{display:inline-block;margin-top:16px;padding:6px 16px;border:1px solid #22d3ee44;border-radius:20px;font-size:0.7em;color:#22d3ee}
+.container{max-width:1200px;margin:0 auto;padding:32px 24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-top:24px}
+.card{background:rgba(6,6,26,0.8);border:1px solid #22d3ee18;border-radius:12px;padding:24px;position:relative;overflow:hidden;transition:all 0.3s}
+.card:hover{border-color:#22d3ee;transform:translateY(-2px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#22d3ee,transparent)}
+.card h2{color:#22d3ee;font-size:0.8em;letter-spacing:3px;margin-bottom:12px}
+.card .desc{color:var(--dim);font-size:0.72em;line-height:1.6;margin-bottom:12px}
+.stat{padding:6px 10px;background:#22d3ee11;border-radius:6px;font-size:0.65em}
+.stat .v{color:var(--bright);font-weight:700}
+.stat .l{color:var(--dim);margin-left:4px}
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid #22d3ee44;color:#22d3ee;padding:8px 14px;border-radius:6px;font-size:0.7em;cursor:pointer;text-decoration:none}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>WAVE <span>758</span></h1>
+  <div class="sub">BRAIDING COHERENCE ACROSS ORGAN GENERATIONS</div>
+  <div class="badge"><span class="live-dot"></span>Active · Braid · Repair · Deltas</div>
+</div>
+<div class="container">
+  <div class="grid">
+  <div class="card">
+    <h2>THREADS</h2>
+    <div class="desc">Coherence threads connect organ generations across mutations. Strength decays over time; repair restores them.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="stat"><span class="v">strong/fraying/fragile</span><span class="l">health</span></span><span class="stat"><span class="v">age-based</span><span class="l">decay</span></span><span class="stat"><span class="v">+0.2 boost</span><span class="l">repair</span></span></div>
+  </div>
+  <div class="card">
+    <h2>DELTA MAP</h2>
+    <div class="desc">Full health snapshot of every active thread — where coherence is holding and where it's fraying.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="stat"><span class="v">live</span><span class="l">threads</span></span><span class="stat"><span class="v">per-thread</span><span class="l">health</span></span><span class="stat"><span class="v">detected</span><span class="l">drift</span></span></div>
+  </div></div>
+</div>
+<a href="/" class="back-btn">← IXpansion</a>
+</body>
+</html>

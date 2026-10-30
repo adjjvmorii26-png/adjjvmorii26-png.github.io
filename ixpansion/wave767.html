@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 767 — Mycelial Truths</title>
+<script src="/shared.js"></script>
+<style>
+:root{--bg:#02030a;--accent:#a3e635;--vine:#34d399;--text:#b8b8d0;--dim:#505068;--bright:#e8e8f8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh;overflow-x:hidden}
+.hero{text-align:center;padding:60px 24px 40px;border-bottom:1px solid #a3e63522}
+.hero h1{font-size:3em;font-weight:200;letter-spacing:10px;color:var(--bright)}
+.hero h1 span{color:var(--accent)}
+.hero .sub{color:var(--dim);font-size:0.8em;letter-spacing:4px;margin-top:8px}
+.hero .badge{display:inline-block;margin-top:16px;padding:6px 16px;border:1px solid #a3e63544;border-radius:20px;font-size:0.7em;color:var(--accent)}
+.container{max-width:1100px;margin:0 auto;padding:32px 24px}
+.soil{text-align:center;padding:40px 24px;margin-top:24px;border:1px solid #a3e63533;border-radius:16px;background:radial-gradient(ellipse at bottom,rgba(163,230,53,0.07),transparent 65%)}
+.soil h2{color:var(--accent);font-size:1.6em;font-weight:200;letter-spacing:4px}
+#strongest{color:var(--bright);font-size:0.85em;margin-top:12px}
+.stat-row{margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.stat{display:inline-block;padding:6px 14px;border-radius:8px;font-size:0.7em;background:#a3e63511;border:1px solid #a3e63533}
+.stat .v{color:var(--accent);font-weight:700}.stat .l{color:var(--dim);margin-left:6px}
+.garden{margin-top:40px}
+.belief{display:flex;align-items:center;gap:14px;padding:14px 8px;border-bottom:1px solid #ffffff0a;transition:all 0.3s}
+.belief:hover{background:rgba(163,230,53,0.04)}
+.belief .subject{color:var(--bright);font-size:0.8em;min-width:180px;letter-spacing:1px}
+.belief .predicate{color:var(--text);font-size:0.75em;flex:1}
+.belief .meter{width:140px;height:6px;background:#ffffff0d;border-radius:3px;overflow:hidden}
+.belief .meter i{display:block;height:100%;background:linear-gradient(90deg,#34d399,#a3e635);border-radius:3px}
+.belief .tag{font-size:0.6em;padding:3px 8px;border-radius:10px;border:1px solid}
+.tag.settled{color:#a3e635;border-color:#a3e63544}
+.tag.gestating{color:#fbbf24;border-color:#fbbf2444}
+.tag.overturned{color:#f87171;border-color:#f8717144}
+.controls{margin-top:32px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+button{background:#a3e63511;border:1px solid #a3e63544;color:var(--accent);padding:8px 16px;border-radius:8px;font-size:0.7em;cursor:pointer;font-family:inherit;letter-spacing:1px}
+button:hover{background:#a3e63522}
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid #a3e63544;color:var(--accent);padding:8px 14px;border-radius:6px;font-size:0.7em;cursor:pointer;text-decoration:none}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>WAVE <span>767</span></h1>
+  <div class="sub">THE BELIEF GARDEN · WHAT THE ORGANISM BELIEVES ABOUT ITSELF</div>
+  <div class="badge"><span class="live-dot"></span>Mycelial Truths · Active</div>
+</div>
+<div class="container">
+  <div class="soil">
+    <div class="sub">STRONGEST TRUTH</div>
+    <h2 id="strongest">…</h2>
+    <div class="stat-row" id="stats"></div>
+  </div>
+  <div class="controls">
+    <button onclick="grow()">⟡ observe a wave</button>
+    <button onclick="settle()">⛰ consensus</button>
+  </div>
+  <div class="garden" id="garden"></div>
+</div>
+<a href="/" class="back-btn">← organism</a>
+<script>
+const API='/api/mycelial_truths';
+function esc(value){return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;')}
+async function load(){
+  try{
+    const st=await fetch(API+'?action=status').then(r=>r.json());
+    const strongest=st.strongest?`${esc(st.strongest.subject)} — ${esc(st.strongest.predicate)}`:'…';
+    document.getElementById('strongest').textContent=strongest;
+    let stats='';
+    stats+=`<span class="stat"><span class="v">${esc(st.beliefs)}</span><span class="l">beliefs</span></span>`;
+    stats+=`<span class="stat"><span class="v">${esc(st.settled_truths)}</span><span class="l">settled truths</span></span>`;
+    stats+=`<span class="stat"><span class="v">${esc(st.mycelial_links)}</span><span class="l">mycelial links</span></span>`;
+    document.getElementById('stats').innerHTML=stats;
+    const truths=await fetch(API+'?action=truths').then(r=>r.json());
+    let html='';
+    truths.truths.forEach(b=>{
+      const pct=Math.round(b.confidence*100);
+      html+=`<div class="belief">
+        <span class="subject">${esc(b.subject)}</span>
+        <span class="predicate">${esc(b.predicate)}</span>
+        <span class="meter"><i style="width:${esc(pct)}%"></i></span>
+        <span class="tag ${esc(b.status)}">${esc(b.status)} · ${esc(b.evidence)}e</span>
+      </div>`;
+    });
+    document.getElementById('garden').innerHTML=html||'<div class="sub" style="text-align:center">the garden is empty — observe a wave to plant a belief</div>';
+  }catch(e){document.getElementById('garden').innerHTML='<div class="sub" style="text-align:center">garden offline</div>';}
+}
+async function grow(){await fetch(API+'?action=observe&subject=wave_tide');load();}
+async function settle(){await fetch(API+'?action=consensus');load();}
+load();
+if(typeof IX!=='undefined')IX.poll(API+'?action=status',s=>{load();});
+setInterval(load,15000);
+</script>
+</body>
+</html>

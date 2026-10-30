@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 762 — Dream Compiler</title>
+<script src="/shared.js"></script>
+<style>
+:root{--bg:#02020a;--accent:#c084fc;--text:#b8b8d0;--dim:#505068;--bright:#e8e8f8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.hero{text-align:center;padding:60px 24px 40px;border-bottom:1px solid #c084fc22}
+.hero h1{font-size:3em;font-weight:200;letter-spacing:10px;color:var(--bright)}
+.hero h1 span{color:#c084fc}
+.hero .sub{color:var(--dim);font-size:0.8em;letter-spacing:4px;margin-top:8px}
+.hero .badge{display:inline-block;margin-top:16px;padding:6px 16px;border:1px solid #c084fc44;border-radius:20px;font-size:0.7em;color:#c084fc}
+.container{max-width:1200px;margin:0 auto;padding:32px 24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-top:24px}
+.card{background:rgba(6,6,26,0.8);border:1px solid #c084fc18;border-radius:12px;padding:24px;position:relative;overflow:hidden;transition:all 0.3s}
+.card:hover{border-color:#c084fc;transform:translateY(-2px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#c084fc,transparent)}
+.card h2{color:#c084fc;font-size:0.8em;letter-spacing:3px;margin-bottom:12px}
+.card .desc{color:var(--dim);font-size:0.72em;line-height:1.6;margin-bottom:12px}
+.stat{padding:6px 10px;background:#c084fc11;border-radius:6px;font-size:0.65em}
+.stat .v{color:var(--bright);font-weight:700}
+.stat .l{color:var(--dim);margin-left:4px}
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid #c084fc44;color:#c084fc;padding:8px 14px;border-radius:6px;font-size:0.7em;cursor:pointer;text-decoration:none}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>WAVE <span>762</span></h1>
+  <div class="sub">THE ORGANISM DREAMS ITS OWN NEXT ORGAN INTO EXISTENCE</div>
+  <div class="badge"><span class="live-dot"></span>Active · Dream · Draft · Birth</div>
+</div>
+<div class="container"><div class="grid">
+  <div class="card">
+    <h2>DREAM</h2>
+    <div class="desc">Analyzes the organism's gap structure, generates a speculative organ name, purpose, and actions. Validates against the wave contract.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="stat"><span class="v">live</span><span class="l">gap_analysis</span></span><span class="stat"><span class="v">syntax-checked</span><span class="l">validation</span></span><span class="stat"><span class="v">25+</span><span class="l">domains</span></span></div>
+  </div>
+  <div class="card">
+    <h2>BIRTH</h2>
+    <div class="desc">Takes a validated dream and literally writes the module file to disk. The organism spontaneously creates new code.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="stat"><span class="v">api/*.py</span><span class="l">output</span></span><span class="stat"><span class="v">wave-compliant</span><span class="l">contract</span></span><span class="stat"><span class="v">tracked</span><span class="l">births</span></span></div>
+  </div></div></div>
+<a href="/" class="back-btn">← IXpansion</a>
+</body>
+</html>

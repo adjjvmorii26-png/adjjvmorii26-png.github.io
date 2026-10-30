@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hex Cathedral — IXPANSION</title>
+<style>
+  :root{--bg:#0b0b14;--fg:#e0e0e8;--muted:#6b6b80;--accent:#c38d9e;--cyan:#41b3a3;--magenta:#c063e8;--card:#16162a;--border:#2a2a44}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Segoe UI',Tahoma,Geneva,sans-serif;background:var(--bg);color:var(--fg);padding:20px}
+  h1{text-align:center;margin-bottom:6px;font-variant-ligatures:none;letter-spacing:2px}
+  .sub{text-align:center;color:var(--muted);margin-bottom:24px;font-size:.9em}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;max-width:1100px;margin:0 auto}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px}
+  h2{color:var(--accent);font-size:1em;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px}
+  .chapel{display:flex;justify-content:space-between;padding:6px 8px;margin:4px 0;background:#0e0e1e;border-radius:6px;font-family:monospace;font-size:.85em}
+  .chapel .ln{color:var(--cyan)}
+  .altar{color:var(--magenta);font-family:monospace}
+  .link{color:#ffd166;font-family:monospace;font-size:.8em}
+  .heat{height:18px;background:#1e1e3a;border-radius:4px;overflow:hidden;margin-top:4px}
+  .heat div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--accent));transition:width .4s}
+  button{background:var(--magenta);color:#fff;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:600;margin:4px}
+  button:hover{opacity:.85}
+  .mono{font-family:monospace;font-size:.8em;color:var(--cyan);white-space:pre-wrap;word-break:break-all}
+  .badge{background:#1e1e3a;padding:2px 8px;border-radius:10px;font-size:.8em;color:var(--cyan)}
+</style>
+</head>
+<body>
+<h1>&#127998; HEX CATHEDRAL</h1>
+<p class="sub">Wave 98 — where every chapel links, and every link burns</p>
+<div class="grid">
+  <div class="card">
+    <h2>Chapels &amp; Altars</h2>
+    <div id="map">loading...</div>
+    <br>
+    <button onclick="lace()">&#9889; Lace Cathedral</button>
+    <button onclick="run()">&#9889; Light the Cathedral</button>
+    <button onclick="reset()">&#9888; Reset</button>
+  </div>
+  <div class="card">
+    <h2>Ritual Heat</h2>
+    <div id="heat">—</div>
+    <br>
+    <h2>Lacing Links</h2>
+    <div id="links">—</div>
+    <br>
+    <h2>Program Source</h2>
+    <div id="src" class="mono">—</div>
+  </div>
+</div>
+<script>
+const host='';
+async function api(a,body={}){
+  const response=await fetch(host+'/api/hex_cathedral?action='+encodeURIComponent(a),{method:'POST',headers:{'Content-Type':'application/json',Accept:'application/json'},body:JSON.stringify(body)});
+  if(!response.ok) throw new Error('Request failed ('+response.status+')');
+  return response.json();
+}
+function refresh(){
+  api('status').then(d=>{
+    const map=document.getElementById('map');
+    const fragment=document.createDocumentFragment();
+    for(const [index,chapel] of (Array.isArray(d.chapels)?d.chapels:[]).entries()){
+      const card=document.createElement('div');card.className='chapel';
+      const label=document.createElement('span');label.textContent=String(chapel);
+      const lines=document.createElement('span');lines.className='ln';lines.textContent='lines '+String(index);
+      card.append(label,lines);fragment.appendChild(card);
+    }
+    map.replaceChildren(fragment);
+  }).catch(error=>{document.getElementById('map').textContent='Unable to load chapels: '+error.message;});
+}
+async function lace(){const d=await api('lace');document.getElementById('src').textContent=JSON.stringify(d.altars,null,2);refresh();}
+async function run(){
+  try{
+    const d=await api('run');
+    const result=d.result||{};
+    const heat=document.getElementById('heat');
+    const heatFragment=document.createDocumentFragment();
+    for(const [name,rawValue] of Object.entries(result.chapel_heat||{})){
+      const row=document.createElement('div');
+      const label=document.createElement('b');label.textContent=name;
+      row.append(label,document.createTextNode(' '+String(rawValue)));
+      const track=document.createElement('div');track.className='heat';
+      const fill=document.createElement('div');
+      const numeric=Number(rawValue);
+      fill.style.width=(Number.isFinite(numeric)?Math.max(0,Math.min(100,numeric*8)):0)+'%';
+      track.appendChild(fill);row.appendChild(track);heatFragment.appendChild(row);
+    }
+    heat.replaceChildren(heatFragment);
+    const links=document.getElementById('links');
+    const linkFragment=document.createDocumentFragment();
+    for(const item of (Array.isArray(result.laces)?result.laces:[])){
+      const row=document.createElement('div');row.className='link';
+      row.textContent=String(item.from??'')+' → '+String(item.to??'')+' (@'+String(item.label??'')+' line '+String(item.target_line??'—')+')';
+      linkFragment.appendChild(row);
+    }
+    links.replaceChildren(linkFragment);
+  }catch(error){
+    document.getElementById('heat').textContent='Unable to run: '+error.message;
+    document.getElementById('links').textContent='—';
+  }
+}
+async function reset(){
+  try{
+    await api('reset');
+    document.getElementById('heat').textContent='—';
+    document.getElementById('links').textContent='—';
+    document.getElementById('src').textContent='—';
+    refresh();
+  }catch(error){document.getElementById('src').textContent='Unable to reset: '+error.message;}
+}
+refresh();
+</script>
+</body>
+</html>

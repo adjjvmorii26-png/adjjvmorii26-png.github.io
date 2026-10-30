@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Archive · The Organism Remembers</title>
+<script src="/shared.js"></script>
+<style>
+  :root{--bg:#07070d;--fg:#eaeaf4;--dim:#7777a0;--line:#22223a;--gold:#ffd34d;
+        --violet:#b28dff;--teal:#5fe8c8;--blue:#8fd3ff;--red:#ff6b6b;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;padding:28px;min-height:100vh}
+  .wrap{max-width:1100px;margin:0 auto}
+  header{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:22px}
+  h1{font-size:22px;letter-spacing:1px}
+  h1 .sub{color:var(--gold);font-size:11px;display:block;margin-top:4px;letter-spacing:2px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:24px}
+  .kpi{border:1px solid var(--line);border-radius:6px;padding:14px;background:#11111d}
+  .kpi b{display:block;font-size:28px}
+  .kpi.teal b{color:var(--teal)}.kpi.violet b{color:var(--violet)}
+  .kpi.gold b{color:var(--gold)}.kpi.blue b{color:var(--blue)}
+  .kpi span{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+  section{border:1px solid var(--line);border-radius:6px;padding:18px;margin-bottom:16px;background:#0d0d17}
+  section h2{font-size:14px;color:var(--gold);margin-bottom:16px;letter-spacing:1px}
+  .island{border:1px solid var(--line);border-radius:6px;padding:14px;margin-bottom:12px;background:#11111d}
+  .island .head{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .island .name{font-size:16px;color:var(--blue);letter-spacing:.5px}
+  .island .meta{color:var(--dim);font-size:12px}
+  .island .partners{color:var(--dim);font-size:12px;margin-top:4px}
+  .poem{border-left:2px solid var(--violet);padding-left:10px;margin:8px 0;font-size:12px;white-space:pre-line;line-height:1.6;color:#d9d9ec}
+  .badge{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;border:1px solid var(--teal);color:var(--teal)}
+  .badge.retired{color:var(--red);border-color:var(--red)}
+  footer{color:var(--dim);font-size:11px;text-align:center;margin-top:22px}
+  .tiny{color:var(--dim);font-size:11px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>◈ CONSTELLATION ARCHIVE<span class="sub">THE ORGANISM REMEMBERS · WAVE 224</span></h1>
+</header>
+
+<div class="grid">
+  <div class="kpi teal"><span>Islands</span><b id="islands">—</b></div>
+  <div class="kpi violet"><span>Bridge Stones</span><b id="stones">—</b></div>
+  <div class="kpi gold"><span>First Date</span><b id="first">—</b></div>
+  <div class="kpi blue"><span>Most Connected</span><b id="top">—</b></div>
+</div>
+
+<section>
+  <h2>■ THE ARCHIPELAGO — every island, every stone, every poem</h2>
+  <div id="archive"><span class="tiny">Loading the archive…</span></div>
+</section>
+
+<footer>ale0 × ixpansion · the organism remembers everything</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+window.addEventListener('DOMContentLoaded', async()=>{
+  try{
+    const r=await fetch('/archive').then(r=>r.json());
+    const a=r.islands, stones=r.total_stones;
+    $('islands').textContent=r.total_islands;
+    $('stones').textContent=stones;
+    $('first').textContent=r.timeline.first_date||'—';
+    $('top').textContent=r.top_connected[0]?r.top_connected[0][0].slice(0,12):'—';
+
+    const archive=document.getElementById('archive');
+    const fragment=document.createDocumentFragment();
+    for(const island of (Array.isArray(a)?a:[])){
+      const card=document.createElement('div');card.className='island';
+      const head=document.createElement('div');head.className='head';
+      const name=document.createElement('span');name.className='name';name.textContent=String(island.repo??'');
+      const badge=document.createElement('span');badge.className='badge';badge.textContent=String(island.stones??0)+' stones';
+      head.append(name,badge);
+      const meta=document.createElement('div');meta.className='meta';
+      meta.textContent='partners: '+(Array.isArray(island.partners)?island.partners.join(', '):'none')+' · avg resonance '+String(island.avg_resonance??'—');
+      card.append(head,meta);
+      for(const epitaph of (Array.isArray(island.epitaphs)?island.epitaphs:[])){
+        const poem=document.createElement('div');poem.className='poem';poem.textContent=String(epitaph.poem??'');
+        const detail=document.createElement('div');detail.className='meta tiny';detail.textContent='↳ '+String(epitaph.organ??'')+' · '+String(epitaph.stone??'');
+        poem.appendChild(detail);card.appendChild(poem);
+      }
+      fragment.appendChild(card);
+    }
+    archive.replaceChildren(fragment);
+  }catch(e){ $('archive').textContent='ERROR '+e.message; }
+});
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

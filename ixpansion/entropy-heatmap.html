@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entropy Heatmap</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a12;color:#e0e0e0;font-family:'Courier New',monospace;padding:20px}
+h1{text-align:center;color:#c38d9e;margin-bottom:4px;font-size:1.5em}
+.sub{text-align:center;color:#666;margin-bottom:16px;font-size:.85em}
+.grid{display:grid;grid-template-columns:280px 1fr;gap:16px;max-width:1200px;margin:0 auto}
+.card{background:#151520;border:1px solid #2a2a3a;border-radius:8px;padding:16px}
+.card h2{color:#41b3a3;font-size:1em;margin-bottom:10px}
+.stat{display:flex;justify-content:space-between;padding:4px 0;font-size:.85em}
+.stat .label{color:#888}.stat .val{color:#e8a87c;font-weight:bold}
+canvas{background:#0a0a12;border:1px solid #2a2a3a;border-radius:4px;cursor:crosshair}
+#tooltip{position:fixed;background:#151520;border:1px solid #c38d9e;border-radius:4px;padding:8px;font-size:.75em;color:#e0e0e0;pointer-events:none;display:none;z-index:100;max-width:250px}
+#tooltip .mod{color:#e8a87c;font-weight:bold}
+#tooltip .entropy{color:#c38d9e}
+.legend{display:flex;align-items:center;gap:4px;margin-top:8px;font-size:.75em}
+.legend-block{width:16px;height:16px;border-radius:2px}
+.btn{background:#2a2a3a;color:#e8a87c;border:1px solid #444;padding:8px 16px;border-radius:4px;cursor:pointer;margin:4px;font-family:inherit;font-size:.85em}
+.btn:hover{background:#3a3a4a}
+#log{max-width:1200px;margin:16px auto;background:#151520;border:1px solid #2a2a3a;border-radius:8px;padding:12px;max-height:120px;overflow-y:auto;font-size:.8em;color:#666}
+</style>
+</head>
+<body>
+<h1>🔥 Entropy Heatmap</h1>
+<div class="sub">Systemic awareness — every module as a colored cell on the entropy grid</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Statistics</h2>
+    <div class="stat"><span class="label">Modules</span><span class="val" id="s-mod">0</span></div>
+    <div class="stat"><span class="label">Entropy Avg</span><span class="val" id="s-avg">0.0</span></div>
+    <div class="stat"><span class="label">Entropy StDev</span><span class="val" id="s-std">0.0</span></div>
+    <div class="stat"><span class="label">Hot Zones</span><span class="val" style="color:#c38d9e" id="s-hot">0</span></div>
+    <div class="stat"><span class="label">Cold Zones</span><span class="val" style="color:#41b3a3" id="s-cold">0</span></div>
+    <div class="stat"><span class="label">Grid Size</span><span class="val" id="s-grid">8x8</span></div>
+    <h2 style="margin-top:16px">Legend</h2>
+    <div class="legend">
+      <div class="legend-block" style="background:#c38d9e"></div> High Entropy
+      <div class="legend-block" style="background:#e8a87c"></div> Medium
+      <div class="legend-block" style="background:#41b3a3"></div> Low
+    </div>
+    <br>
+    <button class="btn" onclick="updateHeatmap()">Update Scan</button>
+    <button class="btn" onclick="showHotZones()">Hot Zones</button>
+    <button class="btn" onclick="showColdZones()">Cold Zones</button>
+    <button class="btn" onclick="loadStats()">Refresh</button>
+  </div>
+  <div class="card">
+    <h2>Entropy Grid</h2>
+    <canvas id="heatmap" width="800" height="800"></canvas>
+    <div id="tooltip"></div>
+  </div>
+</div>
+
+<div id="log"></div>
+
+<script>
+const GRID_SIZE = 8;
+const CELL_SIZE = 100;
+let modules = [];
+let grid = {};
+
+const MODULE_LIST = ["adaptation-learner","agent-rental","aesthetic-evaluator","affiliate-engine","agent-communication","ai-gateway","aleph-bot","analytics-engine","anomaly-detector","api-bridge","app-orchestrator","artifact-generator","autonomous-agent","axiom-forge","bloom-engine","brain-core","buffer-manager","calibration-engine","causal-weaver","certainty-quantum","chronicle-writer","circuit-breaker","cognition-engine","coherence-validator","colony-brain","communication-hub","compiler-core","context-engine","convergence-agent","cosmic-anchor","council-oracle","cross-realm-bridge","cryo-storage","data-catalog","data-fabric","data-pipeline","decision-engine","deep-memory","defragmenter","density-estimator","derivative-engine","desire-engine","detector-core","diagnostic-engine","diffusion-engine","dimension-key","dimension-registry","dream-compiler","dream-engine","drift-corrector","durability-engine","dynamic-router","echo-validator","economy-unifier","ecosystem-governor","edgeline-sensor","efficiency-engine","eigenvector","emergence-detector","emotion-cipher","empathy-engine","entity-recognizer","entropy-engine","entropy-guardian","entropy-oracle","entropy-weaver","epoch-forge","ephemeral-buffer","equilibrium-engine","essence-extractor","essence-weaver","event-aggregator","evolution-bridge","evolution-core","executive-decision","expansion-protocol","expectation-encoder","expert-system","expressions-engine","extension-manager","external-memory","facial-recognition","faith-evaluator","family-tree","field-gradient","field-resonance","filter-engine","finalizer","fingerprint-engine","fractal-compiler","fractal-generator","fractal-garden","gateway-decoder","gateway-engine","gene-expression","gene-registry","generalist-engine","generative-optimizer","genesis-engine","geomantic-engine","governance-core","gradient-engine","grammar-compiler","grammar-evolution","graphene-engine","graph-core","graph-engine","graph-topology","gravity-well","growth-engine","habitat-engine","harmonic-resonance","heartbeat-engine","hex-core","hex-language","hex-runtime","homestead","hull-guardian","hyper-engine","hyper-symbiosis","hyperbolic-paradox","idea-canvas","idea-generator","identity-anchor","identity-engine","identity-forge","idempotency-guard","illumination-engine","image-compiler","image-resonator","imagine-engine","impulse-engine","incarnation-engine","influence-agent","infrastructure-core","innovation-hub","insight-capturer","insight-engine","intelligence-core","intention-engine","interference-engine","interpreter-engine","introspection-engine","intuition-engine","invariant-guard","inversion-engine","invention-engine","inventory-engine","invocation-engine","iridescence-engine","journey-engine","jupyter-connector","justification-engine","keystone-engine","knowledge-aggregate","knowledge-builder","knowledge-compiler","knowledge-core","knowledge-database","knowledge-extractor","knowledge-index","knowledge-parser","knowledge-retrieval","knowledge-store","knowledge-weaver","labyrinth-engine","language-evolution","language-forge","language-generator","linguistic-bloom","linguistic-engine","linguistic-evolution","linguistic-pattern","linguistic-resonance","lineage-crystal","lineage-mirror"];
+
+async function apiCall(module, action, payload) {
+  try {
+    const opts = {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload || {})};
+    const r = await fetch(`/api/${module}?action=${action}`, opts);
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+function entropyColor(e) {
+  if (e > 0.7) return '#c38d9e';
+  if (e > 0.4) return '#e8a87c';
+  return '#41b3a3';
+}
+
+function entropyAlpha(e) {
+  return 0.3 + e * 0.7;
+}
+
+async function updateHeatmap() {
+  const r = await apiCall('entropy-heatmap', 'update', {modules: MODULE_LIST, grid_size: GRID_SIZE});
+  if (r) {
+    modules = MODULE_LIST;
+    grid = {};
+    const s = await apiCall('entropy-heatmap', 'status');
+    if (s) {
+      document.getElementById('s-mod').textContent = s.total_modules;
+      document.getElementById('s-avg').textContent = s.entropy_average.toFixed(4);
+      document.getElementById('s-std').textContent = s.entropy_stddev.toFixed(4);
+      document.getElementById('s-hot').textContent = s.hot_zones;
+      document.getElementById('s-cold').textContent = s.cold_zones;
+      document.getElementById('s-grid').textContent = `${GRID_SIZE}x${GRID_SIZE}`;
+      log(`Entropy: avg=${s.entropy_average}, std=${s.entropy_stddev}`);
+    }
+    drawHeatmap();
+  }
+}
+
+async function showHotZones() {
+  const hz = await apiCall('entropy-heatmap', 'hot_zones');
+  if (hz && hz.zones) {
+    log(`Hot zones (${hz.count}): ${hz.zones.slice(0,10).join(', ')}`);
+  }
+}
+
+async function showColdZones() {
+  const cz = await apiCall('entropy-heatmap', 'cold_zones');
+  if (cz && cz.zones) {
+    log(`Cold zones (${cz.count}): ${cz.zones.slice(0,10).join(', ')}`);
+  }
+}
+
+async function loadStats() {
+  const s = await apiCall('entropy-heatmap', 'status');
+  if (s) {
+    document.getElementById('s-mod').textContent = s.total_modules;
+    document.getElementById('s-avg').textContent = s.entropy_average.toFixed(4);
+    document.getElementById('s-std').textContent = s.entropy_stddev.toFixed(4);
+    document.getElementById('s-hot').textContent = s.hot_zones;
+    document.getElementById('s-cold').textContent = s.cold_zones;
+    log(`Stats loaded`);
+  }
+}
+
+function drawHeatmap() {
+  const canvas = document.getElementById('heatmap');
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  for (let row = 0; row < GRID_SIZE; row++) {
+    for (let col = 0; col < GRID_SIZE; col++) {
+      const x = col * CELL_SIZE;
+      const y = row * CELL_SIZE;
+      const cellModules = MODULE_LIST.filter(m => {
+        const h = m; // use hash
+        const hVal = parseInt(h.split('').reduce((a,c) => a + c.charCodeAt(0), 0).toString()).toString(16).slice(0,2);
+        return (parseInt(hVal || '0', 16) % GRID_SIZE) === row && (Math.floor(Math.random() * GRID_SIZE)) === col;
+      });
+      
+      // Draw cell background
+      ctx.fillStyle = '#0d0d18';
+      ctx.fillRect(x, y, CELL_SIZE, CELL_SIZE);
+      ctx.strokeStyle = '#1a1a2a';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, CELL_SIZE, CELL_SIZE);
+      
+      // If there are modules in this cell, draw colored block
+      const cellKey = `${row}-${col}`;
+      // Get entropy for this cell from our grid
+      let cellEntropy = 0;
+      const cellMods = [];
+      MODULE_LIST.forEach(m => {
+        const hash = m.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+        const r = (hash % GRID_SIZE);
+        if (r === row && (hash % 100) % GRID_SIZE === col) {
+          cellEntropy = (hash % 100) / 100;
+          cellMods.push(m);
+        }
+      });
+      
+      if (cellMods.length > 0) {
+        const color = entropyColor(cellEntropy);
+        ctx.fillStyle = color + Math.floor(entropyAlpha(cellEntropy) * 255).toString(16).padStart(2, '0');
+        ctx.fillRect(x + 2, y + 2, CELL_SIZE - 4, CELL_SIZE - 4);
+        ctx.fillStyle = '#fff';
+        ctx.font = '10px Courier New';
+        ctx.fillText(`${cellMods.length}`, x + 4, y + 14);
+      }
+    }
+  }
+}
+
+function log(msg) {
+  const el = document.getElementById('log');
+  el.innerHTML += `<div>[${new Date().toISOString().slice(11,19)}] ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+document.getElementById('heatmap').addEventListener('mousemove', (e) => {
+  const rect = e.target.getBoundingClientRect();
+  const col = Math.floor((e.clientX - rect.left) / CELL_SIZE);
+  const row = Math.floor((e.clientY - rect.top) / CELL_SIZE);
+  const tooltip = document.getElementById('tooltip');
+  const h = MODULE_LIST[Math.floor(Math.random() * MODULE_LIST.length)];
+  const hash = h.split('').reduce((a,c) => a + c.charCodeAt(0), 0);
+  const entropy = (hash % 100) / 100;
+  tooltip.innerHTML = `<div class="mod">${h}</div><div class="entropy">Entropy: ${entropy.toFixed(2)} | Row: ${row}, Col: ${col}</div>`;
+  tooltip.style.display = 'block';
+  tooltip.style.left = (e.clientX + 10) + 'px';
+  tooltip.style.top = (e.clientY + 10) + 'px';
+});
+
+document.getElementById('heatmap').addEventListener('mouseleave', () => {
+  document.getElementById('tooltip').style.display = 'none';
+});
+
+updateHeatmap();
+</script>
+</body>
+</html>

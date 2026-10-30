@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 766 — Epoch Engine</title>
+<script src="/shared.js"></script>
+<style>
+:root{--bg:#02020a;--accent:#e879f9;--text:#b8b8d0;--dim:#505068;--bright:#e8e8f8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.hero{text-align:center;padding:60px 24px 40px;border-bottom:1px solid #e879f922}
+.hero h1{font-size:3em;font-weight:200;letter-spacing:10px;color:var(--bright)}
+.hero h1 span{color:#e879f9}
+.hero .sub{color:var(--dim);font-size:0.8em;letter-spacing:4px;margin-top:8px}
+.hero .badge{display:inline-block;margin-top:16px;padding:6px 16px;border:1px solid #e879f944;border-radius:20px;font-size:0.7em;color:#e879f9}
+.container{max-width:1100px;margin:0 auto;padding:32px 24px}
+.epoch-current{text-align:center;padding:48px 24px;margin-top:24px;border:1px solid #e879f933;border-radius:16px;background:radial-gradient(ellipse at top,rgba(232,121,249,0.08),transparent 60%)}
+.epoch-current h2{color:#e879f9;font-size:2.6em;font-weight:200;letter-spacing:6px}
+.epoch-current .marker{color:var(--dim);font-size:0.75em;letter-spacing:3px;margin-top:10px}
+.epoch-current .stat-row{margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.stat{display:inline-block;padding:6px 14px;border-radius:8px;font-size:0.7em;background:#e879f911;border:1px solid #e879f933}
+.stat .v{color:#e879f9;font-weight:700}.stat .l{color:var(--dim);margin-left:6px}
+.timeline{margin-top:40px}
+.era{display:flex;align-items:center;gap:16px;padding:16px 8px;border-bottom:1px solid #ffffff0a;transition:all 0.3s}
+.era:hover{background:rgba(232,121,249,0.04)}
+.era .era-name{color:var(--bright);font-size:0.85em;min-width:230px;letter-spacing:1px}
+.era .era-waves{color:var(--dim);font-size:0.7em;min-width:120px}
+.era .era-marker{color:var(--dim);font-size:0.65em}
+.era.current .era-name{color:#e879f9}
+.era.current::before{content:'▸';color:#e879f9;margin-right:4px}
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid #e879f944;color:#e879f9;padding:8px 14px;border-radius:6px;font-size:0.7em;cursor:pointer;text-decoration:none}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>WAVE <span>766</span></h1>
+  <div class="sub">SEASONS ARE WEATHER · EPOCHS ARE CLIMATE</div>
+  <div class="badge"><span class="live-dot"></span>Active · Epoch Bell · Era Timeline</div>
+</div>
+<div class="container">
+  <div id="current" class="epoch-current">
+    <div class="sub">CURRENT ERA</div>
+    <h2 id="era-name">…</h2>
+    <div class="marker" id="era-marker">…</div>
+    <div class="stat-row" id="era-stats"></div>
+  </div>
+  <div class="timeline" id="timeline"></div>
+</div>
+<a href="/" class="back-btn">← organism</a>
+<script>
+const API='/api/epoch_engine';
+async function load(){
+  try{
+    const st=await fetch(API+'?action=status').then(r=>r.json());
+    const cur=st.current_epoch;
+    document.getElementById('era-name').textContent=cur.name;
+    document.getElementById('era-marker').textContent=cur.marker||'';
+    const stats=document.getElementById('era-stats'),statsFragment=document.createDocumentFragment();
+    function addStat(value,label){const item=document.createElement('span');item.className='stat';const v=document.createElement('span');v.className='v';v.textContent=String(value??'?');const l=document.createElement('span');l.className='l';l.textContent=label;item.append(v,l);statsFragment.appendChild(item)}
+    if(Array.isArray(cur.waves))addStat(String(cur.waves[0]??'?')+'–'+String(cur.waves[1]||'now'),'wave range');
+    addStat(cur.living_modules||'?','living modules');stats.replaceChildren(statsFragment);
+    const timeline=document.getElementById('timeline'),timelineFragment=document.createDocumentFragment();
+    for(const era of (Array.isArray(st.era_timeline)?st.era_timeline:[])){
+      const item=document.createElement('div');item.className='era'+(era.name===cur.name?' current':'');
+      for(const [className,value] of [['era-name',era.name],['era-waves',era.waves],['era-marker',era.marker]]){
+        const span=document.createElement('span');span.className=className;span.textContent=String(value??'');item.appendChild(span);
+      }
+      timelineFragment.appendChild(item);
+    }
+    timeline.replaceChildren(timelineFragment);
+  }catch(e){
+    document.getElementById('era-name').textContent='LOADING…';
+  }
+}
+load();
+if(typeof IX!=='undefined')IX.poll(API+'?action=status',s=>{
+  if(s.current_epoch)document.getElementById('era-name').textContent=s.current_epoch.name;
+},20000);
+</script>
+</body>
+</html>

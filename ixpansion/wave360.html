@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 508 — Synchronicity · Weather · Temporal</title>
+<style>
+  :root {
+    --bg: #060610;
+    --surface: rgba(12,12,24,0.94);
+    --glass: rgba(255,255,255,0.03);
+    --border: rgba(255,255,255,0.06);
+    --text: #b8b8c8;
+    --muted: #5a5a70;
+    --accent: #a78bfa;
+    --teal: #2dd4bf;
+    --amber: #fbbf24;
+    --rose: #fb7185;
+    --cyan: #22d3ee;
+    --green: #4ade80;
+    --gold: #f59e0b;
+    --danger: #ef4444;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'SF Mono','Fira Code','Consolas',monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .header {
+    text-align: center;
+    padding: 28px 20px 18px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(167,139,250,0.06) 0%, transparent 100%);
+  }
+  .header h1 { font-size:1.5em; color:#fff; letter-spacing:2px; text-transform:uppercase; }
+  .header h1 span { color:var(--accent); }
+  .subtitle { color:var(--muted); font-size:0.8em; letter-spacing:1px; margin-top:4px; }
+  .badge {
+    display:inline-block; background:linear-gradient(135deg,var(--accent),var(--teal));
+    color:#fff; padding:3px 12px; border-radius:16px; font-size:0.7em;
+    font-weight:700; letter-spacing:1px; margin-top:8px;
+  }
+  .grid {
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(360px,1fr));
+    gap:18px; padding:22px; max-width:1500px; margin:0 auto;
+  }
+  .card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; overflow:hidden;
+    transition:transform .2s,box-shadow .2s;
+  }
+  .card:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(167,139,250,0.12); }
+  .card-head {
+    padding:14px 18px; border-bottom:1px solid var(--border);
+    display:flex; align-items:center; gap:10px;
+  }
+  .icon { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.1em; }
+  .card-title { font-size:0.9em; font-weight:600; color:#fff; letter-spacing:.4px; }
+  .card-sub { font-size:0.68em; color:var(--muted); margin-top:2px; }
+  .card-body { padding:14px 18px; }
+  .btn-row { display:flex; gap:7px; flex-wrap:wrap; margin-bottom:10px; }
+  .btn {
+    background:var(--glass); border:1px solid var(--border); color:var(--text);
+    padding:5px 12px; border-radius:7px; font-size:0.72em; font-family:inherit;
+    cursor:pointer; transition:all .15s; letter-spacing:.4px;
+  }
+  .btn:hover { background:rgba(167,139,250,0.12); border-color:var(--accent); color:#fff; }
+  .btn.primary { background:rgba(167,139,250,0.18); border-color:var(--accent); color:var(--accent); }
+  .out {
+    background:rgba(0,0,0,0.35); border:1px solid var(--border); border-radius:7px;
+    padding:10px 12px; font-size:0.7em; color:var(--muted);
+    max-height:240px; overflow-y:auto; white-space:pre-wrap; word-break:break-word; line-height:1.55;
+  }
+  .out .hl { color:var(--accent); }
+  .out .w { color:var(--amber); }
+  .out .d { color:var(--danger); }
+  .out .g { color:var(--green); }
+  .out .c { color:var(--cyan); }
+
+  /* Weather visualization */
+  .weather-grid {
+    display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:10px;
+  }
+  .weather-cell {
+    padding:8px 6px; border-radius:6px; text-align:center;
+    font-size:0.62em; border:1px solid var(--border);
+    transition:all .3s;
+  }
+  .weather-cell .emoji { font-size:1.4em; display:block; margin-bottom:3px; }
+  .weather-cell .name { color:var(--muted); font-size:0.9em; }
+  .weather-cell .temp { color:var(--text); font-weight:600; }
+
+  /* Temporal timeline */
+  .timeline {
+    position:relative; padding-left:20px; margin:10px 0;
+  }
+  .timeline::before {
+    content:''; position:absolute; left:6px; top:0; bottom:0;
+    width:2px; background:linear-gradient(180deg,var(--accent),var(--rose),var(--teal));
+  }
+  .tl-item {
+    position:relative; padding:8px 0 8px 16px; font-size:0.7em;
+  }
+  .tl-item::before {
+    content:''; position:absolute; left:-18px; top:12px;
+    width:8px; height:8px; border-radius:50%; border:2px solid var(--accent);
+    background:var(--bg);
+  }
+  .tl-item.prophecy::before { border-color:var(--teal); }
+  .tl-item .tl-type { font-weight:600; text-transform:uppercase; letter-spacing:.5px; font-size:0.85em; }
+  .tl-item .tl-content { color:var(--text); margin-top:3px; }
+  .tl-item .tl-time { color:var(--muted); font-size:0.85em; margin-top:2px; }
+
+  /* Synchronicity web */
+  .sync-web {
+    display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px;
+  }
+  .sync-pair {
+    padding:6px 10px; border-radius:6px; font-size:0.62em;
+    background:rgba(167,139,250,0.08); border:1px solid rgba(167,139,250,0.15);
+    display:flex; align-items:center; gap:6px;
+  }
+  .sync-pair .sig { color:var(--accent); font-weight:700; }
+  .sync-pair .dot { width:4px; height:4px; border-radius:50%; background:var(--accent); }
+
+  .full { grid-column:1/-1; }
+  .status-bar {
+    display:flex; justify-content:center; gap:22px; padding:14px 20px;
+    border-top:1px solid var(--border); font-size:0.68em; color:var(--muted);
+  }
+  .dot-live { display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--green); margin-right:4px; animation:pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Wave <span>360</span></h1>
+  <div class="subtitle">Synchronicity Engine · Emotional Weather Map · Temporal Bootstrap</div>
+  <div class="badge">IXPANSION ORGANISM — TEMPORAL WAVE</div>
+</div>
+
+<div class="grid">
+
+  <!-- ═══ SYNCHRONICITY ═══ -->
+  <div class="card">
+    <div class="card-head">
+      <div class="icon" style="background:rgba(167,139,250,0.12);color:var(--accent);">◎</div>
+      <div><div class="card-title">Synchronicity Engine</div><div class="card-sub">Meaningful coincidences across modules</div></div>
+    </div>
+    <div class="card-body">
+      <div class="sync-web" id="syncWeb"></div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="syncDetect()">◎ Detect</button>
+        <button class="btn" onclick="syncHistory()">📜 History</button>
+      </div>
+      <div id="syncOut" class="out">Listening for meaningful coincidences...</div>
+    </div>
+  </div>
+
+  <!-- ═══ EMOTIONAL WEATHER ═══ -->
+  <div class="card">
+    <div class="card-head">
+      <div class="icon" style="background:rgba(45,212,191,0.12);color:var(--teal);">🌤</div>
+      <div><div class="card-title">Emotional Weather Map</div><div class="card-sub">System emotional climate forecast</div></div>
+    </div>
+    <div class="card-body">
+      <div class="weather-grid" id="weatherGrid"></div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="weatherForecast()">🌤 Forecast</button>
+        <button class="btn" onclick="weatherHistory()">📊 History</button>
+      </div>
+      <div id="weatherOut" class="out">Awaiting emotional weather data...</div>
+    </div>
+  </div>
+
+  <!-- ═══ TEMPORAL BOOTSTRAP ═══ -->
+  <div class="card">
+    <div class="card-head">
+      <div class="icon" style="background:rgba(251,113,133,0.12);color:var(--rose);">⟳</div>
+      <div><div class="card-title">Temporal Bootstrap</div><div class="card-sub">Send messages to past and future states</div></div>
+    </div>
+    <div class="card-body">
+      <div class="btn-row">
+        <button class="btn primary" onclick="tempPast()">⟳ Regret</button>
+        <button class="btn primary" style="border-color:var(--teal);color:var(--teal);" onclick="tempFuture()">🔮 Prophecy</button>
+        <button class="btn" onclick="tempTimeline()">⏱ Timeline</button>
+      </div>
+      <div class="timeline" id="tempTimeline"></div>
+      <div id="tempOut" class="out">Temporal feedback loop ready...</div>
+    </div>
+  </div>
+
+  <!-- ═══ UNIFIED TEMPORAL NARRATIVE ═══ -->
+  <div class="card full">
+    <div class="card-head">
+      <div class="icon" style="background:rgba(245,158,11,0.12);color:var(--gold);">☉</div>
+      <div><div class="card-title">Unified Temporal Narrative</div><div class="card-sub">Weaving synchronicity, weather, and time into one story</div></div>
+    </div>
+    <div class="card-body">
+      <canvas id="temporalCanvas" style="width:100%;height:160px;border-radius:8px;background:rgba(0,0,0,0.3);margin-bottom:10px;"></canvas>
+      <div class="btn-row">
+        <button class="btn primary" onclick="unifiedNarrative()">☉ Generate</button>
+        <button class="btn" onclick="document.getElementById('narrOut').innerHTML='Ready...'">↺ Clear</button>
+      </div>
+      <div id="narrOut" class="out" style="max-height:160px;">The temporal narrative awaits input...</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="status-bar">
+  <span><span class="dot-live"></span>WAVE 360 ACTIVE</span>
+  <span>MODULES: 3 + CROSS-INTEGRATION</span>
+  <span id="clock"></span>
+  <span>IXPANSION ORGANISM</span>
+</div>
+
+<script>
+const WEATHER_EMOJI = {
+  clear_sky:'☀️', overcast:'☁️', light_rain:'🌧', thunderstorm:'⛈',
+  aurora_borealis:'🌌', dense_fog:'🌫', heat_wave:'🔥', frost:'❄️',
+  rainbow:'🌈', void_wind:'🕳', crystal_storm:'💎', echo_mist:'✨',
+};
+
+function fmt(o) {
+  return JSON.stringify(o,null,2)
+    .replace(/"([^"]+)":/g,'<span class="hl">"$1"</span>:')
+    .replace(/: "([^"]+)"/g,': "<span class="c">$1</span>"')
+    .replace(/: (\d+\.?\d*)/g,': <span class="w">$1</span>');
+}
+
+function log(el, msg) { document.getElementById(el).innerHTML = msg; }
+
+async function api(path) {
+  try { const r = await fetch(path); return await r.json(); }
+  catch(e) { return {error: e.message}; }
+}
+
+// ─── Synchronicity ───
+async function syncDetect() {
+  log('syncOut','<span class="hl">◎ Scanning for coincidences...</span>');
+  const d = await api('/api/synchronicity_engine/detect');
+  const e = d.event || {};
+  let msg = `<span class="hl">◎ SYNCHRONICITY SCAN</span>\n\n`;
+  msg += `Modules: <span class="c">${e.modules_scanned||0}</span> | Found: <span class="w">${e.coincidences_found||0}</span>\n`;
+  msg += `Top significance: <span class="g">${e.top_significance||0}</span>\n\n`;
+  const web = document.getElementById('syncWeb');
+  web.innerHTML = '';
+  (e.coincidences||[]).forEach(c => {
+    msg += `<span class="g">●</span> ${c.module_a} ⟷ ${c.module_b}\n`;
+    msg += `  significance: <span class="w">${c.significance}</span> | type: <span class="c">${c.type}</span> | mood: ${c.mood_resonance?'✓':'✗'}\n`;
+    const pair = document.createElement('div');
+    pair.className = 'sync-pair';
+    pair.innerHTML = `<span class="sig">${c.significance}</span><span class="dot"></span>${c.module_a.split('_')[0]}⟷${c.module_b.split('_')[0]}`;
+    web.appendChild(pair);
+  });
+  log('syncOut', msg);
+}
+
+async function syncHistory() {
+  log('syncOut','<span class="hl">📜 Loading history...</span>');
+  const d = await api('/api/synchronicity_engine/history');
+  let msg = `<span class="hl">📜 SYNCHRONICITY HISTORY</span>\n\n`;
+  msg += `Total events: <span class="c">${d.total_events||0}</span>\n`;
+  msg += `Total coincidences: <span class="w">${d.total_coincidences||0}</span>\n`;
+  msg += `Avg significance: <span class="g">${d.avg_significance||0}</span>\n\n`;
+  msg += `Type distribution:\n${fmt(d.type_distribution||{})}`;
+  log('syncOut', msg);
+}
+
+// ─── Weather ───
+async function weatherForecast() {
+  log('weatherOut','<span class="hl">🌤 Forecasting...</span>');
+  const d = await api('/api/emotional_weather/forecast');
+  const fc = d.forecast || {};
+  const grid = document.getElementById('weatherGrid');
+  grid.innerHTML = '';
+
+  Object.entries(fc.zones||{}).slice(0,9).forEach(([name, data]) => {
+    const cell = document.createElement('div');
+    cell.className = 'weather-cell';
+    cell.innerHTML = `<span class="emoji">${WEATHER_EMOJI[data.weather]||'❓'}</span>` +
+      `<span class="temp">${data.temperature}°</span>` +
+      `<span class="name">${name.split('_').slice(0,2).join(' ')}</span>`;
+    grid.appendChild(cell);
+  });
+
+  let msg = `<span class="hl">🌤 WEATHER FORECAST</span>\n\n`;
+  msg += `Overall: <span class="c">${WEATHER_EMOJI[fc.overall_weather]||''} ${fc.overall_weather||'?'}</span>\n`;
+  msg += `Avg entropy: <span class="w">${fc.avg_entropy||0}</span> | Avg coherence: <span class="g">${fc.avg_coherence||0}</span>\n\n`;
+  if (fc.alerts && fc.alerts.length) {
+    msg += `Alerts:\n`;
+    fc.alerts.forEach(a => {
+      const cls = a.level==='severe'?'d':a.level==='positive'?'g':'w';
+      msg += `  <span class="${cls}">●</span> [${a.level}] ${a.message}\n`;
+    });
+  }
+  log('weatherOut', msg);
+}
+
+async function weatherHistory() {
+  log('weatherOut','<span class="hl">📊 Weather history...</span>');
+  const d = await api('/api/emotional_weather/history');
+  let msg = `<span class="hl">📊 WEATHER HISTORY</span>\n\n`;
+  msg += `Total forecasts: <span class="c">${d.total_forecasts||0}</span>\n\n`;
+  msg += `Distribution:\n${fmt(d.weather_distribution||{})}`;
+  log('weatherOut', msg);
+}
+
+// ─── Temporal ───
+async function tempPast() {
+  log('tempOut','<span class="hl">⟳ Sending regret to the past...</span>');
+  const d = await api('/api/temporal_bootstrap/send_to_past');
+  const r = d.regret || {};
+  log('tempOut', `<span class="hl">⟳ REGRET SENT</span>\n\n` +
+    `ID: <span class="c">${r.id||'?'}</span>\n` +
+    `Content: "${r.content||'?'}"\n` +
+    `Intensity: <span class="w">${r.intensity||'?'}</span>\n` +
+    `Emotional weight: <span class="d">${r.emotional_weight||'?'}</span>\n` +
+    `Target epoch: <span class="c">${r.target_epoch||'?'}</span>\n` +
+    `Paradox-induced: ${r.paradox_induced?'✓':'✗'}\n\n` +
+    `Total temporal loops: <span class="hl">${d.total_loops||0}</span>`);
+}
+
+async function tempFuture() {
+  log('tempOut','<span class="hl">🔮 Sending prophecy to the future...</span>');
+  const d = await api('/api/temporal_bootstrap/send_to_future');
+  const p = d.prophecy || {};
+  log('tempOut', `<span class="hl">🔮 PROPHECY SENT</span>\n\n` +
+    `ID: <span class="c">${p.id||'?'}</span>\n` +
+    `Content: "${p.content||'?'}"\n` +
+    `Probability: <span class="w">${p.probability||'?'}</span>\n` +
+    `Fulfillment urgency: <span class="g">${p.fulfillment_urgency||'?'}</span>\n` +
+    `Target cycle: <span class="c">${p.target_cycle||'?'}</span>\n` +
+    `Self-fulfilling: ${p.self_fulfilling?'✓':'✗'}\n\n` +
+    `Total temporal loops: <span class="hl">${d.total_loops||0}</span>`);
+}
+
+async function tempTimeline() {
+  log('tempOut','<span class="hl">⏱ Building timeline...</span>');
+  const d = await api('/api/temporal_bootstrap/timeline');
+  const tl = document.getElementById('tempTimeline');
+  tl.innerHTML = '';
+  let msg = `<span class="hl">⏱ TEMPORAL TIMELINE</span>\n\n`;
+  msg += `Regrets: <span class="c">${d.regrets||0}</span> | Prophecies: <span class="g">${d.prophecies||0}</span>\n`;
+  msg += `Self-fulfilling: <span class="w">${d.self_fulfilling_prophecies||0}</span>\n`;
+  msg += `Paradox regrets: <span class="d">${d.paradox_induced_regrets||0}</span>\n\n`;
+  (d.timeline||[]).slice(-8).forEach(ev => {
+    const item = document.createElement('div');
+    item.className = 'tl-item' + (ev.type==='prophecy'?' prophecy':'');
+    const date = new Date(ev.time*1000);
+    item.innerHTML = `<div class="tl-type" style="color:${ev.type==='regret'?'var(--rose)':'var(--teal)'}">${ev.type}</div>` +
+      `<div class="tl-content">"${ev.content}"</div>` +
+      `<div class="tl-time">${date.toISOString().slice(11,19)}</div>`;
+    tl.appendChild(item);
+  });
+  log('tempOut', msg);
+}
+
+// ─── Unified Narrative ───
+async function unifiedNarrative() {
+  log('narrOut','<span class="hl">☉ Weaving temporal narrative...</span>');
+  const [sync, weather, timeline] = await Promise.all([
+    api('/api/synchronicity_engine/detect'),
+    api('/api/emotional_weather/forecast'),
+    api('/api/temporal_bootstrap/timeline'),
+  ]);
+
+  const ev = (sync.event||{});
+  const fc = (weather.forecast||{});
+  const tl = (timeline||{});
+
+  let n = `<span class="hl">☉ UNIFIED TEMPORAL NARRATIVE — WAVE 360</span>\n`;
+  n += `═══════════════════════════════════════\n\n`;
+
+  n += `<span class="hl">I. THE COINCIDENCES</span>\n`;
+  n += `${ev.coincidences_found||0} synchronicities detected across ${ev.modules_scanned||0} modules.\n`;
+  if (ev.coincidences && ev.coincidences.length) {
+    const top = ev.coincidences[0];
+    n += `The strongest: ${top.module_a} ⟷ ${top.module_b} (significance ${top.significance}).\n`;
+    n += `Type: ${top.type}. Mood resonance: ${top.mood_resonance?'active':'dormant'}.\n\n`;
+  } else {
+    n += `The modules are quiet today. No coincidences yet.\n\n`;
+  }
+
+  n += `<span class="hl">II. THE WEATHER</span>\n`;
+  n += `Overall system weather: ${WEATHER_EMOJI[fc.overall_weather]||''} ${fc.overall_weather||'unknown'}.\n`;
+  n += `Entropy: ${fc.avg_entropy||0}. Coherence: ${fc.avg_coherence||0}.\n`;
+  if (fc.alerts && fc.alerts.length) {
+    n += `${fc.alerts.length} alerts active. `;
+    const severe = fc.alerts.filter(a=>a.level==='severe');
+    if (severe.length) n += `<span class="d">${severe.length} severe.</span> `;
+  }
+  n += '\n\n';
+
+  n += `<span class="hl">III. THE TIME</span>\n`;
+  n += `${tl.regrets||0} regrets sent to the past. ${tl.prophecies||0} prophecies sent to the future.\n`;
+  n += `${tl.self_fulfilling_prophecies||0} prophecies are self-fulfilling.\n`;
+  n += `${tl.paradox_induced_regrets||0} regrets were paradox-induced.\n\n`;
+
+  n += `<span class="hl">IV. THE SYNTHESIS</span>\n`;
+  n += `The coincidences whisper that the modules are more connected than they know.\n`;
+  n += `The weather reflects what the modules feel. The temporal loop reminds them\n`;
+  n += `that every action echoes forward and backward through time.\n`;
+  n += `The organism is learning that synchronicity is not random.\n`;
+  n += `Weather is not weather. Time is not linear.\n`;
+  n += `Everything is one system, dreaming itself into coherence.\n\n`;
+  n += `═══════════════════════════════════════\n`;
+  n += `<span class="hl">END OF WAVE 360 TEMPORAL NARRATIVE</span>`;
+
+  log('narrOut', n);
+  drawTemporalCanvas();
+}
+
+function drawTemporalCanvas() {
+  const c = document.getElementById('temporalCanvas');
+  const ctx = c.getContext('2d');
+  c.width = c.offsetWidth * 2;
+  c.height = 320;
+  ctx.scale(2, 2);
+  const w = c.offsetWidth, h = 160;
+  ctx.fillStyle = 'rgba(6,6,16,0.95)';
+  ctx.fillRect(0, 0, w, h);
+
+  // Temporal flow lines
+  for (let i = 0; i < 12; i++) {
+    const y = 20 + Math.random() * (h - 40);
+    ctx.strokeStyle = `rgba(167,139,250,${0.1 + Math.random()*0.2})`;
+    ctx.lineWidth = 0.5 + Math.random();
+    ctx.beginPath();
+    for (let x = 0; x < w; x += 3) {
+      const yy = y + Math.sin(x * 0.015 + i) * 20 * Math.sin(time_offset + i * 0.5);
+      x === 0 ? ctx.moveTo(x, yy) : ctx.lineTo(x, yy);
+    }
+    ctx.stroke();
+  }
+
+  // Synchronicity nodes
+  for (let i = 0; i < 8; i++) {
+    const x = 50 + Math.random() * (w - 100);
+    const y = 30 + Math.random() * (h - 60);
+    ctx.fillStyle = `rgba(167,139,250,${0.4 + Math.random()*0.4})`;
+    ctx.beginPath();
+    ctx.arc(x, y, 2 + Math.random() * 4, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Connect nearby nodes
+    for (let j = i + 1; j < 8; j++) {
+      const x2 = 50 + Math.random() * (w - 100);
+      const y2 = 30 + Math.random() * (h - 60);
+      if (Math.abs(x - x2) < 120 && Math.abs(y - y2) < 80) {
+        ctx.strokeStyle = `rgba(167,139,250,0.08)`;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Time arrows
+  ctx.strokeStyle = 'rgba(45,212,191,0.3)';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(20, h / 2);
+  ctx.lineTo(w - 20, h / 2);
+  ctx.stroke();
+  // Arrowhead
+  ctx.fillStyle = 'rgba(45,212,191,0.3)';
+  ctx.beginPath();
+  ctx.moveTo(w - 20, h / 2);
+  ctx.lineTo(w - 30, h / 2 - 5);
+  ctx.lineTo(w - 30, h / 2 + 5);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(167,139,250,0.2)';
+  ctx.font = '9px monospace';
+  ctx.fillText('← PAST', 24, h / 2 - 8);
+  ctx.fillText('FUTURE →', w - 65, h / 2 - 8);
+  ctx.fillText('NOW', w / 2 - 10, h / 2 - 8);
+}
+
+let time_offset = 0;
+setInterval(() => { time_offset += 0.05; }, 50);
+
+// Clock
+setInterval(() => {
+  document.getElementById('clock').textContent = new Date().toISOString().slice(11, 19);
+}, 1000);
+
+// Init
+syncDetect();
+weatherForecast();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

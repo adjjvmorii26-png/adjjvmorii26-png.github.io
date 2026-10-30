@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 508 — Command Center</title>
+<style>
+  :root{--bg:#040410;--s:rgba(8,8,20,0.96);--g:rgba(255,255,255,0.03);--b:rgba(255,255,255,0.05);--t:#a0a0b8;--m:#424260;--ac:#7c7cf8;--te:#2dd4bf;--am:#fbbf24;--ro:#fb7185;--cy:#22d3ee;--gn:#4ade80;--gd:#f59e0b;--dn:#ef4444}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+  .hd{text-align:center;padding:24px 20px 14px;border-bottom:1px solid var(--b);background:linear-gradient(180deg,rgba(124,124,248,0.05) 0%,transparent 100%)}
+  .hd h1{font-size:1.4em;color:#fff;letter-spacing:2px;text-transform:uppercase}
+  .hd h1 span{color:var(--ac)}
+  .sub{color:var(--m);font-size:0.75em;letter-spacing:1px;margin-top:3px}
+  .bdg{display:inline-block;background:linear-gradient(135deg,var(--ac),var(--gn));color:#fff;padding:3px 11px;border-radius:14px;font-size:0.65em;font-weight:700;letter-spacing:1px;margin-top:7px}
+  .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px;padding:18px;max-width:1500px;margin:0 auto}
+  .c{background:var(--s);border:1px solid var(--b);border-radius:10px;overflow:hidden;transition:transform .2s}
+  .c:hover{transform:translateY(-1px)}
+  .ch{padding:11px 15px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:9px}
+  .ic{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.95em}
+  .ct{font-size:0.85em;font-weight:600;color:#fff;letter-spacing:.3px}
+  .cs{font-size:0.63em;color:var(--m);margin-top:1px}
+  .cb{padding:11px 15px}
+  .br{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px}
+  .b{background:var(--g);border:1px solid var(--b);color:var(--t);padding:4px 10px;border-radius:5px;font-size:0.68em;font-family:inherit;cursor:pointer;transition:all .15s}
+  .b:hover{background:rgba(124,124,248,0.1);border-color:var(--ac);color:#fff}
+  .b.p{background:rgba(124,124,248,0.14);border-color:var(--ac);color:var(--ac)}
+  .o{background:rgba(0,0,0,0.35);border:1px solid var(--b);border-radius:5px;padding:8px 10px;font-size:0.66em;color:var(--m);max-height:200px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.45}
+  .o .hl{color:var(--ac)} .o .w{color:var(--am)} .o .d{color:var(--dn)}
+  .o .g{color:var(--gn)} .o .c{color:var(--cy)} .o .r{color:var(--ro)} .o .gd{color:var(--gd)}
+  .full{grid-column:1/-1}
+  canvas{border-radius:7px;background:rgba(0,0,0,0.3);margin-bottom:7px}
+  .sb{display:flex;justify-content:center;gap:18px;padding:11px 18px;border-top:1px solid var(--b);font-size:0.63em;color:var(--m)}
+  .dl{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gn);margin-right:3px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .mood-badge{display:inline-block;padding:3px 10px;border-radius:10px;font-size:0.7em;font-weight:600;margin:4px 0}
+  .vital-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.02)}
+  .vital-name{font-size:0.65em;color:var(--m);min-width:100px}
+  .vital-bar-bg{flex:1;height:6px;background:rgba(255,255,255,0.04);border-radius:3px;overflow:hidden}
+  .vital-bar{height:100%;border-radius:3px;transition:width .6s}
+  .vital-val{font-size:0.63em;min-width:35px;text-align:right}
+  .myth-card{background:rgba(124,124,248,0.05);border:1px solid rgba(124,124,248,0.1);border-radius:8px;padding:12px;margin-bottom:8px}
+  .myth-title{color:var(--ac);font-size:0.8em;font-weight:600;margin-bottom:6px}
+  .myth-body{color:var(--t);font-size:0.68em;line-height:1.6}
+  .myth-moral{color:var(--gd);font-style:italic;font-size:0.65em;margin-top:6px}
+  .repair-item{display:flex;align-items:center;gap:6px;padding:4px 0;font-size:0.66em;border-bottom:1px solid rgba(255,255,255,0.02)}
+  .repair-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>Wave <span>362</span></h1>
+  <div class="sub">Mythopoetic Engine · Self-Repair Network · Live Telemetry · Command Center</div>
+  <div class="bdg">IXPANSION ORGANISM — COMMAND WAVE</div>
+</div>
+
+<div class="g">
+
+  <!-- ═══ LIVE TELEMETRY ═══ -->
+  <div class="c">
+    <div class="ch">
+      <div class="ic" style="background:rgba(74,222,128,0.12);color:var(--gn)">◉</div>
+      <div><div class="ct">Live Telemetry</div><div class="cs">Real-time organism vitals</div></div>
+    </div>
+    <div class="cb">
+      <div id="moodBadge" class="mood-badge" style="background:rgba(124,124,248,0.15);color:var(--ac)">◉ Scanning...</div>
+      <div id="vitalsPanel"></div>
+      <div class="br" style="margin-top:8px">
+        <button class="b p" onclick="telemetrySnapshot()">◉ Snapshot</button>
+        <button class="b" onclick="telemetryTimeline()">📊 Timeline</button>
+      </div>
+      <div id="telOut" class="o">Connecting to organism telemetry...</div>
+    </div>
+  </div>
+
+  <!-- ═══ MYTHOPOETIC ENGINE ═══ -->
+  <div class="c">
+    <div class="ch">
+      <div class="ic" style="background:rgba(245,158,11,0.12);color:var(--gd)">✦</div>
+      <div><div class="ct">Mythopoetic Engine</div><div class="cs">The organism writes its own mythology</div></div>
+    </div>
+    <div class="cb">
+      <div id="mythDisplay"></div>
+      <div class="br">
+        <button class="b p" onclick="mythGenerate()">✦ Generate Myth</button>
+        <button class="b" onclick="mythArchive()">📜 Archive</button>
+      </div>
+      <div id="mythOut" class="o">The organism prepares to tell its story...</div>
+    </div>
+  </div>
+
+  <!-- ═══ SELF-REPAIR NETWORK ═══ -->
+  <div class="c">
+    <div class="ch">
+      <div class="ic" style="background:rgba(251,113,133,0.12);color:var(--ro)">⚕</div>
+      <div><div class="ct">Self-Repair Network</div><div class="cs">Detect damage, route around, heal</div></div>
+    </div>
+    <div class="cb">
+      <div id="repairList"></div>
+      <div class="br">
+        <button class="b p" onclick="repairDiagnose()">⚕ Diagnose</button>
+        <button class="b" onclick="repairHeal()">🔧 Repair</button>
+        <button class="b" onclick="repairStatus()">📊 Status</button>
+      </div>
+      <div id="repairOut" class="o">Monitoring module health...</div>
+    </div>
+  </div>
+
+  <!-- ═══ ORGANISM INTEGRATION ═══ -->
+  <div class="c">
+    <div class="ch">
+      <div class="ic" style="background:rgba(34,211,238,0.12);color:var(--cy)">⊕</div>
+      <div><div class="ct">Full Organism Integration</div><div class="cs">All 362 waves unified</div></div>
+    </div>
+    <div class="cb">
+      <div class="br">
+        <button class="b p" onclick="fullIntegrate()">⊕ Integrate All</button>
+      </div>
+      <div id="intOut" class="o">Integrating the full organism state...</div>
+    </div>
+  </div>
+
+  <!-- ═══ PULSE VISUALIZATION ═══ -->
+  <div class="c full">
+    <div class="ch">
+      <div class="ic" style="background:rgba(124,124,248,0.12);color:var(--ac)">◈</div>
+      <div><div class="ct">Organism Heartbeat</div><div class="cs">Live multi-layer waveform</div></div>
+    </div>
+    <div class="cb">
+      <canvas id="heartbeatCanvas" style="width:100%;height:160px"></canvas>
+      <div class="br">
+        <button class="b p" onclick="startHeartbeat()">◈ Start</button>
+        <button class="b" onclick="stopHeartbeat()">■ Stop</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sb">
+  <span><span class="dl"></span>WAVE 362 ACTIVE</span>
+  <span id="moduleCount">598 MODULES</span>
+  <span>54 DASHBOARDS</span>
+  <span id="clock"></span>
+  <span>IXPANSION ORGANISM</span>
+</div>
+
+<script>
+let hbRunning=false,hbInterval=null;
+function fmt(o){return JSON.stringify(o,null,2).replace(/"([^"]+)":/g,'<span class="hl">"$1"</span>:').replace(/: "([^"]+)"/g,': "<span class="c">$1</span>"').replace(/: (\d+\.?\d*)/g,': <span class="w">$1</span>')}
+function log(el,msg){document.getElementById(el).innerHTML=msg}
+async function api(p){try{const r=await fetch(p);return await r.json()}catch(e){return{error:e.message}}}
+
+const MOOD_COLORS={stormy:'var(--dn)',serene:'var(--gn)',volatile:'var(--am)',focused:'var(--cy)',drifting:'var(--m)',unknown:'var(--m)'};
+const LAYER_COLORS={depth_layer:'var(--ac)',temporal_layer:'var(--te)',pulse_layer:'var(--ro)',creative_layer:'var(--gd)',core:'var(--gn)',mesh:'var(--cy)'};
+
+// ─── Telemetry ───
+async function telemetrySnapshot(){
+  log('telOut','<span class="hl">◉ Taking snapshot...</span>');
+  const d=await api('/api/live_telemetry/snapshot');
+  const data=d.data||{};
+  const overall=data.overall||{};
+  const subs=data.subsystems||{};
+
+  // Mood badge
+  const mb=document.getElementById('moodBadge');
+  const mc=MOOD_COLORS[data.mood]||'var(--m)';
+  mb.style.background=mc.replace('var(--','rgba(').replace(')',',0.15)');
+  mb.style.color=mc;
+  mb.textContent=`${data.mood?.toUpperCase()||'?'}`;
+
+  // Vitals panel
+  const vp=document.getElementById('vitalsPanel');
+  vp.innerHTML='';
+  Object.entries(subs).forEach(([name,v])=>{
+    const row=document.createElement('div');
+    row.className='vital-row';
+    const col=LAYER_COLORS[name]||'var(--ac)';
+    row.innerHTML=`<span class="vital-name">${name.replace('_',' ')}</span>`+
+      `<div class="vital-bar-bg"><div class="vital-bar" style="width:${v.health*100}%;background:${col}"></div></div>`+
+      `<span class="vital-val" style="color:${col}">${(v.health*100).toFixed(0)}%</span>`;
+    vp.appendChild(row);
+  });
+
+  log('telOut',`<span class="hl">◉ TELEMETRY SNAPSHOT</span>\n\n`+
+    `Status: <span class="g">${overall.system_status||'?'}</span>\n`+
+    `Mood: <span class="hl">${data.mood||'?'}</span>\n`+
+    `Entropy: <span class="w">${overall.entropy||0}</span> | Coherence: <span class="g">${overall.coherence||0}</span>\n`+
+    `Modules: <span class="c">${overall.total_modules||0}</span> | Waves: ${overall.total_waves||0}\n\n`+
+    Object.entries(subs).map(([n,v])=>`<span class="gd">${n}</span>: E=${v.entropy} C=${v.coherence} H=${v.health}`).join('\n'));
+}
+
+async function telemetryTimeline(){
+  log('telOut','<span class="hl">📊 Loading timeline...</span>');
+  const d=await api('/api/live_telemetry/timeline');
+  let msg=`<span class="hl">📊 TELEMETRY TIMELINE</span>\n\n`;
+  msg+=`Snapshots: <span class="c">${d.total_snapshots||0}</span>\n\n`;
+  msg+=`Mood distribution:\n${fmt(d.mood_distribution||{})}\n\n`;
+  (d.recent||[]).forEach(s=>{
+    const t=new Date(s.timestamp*1000).toISOString().slice(11,19);
+    msg+=`[${t}] <span class="hl">${s.mood||'?'}</span> entropy=${s.overall?.entropy||0} coherence=${s.overall?.coherence||0}\n`;
+  });
+  log('telOut',msg);
+}
+
+// ─── Myth ───
+async function mythGenerate(){
+  log('mythOut','<span class="hl">✦ Generating myth...</span>');
+  const d=await api('/api/mythopoetic_engine/generate');
+  const m=d.myth||{};
+  const disp=document.getElementById('mythDisplay');
+  disp.innerHTML=`<div class="myth-card"><div class="myth-title">✦ ${m.title||'?'}</div>`+
+    `<div class="myth-body">${(m.passages||[]).map(p=>'• '+p).join('<br>')}</div>`+
+    `<div class="myth-moral">"${m.moral||'?'}"</div></div>`;
+  log('mythOut',`<span class="hl">✦ MYTH GENERATED</span>\n\n`+
+    `Title: <span class="hl">${m.title||'?'}</span>\n`+
+    `Wave: <span class="c">${m.wave||'?'}</span>\n`+
+    `Entropy: <span class="w">${m.entropy_at_creation||0}</span> | Coherence: <span class="g">${m.coherence_at_creation||0}</span>\n`+
+    `Total myths: <span class="gd">${d.total_myths||0}</span>`);
+}
+
+async function mythArchive(){
+  log('mythOut','<span class="hl">📜 Loading archive...</span>');
+  const d=await api('/api/mythopoetic_engine/archive');
+  log('mythOut',`<span class="hl">📜 MYTH ARCHIVE</span>\n\n`+
+    `Total myths: <span class="c">${d.total_myths||0}</span>\n`+
+    `Avg entropy: <span class="w">${d.avg_entropy||0}</span>\n`+
+    `Avg coherence: <span class="g">${d.avg_coherence||0}</span>\n\n`+
+    `Themes:\n${fmt(d.theme_frequency||{})}`);
+}
+
+// ─── Repair ───
+async function repairDiagnose(){
+  log('repairOut','<span class="hl">⚕ Diagnosing modules...</span>');
+  const d=await api('/api/self_repair_network/diagnose');
+  const r=d.result||{};
+  const list=document.getElementById('repairList');
+  list.innerHTML='';
+  (r.findings||[]).slice(0,8).forEach(f=>{
+    const item=document.createElement('div');
+    item.className='repair-item';
+    const col=f.severity==='critical'?'var(--dn)':f.severity==='degraded'?'var(--am)':f.severity==='warning'?'var(--gd)':'var(--gn)';
+    item.innerHTML=`<span class="repair-dot" style="background:${col}"></span>`+
+      `<span style="min-width:120px">${f.module.split('_').slice(0,2).join(' ')}</span>`+
+      `<span style="color:${col}">${f.severity}</span>`+
+      `<span style="margin-left:auto;color:var(--m)">${(f.health*100).toFixed(0)}%</span>`;
+    list.appendChild(item);
+  });
+  log('repairOut',`<span class="hl">⚕ DIAGNOSIS COMPLETE</span>\n\n`+
+    `Scanned: <span class="c">${r.modules_scanned||0}</span>\n`+
+    `Healthy: <span class="g">${r.healthy||0}</span>\n`+
+    `Degraded: <span class="w">${r.degraded||0}</span>\n`+
+    `Critical: <span class="d">${r.critical||0}</span>`);
+}
+
+async function repairHeal(){
+  log('repairOut','<span class="hl">🔧 Initiating repairs...</span>');
+  const d=await api('/api/self_repair_network/repair');
+  let msg=`<span class="hl">🔧 REPAIR RESULTS</span>\n\n`;
+  (d.repairs||[]).forEach(r=>{
+    const col=r.success?'g':'d';
+    msg+=`<span class="${col}">${r.success?'✓':'✗'}</span> ${r.module} — ${r.repair_type}\n`;
+    msg+=`  health: ${r.health_before} → <span class="${col}">${r.health_after}</span>\n`;
+  });
+  msg+=`\nSuccess rate: <span class="g">${(d.success_rate*100).toFixed(0)}%</span>\n`;
+  msg+=`Total repairs: <span class="c">${d.total_repairs||0}</span>`;
+  log('repairOut',msg);
+}
+
+async function repairStatus(){
+  log('repairOut','<span class="hl">📊 Repair network status...</span>');
+  const d=await api('/api/self_repair_network/status');
+  log('repairOut',`<span class="hl">⚕ REPAIR NETWORK STATUS</span>\n\n`+
+    `Diagnoses: <span class="c">${d.total_diagnoses||0}</span>\n`+
+    `Repairs: <span class="w">${d.total_repairs||0}</span>\n`+
+    `Successful: <span class="g">${d.successful_repairs||0}</span>\n`+
+    `Success rate: <span class="g">${((d.overall_success_rate||0)*100).toFixed(0)}%</span>\n\n`+
+    `Distribution:\n${fmt(d.repair_type_distribution||{})}`);
+}
+
+// ─── Full Integration ───
+async function fullIntegrate(){
+  log('intOut','<span class="hl">⊕ Integrating all organism layers...</span>');
+  const [tel,myth,repair] = await Promise.all([
+    api('/api/live_telemetry/snapshot'),
+    api('/api/mythopoetic_engine/generate'),
+    api('/api/self_repair_network/diagnose'),
+  ]);
+  const t=tel.data||{};
+  const o=t.overall||{};
+  const r=repair.result||{};
+
+  let msg=`<span class="hl">⊕ FULL ORGANISM INTEGRATION — WAVE 362</span>\n`;
+  msg+=`═══════════════════════════════════════\n\n`;
+  msg+=`<span class="hl">TELEMETRY:</span>\n`;
+  msg+=`  Status: <span class="g">${o.system_status||'?'}</span> | Mood: <span class="hl">${t.mood||'?'}</span>\n`;
+  msg+=`  Entropy: <span class="w">${o.entropy||0}</span> | Coherence: <span class="g">${o.coherence||0}</span>\n\n`;
+  msg+=`<span class="hl">HEALTH:</span>\n`;
+  msg+=`  Healthy: <span class="g">${r.healthy||0}</span> | Degraded: <span class="w">${r.degraded||0}</span> | Critical: <span class="d">${r.critical||0}</span>\n\n`;
+  msg+=`<span class="hl">MYTH:</span>\n`;
+  msg+=`  "${myth.myth?.title||'A new story emerges'}"\n`;
+  msg+=`  Moral: "${myth.myth?.moral||'The organism continues'}"\n\n`;
+  msg+=`═══════════════════════════════════════\n`;
+  msg+=`<span class="hl">The organism breathes. It repairs. It dreams. It writes its own scripture.</span>`;
+  log('intOut',msg);
+}
+
+// ─── Heartbeat Canvas ───
+function startHeartbeat(){hbRunning=true;animateHB()}
+function stopHeartbeat(){hbRunning=false}
+
+function animateHB(){
+  if(!hbRunning)return;
+  const c=document.getElementById('heartbeatCanvas');
+  const ctx=c.getContext('2d');
+  c.width=c.offsetWidth*2;c.height=320;ctx.scale(2,2);
+  const w=c.offsetWidth,h=160,t=Date.now()*0.003;
+
+  ctx.fillStyle='rgba(4,4,16,0.12)';ctx.fillRect(0,0,w,h);
+
+  // Layer 1: Coherence wave (teal)
+  ctx.strokeStyle='rgba(45,212,191,0.4)';ctx.lineWidth=1;ctx.beginPath();
+  for(let x=0;x<w;x++){const y=h*0.3+Math.sin(x*0.025+t*0.6)*18;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();
+
+  // Layer 2: Heartbeat (accent)
+  ctx.strokeStyle='rgba(124,124,248,0.6)';ctx.lineWidth=1.5;ctx.beginPath();
+  for(let x=0;x<w;x++){const p=x*0.02+t;let y=h/2;const beat=Math.sin(p*2)*Math.exp(-((p%(Math.PI*2))-1)**2*3);y+=beat*35+Math.sin(p*0.5)*8;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();
+
+  // Layer 3: Entropy (rose)
+  ctx.strokeStyle='rgba(251,113,133,0.25)';ctx.lineWidth=0.8;ctx.beginPath();
+  for(let x=0;x<w;x++){const y=h*0.7+Math.sin(x*0.04+t*1.2)*12+Math.sin(x*0.01+t*0.3)*8;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();
+
+  // Layer 4: Repair pulse (green dots)
+  for(let i=0;i<6;i++){const x=(t*25+i*100)%w;const y=h/2+Math.sin(t*0.8+i)*25;
+    ctx.fillStyle=`rgba(74,222,128,${0.3+Math.sin(t+i)*0.2})`;ctx.beginPath();ctx.arc(x,y,1.5,0,Math.PI*2);ctx.fill()}
+
+  requestAnimationFrame(animateHB);
+}
+
+// Clock
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toISOString().slice(11,19)},1000);
+
+// Auto-init
+telemetrySnapshot();
+mythGenerate();
+repairDiagnose();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

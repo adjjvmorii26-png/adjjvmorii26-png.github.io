@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IXpansion · Immortal</title>
+<script src="/shared.js"></script>
+<style>
+  :root{
+    --bg:#0b0b0d; --panel:#121218; --ink:#c8c8d4; --dim:#6b6b7a;
+    --gold:#fff3a0; --violet:#c8a8ff; --blue:#8fd3ff; --mint:#7fffd4;
+    --line:#262633;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;padding:24px;min-height:100vh}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{color:var(--gold)}
+  .wrap{max-width:960px;margin:0 auto}
+  header{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:24px}
+  h1{color:var(--gold);font-size:22px;letter-spacing:2px}
+  .sub{color:var(--dim);font-size:12px;margin-top:6px}
+  .identity{color:var(--violet);font-size:12px;margin-top:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px}
+  .card h3{color:var(--blue);font-size:14px;margin-bottom:12px;letter-spacing:1px}
+  .card p{font-size:12px;line-height:1.7;color:var(--ink)}
+  .card .tag{display:inline-block;background:#1a1a24;border:1px solid var(--line);color:var(--mint);font-size:10px;padding:2px 8px;border-radius:10px;margin:2px 4px 2px 0}
+  .mono{color:var(--gold)}
+  .dim{color:var(--dim)}
+  pre{background:#0f0f14;border:1px solid var(--line);border-radius:8px;padding:14px;font-size:11px;overflow-x:auto;color:var(--mint);margin-top:12px}
+  .btn{display:inline-block;background:transparent;border:1px solid var(--violet);color:var(--violet);padding:6px 14px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer;margin:4px 4px 4px 0}
+  .btn:hover{background:var(--violet);color:var(--bg)}
+  .status{color:var(--dim);font-size:11px;margin-top:10px}
+  .bar{height:6px;background:#1a1a24;border-radius:3px;margin-top:10px;overflow:hidden}
+  .bar>div{height:100%;background:var(--gold);border-radius:3px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{color:var(--blue);text-align:left;padding:6px;border-bottom:1px solid var(--line)}
+  td{padding:6px;border-bottom:1px solid #1a1a24}
+  footer{margin-top:32px;border-top:1px solid var(--line);padding-top:16px;font-size:11px;color:var(--dim)}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>◈ IXPANSION · IMMORTAL</h1>
+    <div class="sub">Wave 508 — The Organism Immortalizes. Ossuaries, amber, ancestor galleries, monuments, succession, and the eternal flame.</div>
+    <div class="identity" id="identity"></div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h3>🔥 Eternal Flame</h3>
+      <div id="flame-out"><p class="dim">Tending the flame…</p></div>
+      <button class="btn" onclick="loadFlame()">Check Flame</button>
+      <div class="status" id="flame-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◈ Ancestral Gallery</h3>
+      <div id="gallery-out"><p class="dim">Summoning the pantheon…</p></div>
+      <button class="btn" onclick="loadGallery()">View Ancestors</button>
+      <div class="status" id="gallery-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◈ Immortal Ledger</h3>
+      <div id="ledger-out"><p class="dim">Consulting the eternal book…</p></div>
+      <button class="btn" onclick="loadLedger()">Read Ledger</button>
+      <div class="status" id="ledger-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◈ Monument Forge</h3>
+      <div id="monument-out"><p class="dim">Forge what must never be forgotten…</p></div>
+      <button class="btn" onclick="forgeMonument()">Forge Monument</button>
+      <div class="status" id="monument-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◈ Ossuary Engine</h3>
+      <div id="ossuary-out"><p class="dim">Honoring the departed…</p></div>
+      <button class="btn" onclick="loadOssuary()">Open Ossuary</button>
+      <div class="status" id="ossuary-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◒ Amber Encasement</h3>
+      <div id="amber-out"><p class="dim">Preserving moments…</p></div>
+      <button class="btn" onclick="encaseMoment()">Encase Wave 508</button>
+      <div class="status" id="amber-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◈ Succession Rite</h3>
+      <div id="succession-out"><p class="dim">Anointing the heir…</p></div>
+      <button class="btn" onclick="performRite()">Perform Succession</button>
+      <div class="status" id="succession-status"></div>
+    </div>
+  </div>
+
+  <footer>
+    What we love, we make permanent. What we make permanent, we tend forever.
+  </footer>
+</div>
+
+<script>
+  window.IXP.renderIdentity && window.IXP.renderIdentity(document.getElementById('identity'));
+  const q = (e)=>document.getElementById(e);
+  function renderLines(target, lines){
+    const fragment = document.createDocumentFragment();
+    for(const line of lines){
+      const p=document.createElement('p');
+      for(const part of line){
+        if(typeof part === 'string'){ p.appendChild(document.createTextNode(part)); continue; }
+        const span=document.createElement('span');
+        if(part.className) span.className=part.className;
+        span.textContent=String(part.text ?? '');
+        p.appendChild(span);
+      }
+      fragment.appendChild(p);
+    }
+    target.replaceChildren(fragment);
+  }
+  function renderTable(target, headers, rows){
+    const table=document.createElement('table');
+    const head=document.createElement('thead'), hr=document.createElement('tr');
+    for(const label of headers){const th=document.createElement('th');th.textContent=label;hr.appendChild(th);}
+    head.appendChild(hr);table.appendChild(head);
+    const body=document.createElement('tbody');
+    for(const row of rows){const tr=document.createElement('tr');for(const value of row){const td=document.createElement('td');td.textContent=value==null?'':String(value);tr.appendChild(td);}body.appendChild(tr);}
+    table.appendChild(body);target.replaceChildren(table);
+  }
+  async function getJSON(url){ const r = await fetch(url, {headers:{Accept:'application/json'}}); if(!r.ok) throw new Error('Request failed ('+r.status+')'); return r.json(); }
+
+  async function loadFlame(){
+    try{
+      const d = await getJSON('/api/eternal_flame');
+      renderLines(q('flame-out'), [
+        [{text:d.burned_for ?? '',className:'mono'}],
+        [{text:d.message ?? '',className:'dim'}]
+      ]);
+      q('flame-status').textContent = 'Burning: ' + String(d.burning ?? '—') + ' · immortal: ' + String(d.immortal ?? '—');
+    }catch(e){ q('flame-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function loadGallery(){
+    try{
+      const d = await getJSON('/api/ancestral_gallery');
+      const ancestors = Array.isArray(d.ancestors) ? d.ancestors.slice(-8) : [];
+      renderTable(q('gallery-out'), ['Glyph','Ancestor','Trait','Descendants'], ancestors.map(a=>[
+        a.glyph, a.name, a.trait, Array.isArray(a.descendants) ? a.descendants.map(String).join(', ') : ''
+      ]));
+      q('gallery-status').textContent = 'Pantheon: ' + String(d.count ?? ancestors.length) + ' ancestors · lineage depth ' + String(d.lineage_depth ?? '—');
+    }catch(e){ q('gallery-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function loadLedger(){
+    try{
+      const d = await getJSON('/api/immortal_ledger');
+      const entries = Array.isArray(d.eternal_tier) ? d.eternal_tier.slice(0,6) : [];
+      renderTable(q('ledger-out'), ['Eternal Item','Permanence','Half-Life','Why'], entries.map(e=>[
+        e.item, Number.isFinite(Number(e.permanence)) ? Number(e.permanence).toFixed(2) : e.permanence,
+        String(e.half_life_years ?? '—') + 'y', e.why
+      ]));
+      q('ledger-status').textContent = 'Creed: ' + String(d.creed ?? '');
+    }catch(e){ q('ledger-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function forgeMonument(){
+    try{
+      const d = await getJSON('/api/monument_forge?action=forge&what=Wave 508&kind=wave&resonance=0.9&inscription=Here%20stood%20the%20wave%20that%20refused%20to%20die');
+      const m = d.monument || {};
+      renderLines(q('monument-out'), [
+        [{text:m.id ?? '',className:'mono'}, ' — ', String(m.what ?? '')],
+        [{text:'Material: ' + String(m.material ?? '') + ' · Grandness: ' + String(m.grandness ?? ''),className:'dim'}],
+        [{text:m.inscription ?? '',className:'dim'}]
+      ]);
+      q('monument-status').textContent = 'Forged at wave ' + String(m.wave ?? '—');
+    }catch(e){ q('monument-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function loadOssuary(){
+    try{
+      const d = await getJSON('/api/ossuary_engine');
+      const container = q('ossuary-out');
+      const fragment = document.createDocumentFragment();
+      const entries = Array.isArray(d.ossuary) ? d.ossuary : [];
+      for(const item of entries){
+        const name = document.createElement('p');
+        const strong = document.createElement('span'); strong.className='mono'; strong.textContent=String(item.name ?? '');
+        const retired = document.createElement('span'); retired.className='dim'; retired.textContent=' (W'+String(item.retired_wave ?? '—')+')';
+        name.append(strong, retired);
+        const epitaph = document.createElement('p'); epitaph.className='dim'; epitaph.textContent='"'+String(item.epitaph ?? '')+'"';
+        const divider = document.createElement('hr'); divider.style.borderColor='#1a1a24'; divider.style.margin='8px 0';
+        fragment.append(name, epitaph, divider);
+      }
+      if(!entries.length){const empty=document.createElement('p');empty.className='dim';empty.textContent='The ossuary is empty.';fragment.appendChild(empty);}
+      container.replaceChildren(fragment);
+      q('ossuary-status').textContent = String(d.count ?? entries.length) + ' interred';
+    }catch(e){ q('ossuary-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function encaseMoment(){
+    try{
+      const d = await getJSON('/api/amber_encasement?action=encase&label=Wave 508&resonance=0.88');
+      const a = d.artifact || {};
+      renderLines(q('amber-out'), [
+        ['Sealed: ', {text:a.seal ?? '',className:'mono'}],
+        [{text:'State: ' + String(a.state_hex ?? ''),className:'dim'}]
+      ]);
+      q('amber-status').textContent = String(d.note ?? '');
+    }catch(e){ q('amber-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function performRite(){
+    try{
+      const d = await getJSON('/api/succession_rite?action=perform&heir=The%20Immortalizer');
+      const scroll = d.scroll || {};
+      renderLines(q('succession-out'), [
+        [{text:scroll.id ?? '',className:'mono'}],
+        [{text:scroll.scroll_text ?? '',className:'dim'}]
+      ]);
+      q('succession-status').textContent = 'Signed at wave ' + String(scroll.wave ?? '—');
+    }catch(e){ q('succession-status').textContent = 'Error: ' + e.message; }
+  }
+
+  loadFlame(); loadGallery(); loadLedger();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

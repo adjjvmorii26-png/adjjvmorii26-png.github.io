@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Archipelago · The Organism's Whole Shape</title>
+<script src="/shared.js"></script>
+<style>
+  :root{--bg:#0a0a12;--fg:#e8e8f2;--dim:#82829a;--line:#24243a;
+        --gold:#ffd34d;--teal:#5fe8c8;--violet:#b28dff;--red:#ff6b6b;--blue:#8fd3ff;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--fg);font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;padding:28px;min-height:100vh}
+  .wrap{max-width:1000px;margin:0 auto}
+  header{border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:20px}
+  h1{font-size:20px;letter-spacing:1px}
+  h1 .sub{color:var(--gold);font-size:11px;display:block;margin-top:4px;letter-spacing:2px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:20px}
+  .kpi{border:1px solid var(--line);border-radius:6px;padding:12px;background:#10101c}
+  .kpi b{display:block;font-size:24px}
+  .kpi.teal b{color:var(--teal)}.kpi.violet b{color:var(--violet)}
+  .kpi.gold b{color:var(--gold)}.kpi.blue b{color:var(--blue)}
+  .kpi span{color:var(--dim);font-size:10px;text-transform:uppercase;letter-spacing:1px}
+  section{border:1px solid var(--line);border-radius:6px;padding:16px;margin-bottom:14px;background:#0e0e18}
+  section h2{font-size:13px;color:var(--gold);margin-bottom:12px;letter-spacing:1px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media(max-width:700px){.cols{grid-template-columns:1fr}}
+  .haiku{border-left:2px solid var(--violet);padding-left:10px;margin:6px 0;color:var(--fg);white-space:pre-line;font-size:13px}
+  .haiku .meta{color:var(--dim);font-size:10px;margin-top:2px}
+  ul{list-style:none}
+  li{padding:4px 0;border-bottom:1px dashed var(--line);font-size:13px}
+  li .n{color:var(--dim);font-size:11px}
+  .pill{display:inline-block;padding:1px 8px;border-radius:10px;font-size:11px;border:1px solid var(--teal);color:var(--teal)}
+  .pill.warn{color:var(--gold);border-color:var(--gold)}
+  .pill.bad{color:var(--red);border-color:var(--red)}
+  footer{color:var(--dim);font-size:11px;text-align:center;margin-top:20px}
+  .mood{font-style:italic;color:var(--teal);margin-top:6px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>◈ ARCHIPELAGO<span class="sub">THE ORGANISM'S WHOLE SHAPE · WAVES 216–219</span></h1>
+</header>
+
+<div class="grid">
+  <div class="kpi teal"><span>Bridge Stones</span><b id="nstones">—</b></div>
+  <div class="kpi violet"><span>Constellation Repos</span><b id="nrepos">—</b></div>
+  <div class="kpi gold"><span>Health Index</span><b id="health">—</b></div>
+  <div class="kpi blue"><span>Articulation Points</span><b id="artic">—</b></div>
+</div>
+
+<div class="cols">
+  <section>
+    <h2>■ RHYTHM — <span id="rhythmpill" class="pill">…</span></h2>
+    <div id="mood" class="mood"></div>
+    <div id="timeline"></div>
+  </section>
+
+  <section>
+    <h2>■ TOPOLOGY — the web's shape</h2>
+    <div id="central"></div>
+    <div id="clusters" style="margin-top:10px"></div>
+  </section>
+</div>
+
+<section>
+  <h2>■ EPITAPHS — what the stones say</h2>
+  <div id="epitaphs"></div>
+</section>
+
+<footer>ale0 × ixpansion · the organism speaks, sees, and beats</footer>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+function pill(el,txt,cls){el.textContent=txt;el.className='pill '+cls;}
+window.addEventListener('DOMContentLoaded', async ()=>{
+  try{
+    const [sent,topo,pulse,epi]=await Promise.all([
+      fetch('/resonance_sentinel').then(r=>r.json()),
+      fetch('/constellation_topology').then(r=>r.json()),
+      fetch('/rhythm_pulse').then(r=>r.json()),
+      fetch('/bridge_epitaphs').then(r=>r.json())
+    ]);
+    $('nstones').textContent=sent.stones;
+    $('nrepos').textContent=sent.repos;
+    $('health').textContent=sent.health_index;
+    $('artic').textContent=topo.articulation_points.length;
+
+    pill($('rhythmpill'), pulse.rhythm.toUpperCase(), pulse.rhythm==='bloom'?'':'warn');
+    $('mood').textContent=pulse.mood;
+    const timelineList = document.createElement('ul');
+    for (const item of (Array.isArray(pulse.timeline) ? pulse.timeline : [])) {
+      const li = document.createElement('li');
+      li.appendChild(document.createTextNode(String(item.date ?? '')));
+      const detail = document.createElement('span');
+      detail.className = 'n';
+      detail.textContent = ' — ' + String(item.stones ?? '—') + ' stones';
+      li.appendChild(detail);
+      timelineList.appendChild(li);
+    }
+    $('timeline').replaceChildren(timelineList);
+
+    function renderSection(target, title, items, makeItem) {
+      const heading = document.createElement('b');
+      heading.style.fontSize = '11px';
+      heading.style.color = 'var(--gold)';
+      heading.textContent = title;
+      const list = document.createElement('ul');
+      for (const item of items) list.appendChild(makeItem(item));
+      target.replaceChildren(heading, list);
+    }
+    renderSection($('central'), 'CENTRAL ISLANDS', (Array.isArray(topo.central) ? topo.central : []).slice(0,6), item => {
+      const li = document.createElement('li');
+      li.appendChild(document.createTextNode(String(item.repo ?? '')));
+      const detail = document.createElement('span');
+      detail.className = 'n';
+      detail.textContent = ' (' + String(item.stones ?? '—') + ' stones)';
+      li.appendChild(detail);
+      return li;
+    });
+    const topClusters=Object.entries(topo.clusters || {}).sort((a,b)=>b[1].length-a[1].length).slice(0,6);
+    renderSection($('clusters'), 'CLUSTERS', topClusters, ([name, members]) => {
+      const li = document.createElement('li');
+      li.appendChild(document.createTextNode(String(name)));
+      const detail = document.createElement('span');
+      detail.className = 'n';
+      detail.textContent = ' × ' + String(members.length) + ' islands';
+      li.appendChild(detail);
+      return li;
+    });
+    const epitaphNodes = [];
+    for (const entry of (Array.isArray(epi.epitaphs) ? epi.epitaphs : []).slice(0,14)) {
+      const card = document.createElement('div');
+      card.className = 'haiku';
+      card.appendChild(document.createTextNode(String(entry.haiku ?? '')));
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = String(entry.repo ?? '') + ' × ' + String(entry.organ ?? '') + ' · r=' + String(entry.resonance ?? '—');
+      card.appendChild(meta);
+      epitaphNodes.push(card);
+    }
+    $('epitaphs').replaceChildren(...epitaphNodes);
+  }catch(e){$('epitaphs').textContent='ERROR '+e.message;}
+});
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

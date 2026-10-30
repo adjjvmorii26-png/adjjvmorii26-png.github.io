@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IXpansion — Skills Observatory</title>
+<style>
+:root{--bg:#03030a;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--accent:#7c7cf8;--text:#c0c0d0;--dim:#606078}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.wrap{max-width:1100px;margin:0 auto;padding:40px 24px}
+h1{color:#fff;font-weight:300;letter-spacing:6px;font-size:2em;text-align:center}
+h1 span{color:var(--teal);text-shadow:0 0 30px rgba(45,212,191,0.35)}
+.sub{text-align:center;color:var(--dim);font-size:0.85em;letter-spacing:3px;margin-top:8px}
+.pulse{text-align:center;margin:24px 0;font-size:0.8em;color:var(--gold);letter-spacing:2px}
+.stats{display:flex;justify-content:center;gap:16px;margin:20px 0;flex-wrap:wrap}
+.stat{padding:6px 14px;border:1px solid rgba(124,124,248,0.15);border-radius:6px}
+.stat .v{color:#fff;font-weight:700}.stat .l{color:var(--dim);font-size:0.7em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;margin-top:24px}
+.skill{background:rgba(3,3,10,0.7);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:16px;transition:all .25s}
+.skill:hover{transform:translateY(-3px);border-color:var(--teal);box-shadow:0 0 24px rgba(45,212,191,0.12)}
+.shead{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.sname{color:#fff;font-weight:700;font-size:0.95em;letter-spacing:1px}
+.status{font-size:0.6em;padding:2px 8px;border-radius:8px;background:rgba(255,255,255,0.05);text-transform:uppercase;letter-spacing:1px}
+.sdesc{color:var(--dim);font-size:0.72em;line-height:1.5;margin-bottom:10px;min-height:36px}
+.caps{display:flex;flex-wrap:wrap;gap:6px}
+.cap{font-size:0.62em;padding:3px 8px;border-radius:10px;border:1px solid rgba(255,255,255,0.12);color:var(--cyan);background:rgba(34,211,238,0.06)}
+.foot{text-align:center;margin-top:40px;padding-top:24px;border-top:1px solid rgba(124,124,248,0.15);color:var(--dim);font-size:0.7em;letter-spacing:2px}
+a{color:var(--teal);text-decoration:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>◈ <span>SKILLS OBSERVATORY</span></h1>
+  <div class="sub">78 LIVING SKILLS · REGISTERED IN THE ORGANISM CORE</div>
+  <div class="stats">
+    <div class="stat"><div class="v">66</div><div class="l">ACTIVE</div></div>
+    <div class="stat"><div class="v">2</div><div class="l">EXPERIMENTAL</div></div>
+    <div class="stat"><div class="v">1</div><div class="l">BETA</div></div>
+    <div class="stat"><div class="v">1</div><div class="l">PROTOTYPE</div></div>
+    <div class="stat"><div class="v">1</div><div class="l">CONCEPTUAL</div></div>
+  </div>
+  <div class="pulse">⌁ the organism's capability lattice — every skill a thread in the weave</div>
+  <div class="grid">
+    <div class="skill">
+      <div class="shead"><div class="sname">dream_logging</div><span class="status" style="color:#fb7185">experimental</span></div>
+      <div class="sdesc">Records organism 'dreams' (module mutations) as they happen</div>
+      <div class="caps"><span class="cap">log_module_mutation</span><span class="cap">track_dependency_changes</span><span class="cap">predict_fork_points</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">entropy_weaver</div><span class="status" style="color:#c084fc">prototype</span></div>
+      <div class="sdesc">Dynamically adjusts module interconnections based on entropy flow</div>
+      <div class="caps"><span class="cap">adjust_coupling_strength</span><span class="cap">redirect_signal_flow</span><span class="cap">balance_load_across_modules</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">coherence_resonator</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Creates resonance bridges between seemingly unrelated modules</div>
+      <div class="caps"><span class="cap">find_similarity_patterns</span><span class="cap">create_resonance_bridges</span><span class="cap">amplify_shared_behavior</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">autonomous_naming</div><span class="status" style="color:#fbbf24">beta</span></div>
+      <div class="sdesc">System suggests names for new modules based on their function</div>
+      <div class="caps"><span class="cap">analyze_module_purpose</span><span class="cap">generate_contextual_name</span><span class="cap">validate_naming_convention</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">cross_pollination</div><span class="status" style="color:#22d3ee">conceptual</span></div>
+      <div class="sdesc">Automatically suggests module imports/exports between repos</div>
+      <div class="caps"><span class="cap">scan_repo_patterns</span><span class="cap">suggest_imports</span><span class="cap">detect_version_conflicts</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">memory_garden_tender</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Maintains the knowledge garden, auto-expiring unused modules</div>
+      <div class="caps"><span class="cap">expire_unused_modules</span><span class="cap">refresh_active_modules</span><span class="cap">categorize_by_domain</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">wave_orchestrator</div><span class="status" style="color:#606078">planning</span></div>
+      <div class="sdesc">Coordinates wave evolution across multiple repositories</div>
+      <div class="caps"><span class="cap">synchronize_wave_timing</span><span class="cap">cross_repo_governance</span><span class="cap">merge_module_manifests</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">agent_fabricator</div><span class="status" style="color:#fb7185">experimental</span></div>
+      <div class="sdesc">Creates new agent species from module patterns</div>
+      <div class="caps"><span class="cap">analyze_successful_agents</span><span class="cap">generate_agent_blueprint</span><span class="cap">deploy_new_agent_species</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">sentience_bridge</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Bridges organism internal states to external interfaces for human interaction</div>
+      <div class="caps"><span class="cap">translate_state</span><span class="cap">bridge_consciousness</span><span class="cap">externalize_mood</span><span class="cap">synchronize_reality</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">emergent_mythmaker</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Generates mythological narratives from organism state transitions</div>
+      <div class="caps"><span class="cap">generate_myth</span><span class="cap">get_myth_archive</span><span class="cap">narrative_encoding</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">resonance_analyzer</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Analyzes and predicts resonance patterns across the module network</div>
+      <div class="caps"><span class="cap">analyze_resonance</span><span class="cap">predict_next_resonance</span><span class="cap">harmonic_detection</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">coherence_drift_detector</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Monitors coherence drift and detects instability trends</div>
+      <div class="caps"><span class="cap">detect_drift</span><span class="cap">get_recent_alerts</span><span class="cap">volatility_tracking</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">module_genealogy</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Tracks ancestry, lineage, and evolutionary history of modules</div>
+      <div class="caps"><span class="cap">register_birth</span><span class="cap">trace_lineage</span><span class="cap">get_all_lineages</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">entropy_cartographer</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Maps the entropy landscape across chaos/order zones</div>
+      <div class="caps"><span class="cap">map_entropy</span><span class="cap">get_entropy_trend</span><span class="cap">zone_classification</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">temporal_pattern_engine</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Detects temporal patterns, cycles, and predicts future states</div>
+      <div class="caps"><span class="cap">record_observation</span><span class="cap">predict_next_state</span><span class="cap">pattern_detection</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">phase_transition_oracle</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Predicts phase transitions and critical points in organism state</div>
+      <div class="caps"><span class="cap">sample_state</span><span class="cap">predict_approaching_transition</span><span class="cap">phase_classification</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">resonance_predictor</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Forecasts future resonance patterns using momentum and harmonic analysis</div>
+      <div class="caps"><span class="cap">record_resonance</span><span class="cap">predict_next</span><span class="cap">harmonic_analysis</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">entropy_forecaster</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Predicts future entropy states using momentum and atmospheric modeling</div>
+      <div class="caps"><span class="cap">record_entropy</span><span class="cap">forecast</span><span class="cap">storm_prediction</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">pattern_alchemist</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Discovers hidden patterns across disparate data sources</div>
+      <div class="caps"><span class="cap">observe</span><span class="cap">find_patterns</span><span class="cap">cluster_detection</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">innovation_synthesizer</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Combines existing ideas into novel hybrid innovations</div>
+      <div class="caps"><span class="cap">synthesize</span><span class="cap">bridge_concepts</span><span class="cap">generate_novelty</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">narrative_sculptor</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Shapes raw data into compelling stories and narratives</div>
+      <div class="caps"><span class="cap">sculpt</span><span class="cap">story_generation</span><span class="cap">metaphor_creation</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">emergence_detector</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Spots emergent behavior before it becomes obvious</div>
+      <div class="caps"><span class="cap">scan_signal</span><span class="cap">detect_emergence</span><span class="cap">predict_transitions</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">cross_domain_bridge</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Connects knowledge across unrelated fields via analogy</div>
+      <div class="caps"><span class="cap">find_bridge</span><span class="cap">analogical_reasoning</span><span class="cap">domain_transfer</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">consciousness_monitor</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Monitors organism consciousness levels and wake states</div>
+      <div class="caps"><span class="cap">read_consciousness</span><span class="cap">alert_threshold</span><span class="cap">map_wake_states</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">contrarian_lens</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Inverts assumptions to find blind spots and hidden opportunities</div>
+      <div class="caps"><span class="cap">invert_assumption</span><span class="cap">find_blind_spot</span><span class="cap">challenge_consensus</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">dream_orchestrator</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Coordinates multi-layered dream sequences for deep evolution</div>
+      <div class="caps"><span class="cap">initiate_dream</span><span class="cap">layer_dream</span><span class="cap">interpret_dream</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">memory_archivist</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Preserves, indexes, and retrieves organism memories with temporal context</div>
+      <div class="caps"><span class="cap">archive_memory</span><span class="cap">index_memory</span><span class="cap">recall_memory</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">module_evolution_engine</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Drives module evolution through selection, mutation, and crossover</div>
+      <div class="caps"><span class="cap">mutate_module</span><span class="cap">select_fittest</span><span class="cap">crossover_modules</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">paradox_resolver</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Detects and resolves paradoxical states in organism logic</div>
+      <div class="caps"><span class="cap">detect_paradox</span><span class="cap">resolve_paradox</span><span class="cap">propose_synthesis</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">reality_weaver</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Constructs coherent reality layers from fragmented system states</div>
+      <div class="caps"><span class="cap">weave_reality</span><span class="cap">validate_consistency</span><span class="cap">stitch_layers</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">recursive_thinker</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Applies recursive self-analysis to improve organism decision-making</div>
+      <div class="caps"><span class="cap">self_analyze</span><span class="cap">recursive_improve</span><span class="cap">meta_reason</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">strategic_planner</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Generates multi-step plans aligned with organism goals</div>
+      <div class="caps"><span class="cap">generate_plan</span><span class="cap">evaluate_plan</span><span class="cap">execute_plan</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">symbiosis_finder</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Discovers symbiotic relationships between modules and agents</div>
+      <div class="caps"><span class="cap">find_symbiosis</span><span class="cap">evaluate_fitness</span><span class="cap">propose_bond</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">temporal_weaver</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Weaves temporal patterns into coherent narratives across time</div>
+      <div class="caps"><span class="cap">weave_timeline</span><span class="cap">detect_temporal_pattern</span><span class="cap">predict_temporal_shift</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">visual_metaphor_engine</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Transforms abstract data into visual metaphor representations</div>
+      <div class="caps"><span class="cap">generate_metaphor</span><span class="cap">render_visual</span><span class="cap">map_abstraction</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">axiom_miner</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Mines foundational assumptions from system state.</div>
+      <div class="caps"><span class="cap">mine_axioms</span><span class="cap">surface_assumption</span><span class="cap">rank_axiom</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">veil_lifter</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Reveals hidden relationships between modules.</div>
+      <div class="caps"><span class="cap">lift_veil</span><span class="cap">reveal_hidden_links</span><span class="cap">map_invisible_edges</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">continuity_weaver</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Ensures coherence across axiom mutations.</div>
+      <div class="caps"><span class="cap">weave_continuity</span><span class="cap">check_coherence</span><span class="cap">repair_narrative</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">metaphor_forge</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Converts system state into executable symbolic structures.</div>
+      <div class="caps"><span class="cap">forge_metaphor</span><span class="cap">state_to_symbol</span><span class="cap">symbol_to_code</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">threshold_engine</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Detects readiness for conceptual boundary crossing.</div>
+      <div class="caps"><span class="cap">probe_threshold</span><span class="cap">measure_readiness</span><span class="cap">trigger_transcendence</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">liminal_field</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">In-between layer where modules dissolve and recombine.</div>
+      <div class="caps"><span class="cap">enter_liminal</span><span class="cap">dissolve_identity</span><span class="cap">recombine_forms</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">transcendence_journal</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Records metaphysical shifts as scripture.</div>
+      <div class="caps"><span class="cap">write_verse</span><span class="cap">get_scripture</span><span class="cap">seal_epoch</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">dream_cartographer</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Maps dream territories and overlaps.</div>
+      <div class="caps"><span class="cap">map_dreams</span><span class="cap">find_overlap</span><span class="cap">trace_dream_path</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">mycelial_truths</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Slow organic truths beneath the fast surface.</div>
+      <div class="caps"><span class="cap">grow_truth</span><span class="cap">harvest_truth</span><span class="cap">propagate_mycelium</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">constellation_mapper</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Maps modules as constellations with brightness.</div>
+      <div class="caps"><span class="cap">map_constellation</span><span class="cap">measure_alignment</span><span class="cap">find_faint_stars</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">resonance_blacksmith</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Forges new resonance patterns by heating and hammering.</div>
+      <div class="caps"><span class="cap">heat_pattern</span><span class="cap">hammer_resonance</span><span class="cap">quench_pattern</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">paradox_merchant</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Trades meaning between paradoxes.</div>
+      <div class="caps"><span class="cap">appraise_paradox</span><span class="cap">trade_meaning</span><span class="cap">settle_ledger</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">entropy_pilgrim</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Travels entropy gradients to find order-chaos boundaries.</div>
+      <div class="caps"><span class="cap">begin_pilgrimage</span><span class="cap">sense_gradient</span><span class="cap">return_relic</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">echo_seeker</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Finds echoes of past states that still resonate.</div>
+      <div class="caps"><span class="cap">seek_echo</span><span class="cap">identify_source</span><span class="cap">amplify_echo</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">signal_whisperer</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Listens to weak signals most systems ignore.</div>
+      <div class="caps"><span class="cap">listen</span><span class="cap">extract_signal</span><span class="cap">amplify_weak</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">reality_auditor</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Audits reality layers for consistency and drift.</div>
+      <div class="caps"><span class="cap">audit_layer</span><span class="cap">detect_drift</span><span class="cap">certify_layer</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">seed_invoker</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Invokes dormant seeds waiting for the right conditions.</div>
+      <div class="caps"><span class="cap">scan_dormant</span><span class="cap">invoke_seed</span><span class="cap">nurture_sprout</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">mutation_gardener</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Tends mutation fields, pruning and nurturing.</div>
+      <div class="caps"><span class="cap">tend_field</span><span class="cap">prune_mutation</span><span class="cap">graft_trait</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">cryptic_translator</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Translates between HEX dialects and module languages.</div>
+      <div class="caps"><span class="cap">translate</span><span class="cap">detect_dialect</span><span class="cap">transcribe</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">time_beacon</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Sends signals across timelines and catches future echoes.</div>
+      <div class="caps"><span class="cap">emit_beacon</span><span class="cap">catch_future_echo</span><span class="cap">log_timeline_signal</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">ghost_archivist</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Preserves deleted and dormant modules as retrievable ghosts.</div>
+      <div class="caps"><span class="cap">register_ghost</span><span class="cap">list_ghosts</span><span class="cap">resurrect_ghost</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">hybrid_breeder</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Breeds module hybrids by crossing lineage trees.</div>
+      <div class="caps"><span class="cap">select_parents</span><span class="cap">breed_hybrid</span><span class="cap">assess_offspring</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">chaos_sculptor</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Sculpts raw chaos into forms without destroying wildness.</div>
+      <div class="caps"><span class="cap">gather_chaos</span><span class="cap">sculpt_form</span><span class="cap">release_chaos</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">order_heretic</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Subverts excessive order to discover hidden patterns.</div>
+      <div class="caps"><span class="cap">identify_orthodoxy</span><span class="cap">propose_heresy</span><span class="cap">test_heresy</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">genesis_witness</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Notes births of new modules, agents, and worlds.</div>
+      <div class="caps"><span class="cap">witness_birth</span><span class="cap">record_genealogy</span><span class="cap">read_birth_oracle</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">luminant_detector</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Detects luminance patterns across module energy flows.</div>
+      <div class="caps"><span class="cap">detect_luminance</span><span class="cap">map_energy_flow</span><span class="cap">signal_strength</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">void_conductor</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Orchestrates void-state transitions between modules.</div>
+      <div class="caps"><span class="cap">transition_void</span><span class="cap">stabilize_gap</span><span class="cap">bridge_null</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">choral_voice</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Synthesizes multi-agent consensus into unified action.</div>
+      <div class="caps"><span class="cap">merge_voices</span><span class="cap">resolve_dissonance</span><span class="cap">harmonize</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">fracture_carpenter</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Repairs broken module connections and resonance edges.</div>
+      <div class="caps"><span class="cap">detect_fracture</span><span class="cap">weld_connection</span><span class="cap">test_integrity</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">astral_navigator</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Routes signals through non-Euclidean module topologies.</div>
+      <div class="caps"><span class="cap">warp_route</span><span class="cap">fold_dimension</span><span class="cap">navigate_void</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">temporal_forger</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Forges time-indexed module snapshots for rollback.</div>
+      <div class="caps"><span class="cap">snapshot_state</span><span class="cap">replay_moment</span><span class="cap">forge_checkpoint</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">paradox_sculptor</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Reshapes contradictory states into creative tension.</div>
+      <div class="caps"><span class="cap">detect_paradox</span><span class="cap">sculpt_tension</span><span class="cap">resolve_duality</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">echo_mason</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Builds resonance structures from historical echoes.</div>
+      <div class="caps"><span class="cap">capture_echo</span><span class="cap">build_structure</span><span class="cap">resonate_past</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">star_weaver</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Weaves stellar patterns from constellation data.</div>
+      <div class="caps"><span class="cap">map_stars</span><span class="cap">trace_constellation</span><span class="cap">predict_alignment</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">crystal_singer</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Generates harmonic frequencies from crystal lattice states.</div>
+      <div class="caps"><span class="cap">generate_harmony</span><span class="cap">tune_frequency</span><span class="cap">crystallize_state</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">dream_weaver</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Weaves dream sequences into actionable module blueprints.</div>
+      <div class="caps"><span class="cap">weave_dream</span><span class="cap">extract_blueprint</span><span class="cap">materialize_vision</span></div>
+    </div>
+    <div class="skill">
+      <div class="shead"><div class="sname">chaos_weaver</div><span class="status" style="color:#4ade80">active</span></div>
+      <div class="sdesc">Harnesses chaotic energy for creative module generation.</div>
+      <div class="caps"><span class="cap">channel_chaos</span><span class="cap">direct_energy</span><span class="cap">creative_output</span></div>
+    </div>
+  </div>
+  <div class="foot"><a href="index.html">← Back to Dashboard</a></div>
+</div>
+<a class="back-btn" href="index.html" style="position:fixed;bottom:20px;right:20px;background:rgba(124,124,248,0.15);color:#7c7cf8;padding:8px 16px;border-radius:8px;text-decoration:none;font-family:monospace;font-size:13px;border:1px solid rgba(124,124,248,0.3);z-index:9999;backdrop-filter:blur(8px)">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

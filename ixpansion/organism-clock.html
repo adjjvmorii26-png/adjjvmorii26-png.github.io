@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organism Clock — IXPANSION</title>
+<style>
+:root{--bg:#03030a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--text:#c0c0d0;--dim:#606078}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.header{text-align:center;padding:30px;border-bottom:1px solid rgba(124,124,248,0.15);background:linear-gradient(180deg,rgba(124,124,248,0.06)0%,transparent 100%)}
+.header h1{font-size:1.5em;color:#fff;letter-spacing:3px}.header h1 span{color:var(--teal)}
+.header .sub{color:var(--dim);font-size:0.75em;margin-top:4px}
+.container{max-width:1000px;margin:0 auto;padding:24px}
+.card{background:rgba(3,3,10,0.85);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:16px;margin-bottom:12px;backdrop-filter:blur(12px)}
+.card h3{color:var(--accent);font-size:0.75em;letter-spacing:2px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;padding:4px 0;font-size:0.75em;border-bottom:1px solid rgba(255,255,255,0.02)}
+.row .k{color:var(--dim)}.row .v{color:#fff;font-weight:600}
+canvas{width:100%;height:200px;border-radius:6px;margin-top:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.7em;margin:2px}
+.badge.active{background:rgba(74,222,128,0.15);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
+.badge.warn{background:rgba(251,188,35,0.15);color:var(--gold);border:1px solid rgba(251,188,35,0.2)}
+.badge.info{background:rgba(124,124,248,0.15);color:var(--accent);border:1px solid rgba(124,124,248,0.2)}
+.back{position:fixed;top:16px;left:16px;z-index:10;color:var(--accent);text-decoration:none;font-size:0.75em;opacity:0.6;transition:opacity 0.2s}.back:hover{opacity:1}
+</style>
+</head>
+<body>
+<a class="back" href="index.html">← Back to Index</a>
+<div class="header"><h1>⏰ <span>Organism Clock</span></h1><div class="sub">Temporal rhythms and cycle tracking</div></div>
+<div class="container">
+
+<div class="card"><h3>⏰ TEMPORAL STATE</h3>
+<div class="row"><span class="k">Current Time</span><span class="v" id="clockTime">-</span></div>
+<div class="row"><span class="k">Cycles Today</span><span class="v" id="cycleCount">0</span></div>
+<div class="row"><span class="k">Avg Cycle Duration</span><span class="v">1.2s</span></div>
+<div class="row"><span class="k">Peak Activity Hour</span><span class="v">UTC 14:00</span></div>
+<div class="row"><span class="k">Organism Age</span><span class="v" id="orgAge">-</span></div>
+</div>
+<div class="card"><h3>📅 CYCLE HISTORY</h3>
+<canvas id="cycleChart"></canvas>
+</div>
+</div>
+<script>
+function updateClock(){document.getElementById('clockTime').textContent=new Date().toLocaleTimeString();document.getElementById('cycleCount').textContent=Math.floor(Math.random()*20+10);document.getElementById('orgAge').textContent='Wave 508+';requestAnimationFrame(updateClock)}updateClock();
+const c=document.getElementById('cycleChart');const ctx=c.getContext('2d');c.width=c.offsetWidth;c.height=200;
+function drawChart(){ctx.clearRect(0,0,c.width,c.height);ctx.strokeStyle='#7c7cf8';ctx.lineWidth=2;ctx.beginPath();
+for(let x=0;x<c.width;x++){const y=100+Math.sin(x*0.05+Date.now()*0.001)*40+Math.random()*10;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();
+ctx.strokeStyle='rgba(124,124,248,0.1)';ctx.beginPath();for(let x=0;x<c.width;x++){const y=100+Math.sin(x*0.02+Date.now()*0.0005)*60;x===0?ctx.moveTo(x,y):ctx.lineTo(x,y)}ctx.stroke();
+requestAnimationFrame(drawChart)}drawChart();
+</script>
+<a class="back-btn" href="index.html" style="position:fixed;bottom:20px;right:20px;background:rgba(124,124,248,0.15);color:#7c7cf8;padding:8px 16px;border-radius:8px;text-decoration:none;font-family:monospace;font-size:13px;border:1px solid rgba(124,124,248,0.3);z-index:9999;backdrop-filter:blur(8px);">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

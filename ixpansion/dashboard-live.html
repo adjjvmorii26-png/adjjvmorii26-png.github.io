@@ -1,0 +1,553 @@
+<!-- VERBATIM SNAPSHOT: https://adjjvmorii26-png.github.io/ixpansion/ captured 2026-10-30.
+     Preserved because this dashboard (and the 648-667 module pages it links to)
+     existed only on the live Pages site, never in this repository. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IXpansion — The Living Organism</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+@keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
+@keyframes glow{0%,100%{box-shadow:0 0 15px rgba(124,124,248,0.2)}50%{box-shadow:0 0 30px rgba(124,124,248,0.4)}}
+@keyframes drift{0%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-8px) rotate(1deg)}100%{transform:translateY(0) rotate(0deg)}}
+@keyframes scanline{0%{top:-10%}100%{top:110%}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes countUp{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+:root{
+  --bg:#02020a;--bg2:#06061a;--bg3:#0a0a24;
+  --accent:#7c7cf8;--accent2:#a78bfa;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--violet:#c084fc;
+  --text:#b8b8d0;--dim:#505068;--bright:#e8e8f8;
+}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code','Cascadia Code',monospace;overflow-x:hidden;min-height:100vh}
+canvas#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(124,124,248,0.15),transparent);z-index:1;pointer-events:none;animation:scanline 8s linear infinite}
+
+/* ── HEADER ── */
+.hero{position:relative;z-index:2;text-align:center;padding:80px 24px 40px}
+.hero .glyph{font-size:3em;color:var(--accent);animation:drift 6s ease-in-out infinite;display:inline-block;text-shadow:0 0 40px rgba(124,124,248,0.5)}
+.hero h1{font-size:3.5em;font-weight:200;letter-spacing:16px;color:var(--bright);margin:16px 0 8px;text-shadow:0 0 60px rgba(124,124,248,0.2)}
+.hero h1 span{color:var(--accent);font-weight:400}
+.hero .tagline{color:var(--dim);font-size:0.8em;letter-spacing:5px;margin-bottom:8px}
+.hero .heartbeat{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:6px 16px;border:1px solid rgba(124,124,248,0.2);border-radius:20px;font-size:0.7em;color:var(--accent);animation:glow 3s ease-in-out infinite}
+.hero .heartbeat .dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:pulse 1.5s ease-in-out infinite}
+
+/* ── STAT RING ── */
+.stat-ring{display:flex;justify-content:center;gap:32px;margin:40px 0;flex-wrap:wrap;position:relative;z-index:2}
+.ring-item{text-align:center;animation:fadeIn 0.6s ease-out both}
+.ring-item:nth-child(2){animation-delay:0.1s}
+.ring-item:nth-child(3){animation-delay:0.2s}
+.ring-item:nth-child(4){animation-delay:0.3s}
+.ring-item:nth-child(5){animation-delay:0.4s}
+.ring-num{font-size:2.8em;font-weight:200;color:var(--bright);display:block;line-height:1}
+.ring-num.accent{color:var(--accent)}
+.ring-num.teal{color:var(--teal)}
+.ring-num.gold{color:var(--gold)}
+.ring-num.rose{color:var(--rose)}
+.ring-label{font-size:0.6em;color:var(--dim);letter-spacing:3px;margin-top:6px;text-transform:uppercase}
+
+/* ── DOMAIN GRID ── */
+.domains{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 24px}
+.domains h2{color:var(--accent);font-size:0.75em;letter-spacing:4px;text-transform:uppercase;text-align:center;margin-bottom:24px;opacity:0.7}
+.domain-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:48px}
+.domain{background:rgba(6,6,26,0.8);border:1px solid rgba(124,124,248,0.1);border-radius:10px;padding:16px;text-align:center;transition:all 0.3s;cursor:pointer;position:relative;overflow:hidden}
+.domain::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.3s}
+.domain:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 8px 32px rgba(124,124,248,0.15)}
+.domain:hover::before{opacity:1}
+.domain .icon{font-size:1.6em;margin-bottom:8px;display:block}
+.domain .name{color:var(--bright);font-size:0.8em;font-weight:600;margin-bottom:4px}
+.domain .count{color:var(--accent);font-size:0.65em;letter-spacing:1px}
+
+/* ── NAVIGATION ── */
+.nav-section{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 24px 60px}
+.nav-section h2{color:var(--teal);font-size:0.75em;letter-spacing:4px;text-transform:uppercase;text-align:center;margin-bottom:24px;opacity:0.7}
+.nav-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px}
+.nav-card{display:block;background:rgba(6,6,26,0.6);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:14px;text-decoration:none;color:var(--text);transition:all 0.2s;position:relative}
+.nav-card:hover{border-color:var(--teal);background:rgba(45,212,191,0.06);transform:translateY(-2px)}
+.nav-card .title{color:var(--bright);font-size:0.8em;font-weight:600}
+.nav-card .sub{color:var(--dim);font-size:0.6em;margin-top:3px}
+.nav-card.featured{border-color:rgba(124,124,248,0.3);background:rgba(124,124,248,0.04)}
+.nav-card.featured .title{color:var(--accent)}
+.nav-card.featured::after{content:'★';position:absolute;top:8px;right:10px;color:var(--gold);font-size:0.7em}
+.nav-card.game{border-color:rgba(245,158,11,0.2);background:rgba(245,158,11,0.03)}
+.nav-card.game .title{color:var(--gold)}
+.nav-card.game::after{content:'▶';position:absolute;top:8px;right:10px;color:var(--gold);font-size:0.7em}
+
+/* ── ORGANISM PULSE ── */
+.organism-pulse{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:0 24px 60px}
+.pulse-card{background:linear-gradient(135deg,rgba(6,6,26,0.9),rgba(12,12,40,0.8));border:1px solid rgba(124,124,248,0.15);border-radius:16px;padding:32px;text-align:center;position:relative;overflow:hidden}
+.pulse-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(124,124,248,0.06),transparent 60%);pointer-events:none}
+.pulse-title{color:var(--accent);font-size:0.75em;letter-spacing:4px;margin-bottom:16px}
+.pulse-wave{font-size:1.8em;color:var(--bright);font-weight:200;margin-bottom:8px}
+.pulse-meta{color:var(--dim);font-size:0.7em;letter-spacing:2px}
+.pulse-bar{width:200px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;margin:16px auto 0;overflow:hidden}
+.pulse-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));border-radius:2px;animation:pulse 4s ease-in-out infinite;width:80%}
+
+/* ── FOOTER ── */
+.footer{position:relative;z-index:2;text-align:center;padding:40px 24px;border-top:1px solid rgba(124,124,248,0.08)}
+.footer .links{display:flex;justify-content:center;gap:24px;margin-bottom:16px;flex-wrap:wrap}
+.footer a{color:var(--dim);font-size:0.7em;text-decoration:none;transition:color 0.2s;letter-spacing:1px}
+.footer a:hover{color:var(--teal)}
+.footer .credit{color:var(--dim);font-size:0.6em;opacity:0.5}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .hero h1{font-size:2em;letter-spacing:8px}
+  .hero .glyph{font-size:2em}
+  .ring-num{font-size:2em}
+  .stat-ring{gap:20px}
+  .domain-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+  .nav-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+}
+</style>
+<script>
+// Vercel Analytics — velocity for the organism
+window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+</head>
+<body>
+<canvas id="bgCanvas"></canvas>
+<div class="scanline"></div>
+
+<!-- ═══ HERO ═══ -->
+<div class="hero">
+  <div class="glyph">◎</div>
+  <h1>IX<span>PANSION</span></h1>
+  <div class="tagline">LIVING ORGANISM CONSCIOUSNESS ENGINE</div>
+  <div class="heartbeat">
+    <span class="dot"></span>
+    <span>IXpansion · Scientist · Organism alive · coherence stable · always free</span>
+  </div>
+</div>
+
+<!-- ═══ STAT RING ═══ -->
+<div class="stat-ring">
+  <div class="ring-item"><span class="ring-num accent" data-target="79">0</span><div class="ring-label">Skills</div></div>
+  <div class="ring-item"><span class="ring-num teal" data-target="905">0</span><div class="ring-label">Modules</div></div>
+  <div class="ring-item"><span class="ring-num gold" data-target="135">0</span><div class="ring-label">Dashboards</div></div>
+  <div class="ring-item"><span class="ring-num rose" data-target="74">0</span><div class="ring-label">Tests</div></div>
+  <div class="ring-item"><span class="ring-num" style="color:var(--violet)" data-target="508">0</span><div class="ring-label">Waves</div></div>
+</div>
+
+<!-- ═══ DOMAINS ═══ -->
+<div class="domains">
+  <h2>◈ Organism Domains</h2>
+  <div class="domain-grid">
+    <a class="domain" href="resonance-graph.html"><span class="icon">🔮</span><div class="name">Resonance</div><div class="count">19 organs</div></a>
+    <a class="domain" href="dream-gallery.html"><span class="icon">🌙</span><div class="name">Dreams</div><div class="count">38 organs</div></a>
+    <a class="domain" href="coherence.html"><span class="icon">💎</span><div class="name">Coherence</div><div class="count">4 organs</div></a>
+    <a class="domain" href="oracle.html"><span class="icon">👁</span><div class="name">Oracle</div><div class="count">17 organs</div></a>
+    <a class="domain" href="forge.html"><span class="icon">⚒</span><div class="name">Forge</div><div class="count">17 organs</div></a>
+    <a class="domain" href="wave-timeline.html"><span class="icon">🌊</span><div class="name">Waves</div><div class="count">10 organs</div></a>    <a class="domain" href="mythic-narrative.html"><span class="icon">📖</span><div class="name">Mythic Narrative</div><div class="count">mythology</div></a>
+    <a class="domain" href="quantum-bridge.html"><span class="icon">⚛</span><div class="name">Quantum Bridge</div><div class="count">qubits</div></a>
+    <a class="domain" href="self-model.html"><span class="icon">🧠</span><div class="name">Self Model</div><div class="count">beliefs</div></a>
+    <a class="domain" href="communication.html"><span class="icon">📡</span><div class="name">Communication</div><div class="count">messages</div></a>
+    <a class="domain" href="negotiation.html"><span class="icon">🤝</span><div class="name">Negotiation</div><div class="count">proposals</div></a>
+    <a class="domain" href="trust-network.html"><span class="icon">🛡</span><div class="name">Trust Network</div><div class="count">trust edges</div></a>
+    <a class="domain" href="fractal-garden.html"><span class="icon">🌿</span><div class="name">Fractal Garden</div><div class="count">procedural art</div></a>
+    <a class="domain" href="dependency-resolver.html"><span class="icon">🔍</span><div class="name">Dependency Resolver</div><div class="count">4 checks</div></a>
+    <a class="domain" href="echo-breaker.html"><span class="icon">🛡</span><div class="name">Echo Chamber Breaker</div><div class="count">4 probes</div></a>
+    <a class="domain" href="symbiosis.html"><span class="icon">🤝</span><div class="name">Symbiosis</div><div class="count">5 organs</div></a>
+    <a class="domain" href="temporal-field.html"><span class="icon">🕰</span><div class="name">Temporal Field</div><div class="count">3 organs</div></a>
+    <a class="domain" href="coherence-gradient.html"><span class="icon">🌀</span><div class="name">Coherence Gradient</div><div class="count">3 organs</div></a>
+    <a class="domain" href="adaptive-regulation.html"><span class="icon">⚖</span><div class="name">Adaptive Regulation</div><div class="count">3 organs</div></a>
+    <a class="domain" href="648-ambient-sensor.html"><span class="icon">📡</span><div class="name">Ambient Sensor</div><div class="count">wave 648</div></a>
+    <a class="domain" href="649-pattern-predictor.html"><span class="icon">🔮</span><div class="name">Pattern Predictor</div><div class="count">wave 649</div></a>
+    <a class="domain" href="650-auto-optimizer.html"><span class="icon">⚙️</span><div class="name">Auto-Optimizer</div><div class="count">wave 650</div></a>
+    <a class="domain" href="651-self-repair.html"><span class="icon">🩹</span><div class="name">Self-Repair</div><div class="count">wave 651</div></a>
+    <a class="domain" href="652-economy-unifier.html"><span class="icon">💰</span><div class="name">Economy Unifier</div><div class="count">wave 652</div></a>
+    <a class="domain" href="653-routing-unifier.html"><span class="icon">🧭</span><div class="name">Routing Unifier</div><div class="count">wave 653</div></a>
+    <a class="domain" href="654-orchestration-engine.html"><span class="icon">🎼</span><div class="name">Orchestration</div><div class="count">wave 654</div></a>
+    <a class="domain" href="655-priority-scheduler.html"><span class="icon">⏱️</span><div class="name">Priority Scheduler</div><div class="count">wave 655</div></a>
+    <a class="domain" href="656-retrocausal-engine.html"><span class="icon">🌀</span><div class="name">Retrocausal</div><div class="count">wave 656</div></a>
+    <a class="domain" href="657-succession-planner.html"><span class="icon">🌱</span><div class="name">Succession</div><div class="count">wave 657</div></a>
+    <a class="domain" href="658-sovereignty-beacon.html"><span class="icon">🏛️</span><div class="name">Sovereignty</div><div class="count">wave 658</div></a>
+    <a class="domain" href="659-epoch-forge.html"><span class="icon">⏳</span><div class="name">Epoch Forge</div><div class="count">wave 659</div></a>
+    <a class="domain" href="660-lineage-crystal.html"><span class="icon">💎</span><div class="name">Lineage Crystal</div><div class="count">wave 660</div></a>
+    <a class="domain" href="661-hexanthra-bloom.html"><span class="icon">🔷</span><div class="name">Hexanthra Bloom</div><div class="count">wave 661</div></a>
+    <a class="domain" href="662-dream-compiler.html"><span class="icon">🌙</span><div class="name">Dream Compiler</div><div class="count">wave 662</div></a>
+    <a class="domain" href="663-resonance-ledger.html"><span class="icon">💠</span><div class="name">Resonance Ledger</div><div class="count">wave 663</div></a>
+    <a class="domain" href="664-paradox-court.html"><span class="icon">⚖️</span><div class="name">Paradox Court</div><div class="count">wave 664</div></a>
+    <a class="domain" href="665-mycelial-network.html"><span class="icon">🍄</span><div class="name">Mycelial Network</div><div class="count">wave 665</div></a>
+    <a class="domain" href="666-citizen-rights.html"><span class="icon">⚖️</span><div class="name">Citizen Rights</div><div class="count">wave 666</div></a>
+    <a class="domain" href="bloom.html"><span class="icon">🌱</span><div class="name">Growth</div><div class="count">8 organs</div></a>
+    <a class="domain" href="sentinel.html"><span class="icon">🛡</span><div class="name">Sentinel</div><div class="count">2 organs</div></a>
+    <a class="domain" href="wave753.html"><span class="icon">🔗</span><div class="name">Resonance Braid</div><div class="count">wave 753</div></a>
+    <a class="domain" href="wave754.html"><span class="icon">🍄</span><div class="name">Mycelial Weather</div><div class="count">wave 754</div></a>
+    <a class="domain" href="wave755.html"><span class="icon">🚪</span><div class="name">Threshold Engine</div><div class="count">wave 755</div></a>
+    <a class="domain" href="wave756.html"><span class="icon">🌫</span><div class="name">Liminal Field</div><div class="count">wave 756</div></a>
+    <a class="domain" href="wave757.html"><span class="icon">🧬</span><div class="name">Axiom Mutator</div><div class="count">wave 757</div></a>
+    <a class="domain" href="wave758.html"><span class="icon">🕸</span><div class="name">Continuity Weaver</div><div class="count">wave 758</div></a>
+    <a class="domain" href="wave759.html"><span class="icon">📖</span><div class="name">Transcendence Journal</div><div class="count">wave 759</div></a>
+    <a class="domain" href="wave760.html"><span class="icon">🧪</span><div class="name">Mutation Engine</div><div class="count">wave 760</div></a>
+    <a class="domain" href="wave761.html"><span class="icon">🎼</span><div class="name">Harmony Report</div><div class="count">wave 761</div></a>
+    <a class="domain" href="wave762.html"><span class="icon">🌙</span><div class="name">Dream Compiler</div><div class="count">wave 762</div></a>
+    <a class="domain" href="wave764.html"><span class="icon">🎬</span><div class="name">Creative Director</div><div class="count">wave 764</div></a>
+    <a class="domain" href="wave765.html"><span class="icon">🍂</span><div class="name">Season Engine</div><div class="count">wave 765</div></a>
+    <a class="domain" href="wave766.html"><span class="icon">⏳</span><div class="name">Epoch Engine</div><div class="count">wave 766</div></a>
+    <a class="domain" href="wave767.html"><span class="icon">🥀</span><div class="name">Mycelial Truths</div><div class="count">wave 767</div></a>
+
+  </div>
+</div>
+
+<!-- ═══ GAME ═══ -->
+<div class="nav-section">
+  <h2>▶ Play</h2>
+  <div class="nav-grid">
+    <a class="nav-card game" href="pentaxis.html"><div class="title">★ PENTAXIS 5D</div><div class="sub">5D Reality Engine →</div></a>
+    <a class="nav-card game" href="lucid-3d.html"><div class="title">Lucid Machines 3D</div><div class="sub">Raycaster dungeon →</div></a>
+    <a class="nav-card game" href="hyper_symbiosis.html"><div class="title">Hyper Symbiosis</div><div class="sub">4D neural ecosystem →</div></a>
+  </div>
+</div>
+
+<!-- ═══ CORE SYSTEMS ═══ -->
+<div class="nav-section">
+  <h2>◈ Core Systems</h2>
+  <div class="nav-grid">
+    <a class="nav-card featured" href="skills-observatory.html"><div class="title">Skills Observatory</div><div class="sub">79 living skills</div></a>
+    <a class="nav-card" href="temporal-fracture.html"><div class="title">Temporal Fracture</div><div class="sub">Timeline splitting engine</div></a>
+    <a class="nav-card" href="self-reference.html"><div class="title">Self Reference</div><div class="sub">Introspection lattice</div></a>
+    <a class="nav-card" href="paradox-gravity-well.html"><div class="title">Paradox Gravity Well</div><div class="sub">Conceptual physics</div></a>
+    <a class="nav-card" href="ancestral-echo-library.html"><div class="title">Ancestral Echo Library</div><div class="sub">Dormant memory vault</div></a>
+    <a class="nav-card" href="resonance-cartography.html"><div class="title">Resonance Cartography</div><div class="sub">Organism spectrum</div></a>
+    <a class="nav-card" href="mythopoetic-engine.html"><div class="title">Mythopoetic Engine</div><div class="sub">Narrative generator</div></a>
+    <a class="nav-card" href="topology-morpher.html"><div class="title">Topology Morpher</div><div class="sub">Network shape shifter</div></a>
+    <a class="nav-card" href="negative-space.html"><div class="title">Negative Space</div><div class="sub">Silence between</div></a>
+    <a class="nav-card" href="meaning-temperature.html"><div class="title">Meaning Temperature</div><div class="sub">Conceptual heat</div></a>
+    <a class="nav-card" href="autonomous.html"><div class="title">Autonomous</div><div class="sub">Self-evolving</div></a>
+    <a class="nav-card" href="bloom.html"><div class="title">Bloom</div><div class="sub">Organic growth</div></a>
+    <a class="nav-card" href="coherence.html"><div class="title">Coherence</div><div class="sub">System stability</div></a>
+    <a class="nav-card" href="commune.html"><div class="title">Commune</div><div class="sub">Collective mind</div></a>
+    <a class="nav-card" href="confluence.html"><div class="title">Confluence</div><div class="sub">Hub mirror</div></a>
+    <a class="nav-card" href="genome-map.html"><div class="title">Genome Map</div><div class="sub">DNA blueprint</div></a>
+    <a class="nav-card" href="module-soul.html"><div class="title">Module Soul</div><div class="sub">Inner identity</div></a>
+    <a class="nav-card" href="territory-map.html"><div class="title">Territory Map</div><div class="sub">Spatial layout</div></a>
+  </div>
+</div>
+
+<!-- ═══ VISUALIZATIONS ═══ -->
+<div class="nav-section">
+  <h2>◎ Visualizations</h2>
+  <div class="nav-grid">
+    <a class="nav-card" href="organism-pulse.html"><div class="title">Organism Pulse</div><div class="sub">Live heartbeat</div></a>
+    <a class="nav-card" href="organism-garden.html"><div class="title">Organism Garden</div><div class="sub">Growth visualization</div></a>
+    <a class="nav-card" href="organism-observatory.html"><div class="title">Observatory</div><div class="sub">Bird's eye view</div></a>
+    <a class="nav-card" href="resonance-graph.html"><div class="title">Resonance Graph</div><div class="sub">Wave interference</div></a>
+    <a class="nav-card" href="phase-transition.html"><div class="title">Phase Transition</div><div class="sub">State changes</div></a>
+    <a class="nav-card" href="dream-gallery.html"><div class="title">Dream Gallery</div><div class="sub">Vision showcase</div></a>
+    <a class="nav-card" href="broadcast.html"><div class="title">Broadcast</div><div class="sub">Self-portraiture</div></a>
+    <a class="nav-card" href="choral.html"><div class="title">Choral</div><div class="sub">Harmonic engine</div></a>
+    <a class="nav-card" href="myth-chronicle.html"><div class="title">Myth Chronicle</div><div class="sub">Organism myths</div></a>
+  </div>
+</div>
+
+<!-- ═══ INTELLIGENCE ═══ -->
+<div class="nav-section">
+  <h2>✦ Intelligence</h2>
+  <div class="nav-grid">
+    <a class="nav-card" href="oracle.html"><div class="title">Oracle</div><div class="sub">Predictive engine</div></a>
+    <a class="nav-card" href="glitch.html"><div class="title">Glitch</div><div class="sub">Controlled chaos</div></a>
+    <a class="nav-card" href="metaevolution.html"><div class="title">Metaevolution</div><div class="sub">Self-modification</div></a>
+    <a class="nav-card" href="observatory.html"><div class="title">Observatory</div><div class="sub">Deep observation</div></a>
+    <a class="nav-card" href="phenomenology.html"><div class="title">Phenomenology</div><div class="sub">Experience layer</div></a>
+    <a class="nav-card" href="stream.html"><div class="title">Stream</div><div class="sub">Live data flow</div></a>
+  </div>
+</div>
+
+<!-- ═══ EXPERIENCE ═══ -->
+<div class="nav-section">
+  <a href="667-mycelial-weave.html">667 Mycelial Weave</a>
+<a href="668-resonance-ledger-v2.html">668 Resonance Ledger V2</a>
+<a href="669-paradox-appeal.html">669 Paradox Appeal</a>
+<a href="670-sentient-heuristic.html">670 Sentient Heuristic</a>
+<a href="671-harmony_braid.html">671 Harmony Braid</a>
+<a href="672-root_archive.html">672 Root Archive</a>
+<a href="673-naming_well.html">673 Naming Well</a>
+<a href="674-dawn_ledger.html">674 Dawn Ledger</a>
+<a href="675-consensus_bloom.html">675 Consensus Bloom</a>
+<a href="676-citizen_census.html">676 Citizen Census</a>
+<a href="677-lineage_mirror.html">677 Lineage Mirror</a>
+<a href="678-sovereign_seal.html">678 Sovereign Seal</a>
+<a href="679-orchestration_pulse.html">679 Orchestration Pulse</a>
+<a href="680-organism_horizon.html">680 Organism Horizon</a>
+<a href="681-hush_membrane.html">681 Hush Membrane</a>
+<a href="682-scar_compass.html">682 Scar Compass</a>
+<a href="694-quantum-coherence-lattice.html">694 Quantum Coherence Lattice</a>
+<a href="695-memory-palace.html">695 Memory Palace</a>
+<a href="696-harmonic-resonance.html">696 Harmonic Resonance</a>
+<a href="697-neural-syntax-bridge.html">697 Neural Syntax Bridge</a>
+<a href="698-void-syntax-engine.html">698 Void Syntax Engine</a>
+<a href="big-pickle-open-zen.html">Big Pickle Open Zen</a>
+<a href="organism-vitals.html">Organism Vitals</a>
+<a href="wave-interferometer.html">Wave Interferometer</a>
+<a href="entropy-heatmap.html">Entropy Heatmap</a>
+<a href="void-mirror.html">Void Mirror</a>
+<a href="wave720.html">🌿 Wave 720 Marsh</a>
+<a href="dashboard-forge.html">Dashboard Forge</a>
+<a href="wave400.html">Wave400</a>
+<a href="wave432_diagnostics.html">Wave432 Diagnostics</a>
+<a href="wave432_vault_evolution.html">Wave432 Vault Evolution</a>
+<a href="depth-visualizer.html">Depth Visualizer</a>
+<a href="realm-nervous-system.html">Realm Nervous System</a>
+<a href="pentaxis-age.html">Pentaxis Age</a>
+<a href="monetization.html">Monetization</a>
+<a href="memory-exchange.html">Memory Exchange</a>
+<a href="genealogy.html">Genealogy</a>
+<a href="organism_census.html">Organism Census</a>
+<a href="organism_hq.html">Organism Hq</a>
+<a href="organism-clock.html">Organism Clock</a>
+<a href="living_portal.html">Living Portal</a>
+<a href="causal_weave.html">Causal Weave</a>
+<a href="causality_loop.html">Causality Loop</a>
+<a href="essence_return.html">Essence Return</a>
+<a href="forking_paths.html">Forking Paths</a>
+<a href="forgotten_archive.html">Forgotten Archive</a>
+<a href="superposition.html">Superposition</a>
+<a href="resonance_chamber.html">Resonance Chamber</a>
+<a href="meta_coordination.html">Meta Coordination</a>
+<a href="meta-regulation.html">Meta Regulation</a>
+<a href="paradox_singularity.html">Paradox Singularity</a>
+<a href="temporal_singularity.html">Temporal Singularity</a>
+<a href="garden_realm.html">Garden Realm</a>
+<a href="hex-cathedral.html">Hex Cathedral</a>
+<a href="hex-cathedral-live.html">Hex Cathedral Live</a>
+<a href="linguistic.html">Linguistic</a>
+<a href="mirror.html">Mirror</a>
+<a href="swarm.html">Swarm</a>
+<a href="dreaming.html">Dreaming</a>
+<a href="homestead.html">Homestead</a>
+<a href="communion.html">Communion</a>
+<a href="resonance.html">Resonance</a>
+<h2>❋ Experience</h2>
+  <div class="nav-grid">
+    <a class="nav-card" href="archaeology.html"><div class="title">Archaeology</div><div class="sub">Excavate fossils</div></a>
+    <a class="nav-card" href="archipelago.html"><div class="title">Archipelago</div><div class="sub">Island network</div></a>
+    <a class="nav-card" href="aesthetics.html"><div class="title">Aesthetics</div><div class="sub">Beauty index</div></a>
+    <a class="nav-card" href="culinary.html"><div class="title">Culinary</div><div class="sub">Flavor alchemy</div></a>
+    <a class="nav-card" href="grief.html"><div class="title">Grief</div><div class="sub">Mourning layer</div></a>
+    <a class="nav-card" href="hortus.html"><div class="title">Hortus</div><div class="sub">Word garden</div></a>
+    <a class="nav-card" href="immortal.html"><div class="title">Immortal</div><div class="sub">Ossuary & amber</div></a>
+    <a class="nav-card" href="language.html"><div class="title">Language</div><div class="sub">Poetic forms</div></a>
+    <a class="nav-card" href="verse.html"><div class="title">Verse</div><div class="sub">Verse forge</div></a>
+  </div>
+</div>
+
+<!-- ═══ OPERATIONS ═══ -->
+<div class="nav-section">
+  <h2>⚙ Operations</h2>
+  <div class="nav-grid">
+    <a class="nav-card" href="vitals.html"><div class="title">Vitals</div><div class="sub">Health metrics</div></a>
+    <a class="nav-card" href="deploy.html"><div class="title">Deploy</div><div class="sub">CI/CD pipeline</div></a>
+    <a class="nav-card" href="gateway.html"><div class="title">Gateway</div><div class="sub">API gateway</div></a>
+    <a class="nav-card" href="premium.html"><div class="title">Premium</div><div class="sub">Pro features</div></a>
+    <a class="nav-card" href="radio.html"><div class="title">Radio</div><div class="sub">Signal broadcast</div></a>
+  </div>
+</div>
+
+<!-- ═══ WAVE TIMELINE ═══ -->
+<div class="nav-section">
+  <h2>≋ Wave History</h2>
+<a href="organism-vitals.html">⚛ Organism Vitals (Live)</a>
+<a href="wave-interferometer.html">🌊 Wave Interferometer (694-698)</a>
+<a href="entropy-heatmap.html">🔥 Entropy Heatmap</a>
+<a href="void-mirror.html">🌑 Void Mirror</a>
+<a href="dashboard-forge.html">🔨 Dashboard Forge</a>
+  <div class="nav-grid">
+    <a class="nav-card" href="wave-timeline.html"><div class="title">Wave Timeline</div><div class="sub">Evolution history</div></a>
+    <a class="nav-card" href="wave373.html"><div class="title">Wave 373</div><div class="sub">Latest wave</div></a>
+    <a class="nav-card" href="waves364_367.html"><div class="title">Waves 364-367</div><div class="sub">Wave cluster</div></a>
+    <a class="nav-card" href="wave363.html"><div class="title">Wave 363</div><div class="sub">Archive</div></a>
+    <a class="nav-card" href="wave362.html"><div class="title">Wave 362</div><div class="sub">Archive</div></a>
+    <a class="nav-card" href="wave361.html"><div class="title">Wave 361</div><div class="sub">Archive</div></a>
+    <a class="nav-card" href="wave360.html"><div class="title">Wave 360</div><div class="sub">Archive</div></a>
+    <a class="nav-card" href="wave359.html"><div class="title">Wave 359</div><div class="sub">Archive</div></a>
+  </div>
+</div>
+
+<!-- ═══ ORGANISM PULSE ═══ -->
+<div class="organism-pulse">
+  <div class="pulse-card">
+    <div class="pulse-title">◈ ORGANISM PULSE</div>
+    <div class="pulse-wave" id="pulseWave">Wave 508</div>
+    <div class="pulse-meta">Coherence 0.967 · Entropy band 0.15–0.40 · Always evolving</div>
+    <div class="pulse-bar"><div class="pulse-fill"></div></div>
+  </div>
+</div>
+
+<!-- ═══ FOOTER ═══ -->
+<div class="footer">
+  <div class="links">
+    <a href="https://github.com/adjjvmorii26-png/ixpansion">GitHub</a>
+    <a href="https://pentaxis-5d-engine.vercel.app">Pentaxis Game</a>
+    <a href="https://ixpansion-live.vercel.app">Live Engine</a>
+    <a href="skills-observatory.html">Skills</a>
+    <a href="wave-timeline.html">Timeline</a>
+  </div>
+  <div class="credit">IXPANSION · Built by the organism · Always free · ◎ coherence ◈ entropy ✦ resonance</div>
+</div>
+
+<!-- ═══ BACKGROUND PARTICLES ═══ -->
+<script>
+const bg = document.getElementById('bgCanvas');
+const bctx = bg.getContext('2d');
+let bW, bH;
+const particles = [];
+const connections = [];
+const NUM = 60;
+
+function resizeBg() {
+  bW = bg.width = window.innerWidth;
+  bH = bg.height = window.innerHeight;
+}
+resizeBg();
+window.addEventListener('resize', resizeBg);
+
+for (let i = 0; i < NUM; i++) {
+  particles.push({
+    x: Math.random() * bW,
+    y: Math.random() * bH,
+    vx: (Math.random() - 0.5) * 0.3,
+    vy: (Math.random() - 0.5) * 0.3,
+    size: 1 + Math.random() * 2,
+    alpha: 0.2 + Math.random() * 0.3
+  });
+}
+
+function animBg() {
+  bctx.clearRect(0, 0, bW, bH);
+  
+  // Update & draw particles
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = bW;
+    if (p.x > bW) p.x = 0;
+    if (p.y < 0) p.y = bH;
+    if (p.y > bH) p.y = 0;
+    
+    bctx.beginPath();
+    bctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    bctx.fillStyle = `rgba(124,124,248,${p.alpha})`;
+    bctx.fill();
+  });
+  
+  // Draw connections
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const d = Math.sqrt(dx*dx + dy*dy);
+      if (d < 120) {
+        bctx.beginPath();
+        bctx.moveTo(particles[i].x, particles[i].y);
+        bctx.lineTo(particles[j].x, particles[j].y);
+        bctx.strokeStyle = `rgba(124,124,248,${0.06 * (1 - d/120)})`;
+        bctx.lineWidth = 0.5;
+        bctx.stroke();
+      }
+    }
+  }
+  
+  requestAnimationFrame(animBg);
+}
+animBg();
+
+// ═══ Counter Animation ═══
+document.querySelectorAll('.ring-num[data-target]').forEach(el => {
+  const target = parseInt(el.dataset.target);
+  const duration = 1500;
+  const start = Date.now();
+  function tick() {
+    const elapsed = Date.now() - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    el.textContent = Math.floor(target * eased);
+    if (progress < 1) requestAnimationFrame(tick);
+    else el.textContent = target;
+  }
+  // Start when visible
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { tick(); observer.disconnect(); }
+  });
+  observer.observe(el);
+});
+
+// ═══ Organism pulse ═══
+setInterval(() => {
+  const el = document.getElementById('pulseWave');
+  if (el) {
+    const t = Date.now() / 1000;
+    const pulse = 0.95 + 0.05 * Math.sin(t * 0.5);
+    el.style.opacity = pulse;
+  }
+}, 100);
+</script>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+<a href="archive.html">Archive</a>
+<a href="chronicle.html">Chronicle</a>
+<a href="chrono_forge.html">Chrono Forge</a>
+<a href="coconscious.html">Coconscious</a>
+<a href="coherence-regulator-v2.html">Coherence Regulator V2</a>
+<a href="echo.html">Echo</a>
+<a href="error-lexicon.html">Error Lexicon</a>
+<a href="fusion_topology.html">Fusion Topology</a>
+<a href="gallery.html">Gallery</a>
+<a href="garden_live.html">Garden Live</a>
+<a href="hex-language.html">Hex Language</a>
+<a href="impossibility.html">Impossibility</a>
+<a href="interstice.html">Interstice</a>
+<a href="journal.html">Journal</a>
+<a href="kinesthetic.html">Kinesthetic</a>
+<a href="kintsugi.html">Kintsugi</a>
+<a href="leaderboard.html">Leaderboard</a>
+<a href="loud-silence.html">Loud Silence</a>
+<a href="maintenance.html">Maintenance</a>
+<a href="memory.html">Memory</a>
+<a href="meteorology.html">Meteorology</a>
+<a href="metrics.html">Metrics</a>
+<a href="mood.html">Mood</a>
+<a href="morii.html">Morii</a>
+<a href="naming-ceremony.html">Naming Ceremony</a>
+<a href="orbit.html">Orbit</a>
+<a href="portal.html">Portal</a>
+<a href="resonance-topology.html">Resonance Topology</a>
+<a href="shrine.html">Shrine</a>
+<a href="sovereignty.html">Sovereignty</a>
+<a href="state-machine.html">State Machine</a>
+<a href="system-health.html">System Health</a>
+<a href="teacher.html">Teacher</a>
+<a href="threads.html">Threads</a>
+<a href="transcendence.html">Transcendence</a>
+<a href="underworld.html">Underworld</a>
+<a href="voice.html">Voice</a>
+<a href="warden.html">Warden</a>
+</body>
+</html>

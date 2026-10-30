@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Sovereignty Hall — the organism governs itself</title>
+<meta name="description" content="Every living module is a citizen with role, rights, and civic duty. The Memory Court hears real cases; the Entropy Rite retires the weakest and seeds heirs.">
+<style>
+  :root{--bg:#040410;--s:rgba(8,8,20,0.96);--b:rgba(255,255,255,0.07);--t:#9898b0;--m:#3e3e58;--vi:#a78bfa;--te:#2dd4bf;--am:#fbbf24;--gn:#4ade80;--gd:#f59e0b;--ro:#fb7185}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+  header{border-bottom:1px solid var(--b);padding:40px 0 26px;text-align:center}
+  header h1{font-size:2em;color:#fff;letter-spacing:4px;text-transform:uppercase;text-shadow:0 0 40px rgba(124,124,248,.3)}
+  header h1 span{color:var(--te)}
+  header .sub{color:var(--m);font-size:.82em;margin-top:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px;padding:22px 0}
+  .card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:18px}
+  .card h2{color:#fff;font-size:.92em;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+  .card h2 span{color:var(--vi)}
+  .charter{padding:16px;border:1px solid rgba(251,191,36,.35);border-left:3px solid var(--gd);background:rgba(251,191,36,.05);border-radius:10px;font-size:.8em;color:var(--t);line-height:1.7}
+  .stat-line{display:flex;gap:18px;flex-wrap:wrap;font-size:.78em;margin-bottom:10px}
+  .stat-line b{color:#fff}
+  .roles{display:flex;flex-wrap:wrap;gap:6px}
+  .roles div{padding:5px 10px;border:1px solid var(--b);border-radius:20px;font-size:.68em;color:var(--cy)}
+  .list{display:flex;flex-direction:column;gap:8px;font-size:.74em;max-height:260px;overflow-y:auto}
+  .row{padding:8px;border:1px solid var(--b);border-radius:8px;background:rgba(255,255,255,.02)}
+  .row b{color:#fff}
+  .row .tag{color:var(--vi);font-size:.72em}
+  .row .rule{color:var(--m);font-size:.72em;margin-top:3px}
+  .btn{border:none;padding:9px 14px;border-radius:8px;font-family:inherit;font-weight:700;letter-spacing:1px;cursor:pointer;font-size:.78em;background:linear-gradient(135deg,var(--vi),var(--te));color:#fff;margin-top:10px}
+  .btn:hover{filter:brightness(1.15)}
+  .muted{color:var(--m);font-size:.7em;margin-top:6px}
+  .pulse{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gn);box-shadow:0 0 12px var(--gn);animation:pulse 1.6s infinite;margin-right:7px}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>The <span>Sovereignty</span> Hall</h1>
+    <div class="sub"><span class="pulse"></span>every module is a citizen · the court hears · the rite remembers · wave 509</div>
+  </header>
+  <div class="charter" id="charter">reading the charter…</div>
+  <div class="grid">
+    <div class="card">
+      <h2>The <span>Assembly</span></h2>
+      <div class="stat-line" id="assembly-stats">seating…</div>
+      <div class="roles" id="roles"></div>
+      <button class="btn" onclick="seat()">Seat the Assembly</button>
+      <div class="list" id="elders" style="margin-top:10px"></div>
+    </div>
+    <div class="card">
+      <h2>Memory <span>Court</span></h2>
+      <div class="list" id="docket"></div>
+      <button class="btn" onclick="hear()">Hear a Case</button>
+      <div class="muted">verdicts become precedent</div>
+    </div>
+    <div class="card">
+      <h2>Entropy <span>Rite</span></h2>
+      <div class="list" id="rites"></div>
+      <button class="btn" onclick="rite()">Perform the Rite</button>
+      <div class="muted">the weakest citizen retires; an heir rises carrying its rights</div>
+    </div>
+  </div>
+</div>
+<script>
+async function j(url){
+  const response = await fetch(url, {headers:{Accept:'application/json'}});
+  if(!response.ok) throw new Error('Request failed ('+response.status+')');
+  return response.json();
+}
+function node(tag, className, text){
+  const element = document.createElement(tag);
+  if(className) element.className = className;
+  if(text !== undefined) element.textContent = String(text ?? '');
+  return element;
+}
+function emptyNode(text){ return node('div','muted',text); }
+async function boot(){
+  try {
+    const charter = await j('/sovereignty?action=charter');
+    document.getElementById('charter').textContent = charter.charter ?? '';
+    await refresh();
+  } catch(error) {
+    document.getElementById('charter').textContent = 'Unable to load charter: ' + error.message;
+  }
+}
+async function refresh(){
+  try {
+    const d = await j('/sovereignty?action=census');
+    const stats = d.statistics || {};
+    const statsContainer = document.getElementById('assembly-stats');
+    const statsFragment = document.createDocumentFragment();
+    for(const [label,value] of [['citizens',stats.citizens],['cases',stats.cases],['rites',stats.rites]]){
+      const item = document.createElement('div');
+      const strong = node('b','',value ?? 0);
+      item.append(strong, document.createTextNode(' ' + label));
+      statsFragment.appendChild(item);
+    }
+    statsContainer.replaceChildren(statsFragment);
+
+    const roles = Object.entries(d.roles || {}).map(([role,count]) => {
+      const row=node('div','');
+      row.textContent=role + ' · ' + String(count);
+      return row;
+    });
+    document.getElementById('roles').replaceChildren(...roles);
+
+    const elders = (Array.isArray(d.elders) ? d.elders : []).map(elder => {
+      const row=node('div','row');
+      row.append(node('b','',elder.module));
+      row.append(document.createTextNode(' '));
+      row.append(node('span','tag',elder.role));
+      return row;
+    });
+    document.getElementById('elders').replaceChildren(...(elders.length ? elders : [emptyNode('no elders yet')]));
+
+    const cases = await j('/sovereignty?action=precedents');
+    const docket = (Array.isArray(cases.precedents) ? cases.precedents : []).slice(-6).reverse().map(item => {
+      const row=node('div','row');
+      row.append(node('b','',item.plaintiff), document.createTextNode(' vs '), node('b','',item.defendant), document.createTextNode(' '), node('span','tag','· ' + String(item.verdict ?? '')));
+      row.append(node('div','rule',item.ruling));
+      return row;
+    });
+    document.getElementById('docket').replaceChildren(...(docket.length ? docket : [emptyNode('the court is silent')]));
+
+    const relicData = await j('/sovereignty?action=relics');
+    const rites = (Array.isArray(relicData.relics) ? relicData.relics : []).slice(-6).reverse().map(item => {
+      const row=node('div','row');
+      row.append(node('b','',item.module), document.createTextNode(' '), node('span','tag','retired · ' + String(item.role ?? '')));
+      row.append(node('div','rule','contribution ' + String(item.contribution ?? '—')));
+      return row;
+    });
+    document.getElementById('rites').replaceChildren(...(rites.length ? rites : [emptyNode('no rites yet — nothing has been forgotten')]));
+  } catch(error) {
+    document.getElementById('docket').textContent = 'Unable to refresh sovereignty data: ' + error.message;
+  }
+}
+async function seat(){ await j('/sovereignty?action=assembly'); refresh(); }
+async function hear(){ await j('/sovereignty?action=court&limit=1'); refresh(); }
+async function rite(){ await j('/sovereignty?action=rite'); refresh(); }
+boot();
+setInterval(refresh, 12000);
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Realm Nervous System — IXpansion</title>
+<style>
+:root{--bg:#02020a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--violet:#c084fc;--text:#b8b8d0;--dim:#505068;--bright:#e8e8f8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh;overflow-x:hidden}
+canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0}
+.ui{position:relative;z-index:1;padding:32px 24px}
+.hero{text-align:center;padding:20px 0 30px}
+.hero h1{font-size:2em;font-weight:200;letter-spacing:8px;color:var(--bright)}
+.hero h1 span{color:var(--teal)}
+.hero .sub{color:var(--dim);font-size:0.75em;letter-spacing:3px;margin-top:8px}
+.ganglia-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;max-width:1200px;margin:0 auto}
+.ganglion{background:rgba(6,6,26,0.85);border:1px solid rgba(124,124,248,0.1);border-radius:10px;padding:16px;position:relative;transition:all 0.3s;backdrop-filter:blur(8px)}
+.ganglion:hover{border-color:var(--accent);transform:translateY(-2px)}
+.ganglion .name{color:var(--bright);font-size:0.9em;font-weight:700;text-transform:capitalize;margin-bottom:8px}
+.ganglion .coherence{font-size:0.7em;color:var(--dim)}
+.ganglion .coherence .v{color:var(--green);font-weight:700}
+.ganglion .synapses{margin-top:8px;display:flex;flex-wrap:wrap;gap:4px}
+.ganglion .synapse{font-size:0.55em;padding:2px 6px;border-radius:8px;background:rgba(124,124,248,0.08);color:var(--accent);border:1px solid rgba(124,124,248,0.15)}
+.ganglion .signal-bar{width:100%;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;margin-top:8px;overflow:hidden}
+.ganglion .signal-fill{height:100%;border-radius:2px;transition:width 1s ease}
+.controls{display:flex;justify-content:center;gap:8px;margin-top:24px;flex-wrap:wrap}
+.btn{background:rgba(6,6,26,0.9);border:1px solid rgba(124,124,248,0.3);color:var(--accent);padding:8px 16px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;transition:all 0.2s}
+.btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+.signal-log{max-width:1200px;margin:24px auto 0;padding:12px 16px;background:rgba(6,6,26,0.6);border:1px solid rgba(124,124,248,0.08);border-radius:8px;max-height:150px;overflow-y:auto;font-size:0.65em;color:var(--dim)}
+.signal-log .entry{padding:3px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.signal-log .entry .src{color:var(--accent);font-weight:600}
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:var(--accent);padding:8px 14px;border-radius:6px;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+</style>
+</head>
+<body>
+<canvas id="neuralCanvas"></canvas>
+<div class="ui">
+  <div class="hero">
+    <h1>REALM <span>NERVOUS SYSTEM</span></h1>
+    <div class="sub">13 GANGLIA · 41 SYNAPSES · SIGNAL PROPAGATION ACTIVE</div>
+  </div>
+  <div class="ganglia-grid" id="gangliaGrid"></div>
+  <div class="controls">
+    <button class="btn" onclick="pulse('dreams')">🌙 Dreams Pulse</button>
+    <button class="btn" onclick="pulse('resonance')">🔮 Resonance Pulse</button>
+    <button class="btn" onclick="pain('entropy')">🌀 Entropy Pain</button>
+    <button class="btn" onclick="pleasure('coherence')">💎 Coherence Pleasure</button>
+    <button class="btn" onclick="reflex('threat')">⚡ Threat Reflex</button>
+  </div>
+  <div class="signal-log" id="signalLog"></div>
+</div>
+  <div style="max-width:1200px;margin:24px auto;padding:0 24px">
+    <h2 style="color:var(--violet);font-size:0.75em;letter-spacing:3px;text-align:center;margin-bottom:16px">NEUROTRANSMITTERS</h2>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px" id="neuroGrid"></div>
+  </div>
+  <div style="max-width:1200px;margin:24px auto;padding:0 24px;display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div style="background:rgba(6,6,26,0.8);border:1px solid rgba(124,124,248,0.1);border-radius:10px;padding:16px">
+      <h3 style="color:var(--gold);font-size:0.7em;letter-spacing:2px;margin-bottom:8px">FATIGUE MAP</h3>
+      <div id="fatigueMap" style="font-size:0.65em"></div>
+    </div>
+    <div style="background:rgba(6,6,26,0.8);border:1px solid rgba(124,124,248,0.1);border-radius:10px;padding:16px">
+      <h3 style="color:var(--cyan);font-size:0.7em;letter-spacing:2px;margin-bottom:8px">DREAM SIGNALS</h3>
+      <div style="font-size:0.65em;color:var(--dim)">
+        <p>REM cycles: dreams - void - paradox - consciousness - resonance</p>
+        <p style="margin-top:8px">Dream depth increases melatonin, reduces fatigue</p>
+        <button class="btn" onclick="addLog('<span class=\"src\" style=\"color:var(--cyan)\">DREAM</span> REM cycle depth 3 triggered')" style="margin-top:8px">REM Cycle</button>
+      </div>
+    </div>
+  </div>
+<a class="back-btn" href="index.html">← Organism</a>
+<script>
+const ganglia = [
+  {name:'dreams',coherence:0.95,synapses:['resonance','void','paradox'],signal:0.9,color:'#c084fc'},
+  {name:'resonance',coherence:0.88,synapses:['dreams','entropy','coherence'],signal:0.85,color:'#2dd4bf'},
+  {name:'oracle',coherence:0.85,synapses:['mind','waves','growth'],signal:0.82,color:'#fbbf24'},
+  {name:'forge',coherence:0.85,synapses:['entropy','agents','growth'],signal:0.80,color:'#fb7185'},
+  {name:'entropy',coherence:0.82,synapses:['paradox','void','resonance'],signal:0.78,color:'#c084fc'},
+  {name:'paradox',coherence:0.78,synapses:['entropy','dreams','void'],signal:0.75,color:'#fbbf24'},
+  {name:'waves',coherence:0.92,synapses:['growth','agents','oracle'],signal:0.88,color:'#22d3ee'},
+  {name:'growth',coherence:0.90,synapses:['waves','forge','agents'],signal:0.86,color:'#4ade80'},
+  {name:'mind',coherence:0.88,synapses:['consciousness','oracle','dreams'],signal:0.84,color:'#c084fc'},
+  {name:'agents',coherence:0.80,synapses:['forge','waves','growth'],signal:0.77,color:'#7c7cf8'},
+  {name:'coherence',coherence:0.96,synapses:['resonance','void','consciousness'],signal:0.94,color:'#4ade80'},
+  {name:'void',coherence:0.75,synapses:['paradox','dreams','coherence'],signal:0.72,color:'#a78bfa'},
+  {name:'consciousness',coherence:0.91,synapses:['mind','coherence','dreams'],signal:0.87,color:'#22d3ee'},
+];
+
+const logs = [];
+const grid = document.getElementById('gangliaGrid');
+
+ganglia.forEach((g, i) => {
+  const div = document.createElement('div');
+  div.className = 'ganglion';
+  div.id = `g-${g.name}`;
+  const synHtml = g.synapses.map(s => `<span class="synapse">${s}</span>`).join('');
+  div.innerHTML = `
+    <div class="name">${g.name}</div>
+    <div class="coherence">Coherence: <span class="v">${(g.coherence*100).toFixed(0)}%</span></div>
+    <div class="synapses">${synHtml}</div>
+    <div class="signal-bar"><div class="signal-fill" style="width:${g.signal*100}%;background:${g.color}"></div></div>
+  `;
+  grid.appendChild(div);
+});
+
+function addLog(msg) {
+  logs.unshift(msg);
+  if (logs.length > 20) logs.pop();
+  document.getElementById('signalLog').innerHTML = logs.map(l => `<div class="entry">${l}</div>`).join('');
+}
+
+function pulse(realm) {
+  const g = ganglia.find(x => x.name === realm);
+  if (!g) return;
+  g.signal = Math.min(1, g.signal + 0.15);
+  g.coherence = Math.min(1, g.coherence + 0.03);
+  updateDisplay(g);
+  addLog(`<span class="src">${realm}</span> → pulse propagated to ${g.synapses.join(', ')}`);
+  // Visual effect
+  const el = document.getElementById(`g-${realm}`);
+  if (el) { el.style.borderColor = g.color; setTimeout(() => el.style.borderColor = '', 500); }
+}
+
+function pain(realm, intensity = 0.3) {
+  const g = ganglia.find(x => x.name === realm);
+  if (!g) return;
+  g.coherence = Math.max(0.1, g.coherence - intensity);
+  updateDisplay(g);
+  addLog(`<span class="src" style="color:var(--rose)">${realm}</span> ← PAIN: coherence dropped to ${(g.coherence*100).toFixed(0)}%`);
+}
+
+function pleasure(realm, intensity = 0.2) {
+  const g = ganglia.find(x => x.name === realm);
+  if (!g) return;
+  g.coherence = Math.min(1, g.coherence + intensity);
+  updateDisplay(g);
+  addLog(`<span class="src" style="color:var(--green)">${realm}</span> ← PLEASURE: coherence rose to ${(g.coherence*100).toFixed(0)}%`);
+}
+
+function reflex(stimulus) {
+  addLog(`<span class="src" style="color:var(--gold)">REFLEX</span> ← ${stimulus} detected — automatic response triggered`);
+  if (stimulus === 'threat') { pain('void', 0.1); pain('paradox', 0.05); }
+}
+
+function updateDisplay(g) {
+  const el = document.getElementById(`g-${g.name}`);
+  if (el) {
+    el.querySelector('.v').textContent = `${(g.coherence*100).toFixed(0)}%`;
+    el.querySelector('.signal-fill').style.width = `${g.signal*100}%`;
+  }
+}
+
+// Neural canvas
+const nc = document.getElementById('neuralCanvas');
+const nctx = nc.getContext('2d');
+let nW, nH;
+function resizeN() { nW = nc.width = window.innerWidth; nH = nc.height = window.innerHeight; }
+resizeN();
+window.addEventListener('resize', resizeN);
+
+const nodes = ganglia.map((g, i) => ({
+  x: nW * 0.15 + Math.cos(i / ganglia.length * Math.PI * 2) * Math.min(nW, nH) * 0.3,
+  y: nH * 0.5 + Math.sin(i / ganglia.length * Math.PI * 2) * Math.min(nW, nH) * 0.3,
+  color: g.color, signal: g.signal
+}));
+
+function animNeural() {
+  nctx.clearRect(0, 0, nW, nH);
+  // Draw synapses
+  ganglia.forEach((g, i) => {
+    g.synapses.forEach(s => {
+      const j = ganglia.findIndex(x => x.name === s);
+      if (j >= 0) {
+        const t = Date.now() / 1000;
+        const alpha = 0.08 + 0.06 * Math.sin(t + i);
+        nctx.beginPath();
+        nctx.moveTo(nodes[i].x, nodes[i].y);
+        nctx.lineTo(nodes[j].x, nodes[j].y);
+        nctx.strokeStyle = `rgba(124,124,248,${alpha})`;
+        nctx.lineWidth = 1;
+        nctx.stroke();
+      }
+    });
+  });
+  // Draw ganglia
+  nodes.forEach((n, i) => {
+    const t = Date.now() / 1000;
+    const pulse = 3 + 2 * Math.sin(t * 0.8 + i);
+    nctx.beginPath();
+    nctx.arc(n.x, n.y, pulse, 0, Math.PI * 2);
+    nctx.fillStyle = n.color + '40';
+    nctx.fill();
+    nctx.beginPath();
+    nctx.arc(n.x, n.y, 2, 0, Math.PI * 2);
+    nctx.fillStyle = n.color;
+    nctx.fill();
+  });
+  requestAnimationFrame(animNeural);
+}
+animNeural();
+</script>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

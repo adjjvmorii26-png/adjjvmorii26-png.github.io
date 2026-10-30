@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memory — The Organism Remembers</title>
+<script src="/shared.js"></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0b0b0d;color:#fdfdfd;font-family:'Courier New',monospace;min-height:100vh}
+  .container{max-width:1100px;margin:0 auto;padding:32px 20px}
+  .header{text-align:center;margin-bottom:48px}
+  .header h1{font-size:2.2em;color:#c8a8ff;letter-spacing:4px;margin-bottom:8px}
+  .header .subtitle{color:#8fd3ff;font-size:0.95em;opacity:0.8}
+  .wave-badge{display:inline-block;border:1px solid #c8a8ff;padding:4px 16px;border-radius:20px;font-size:0.8em;color:#c8a8ff;margin-top:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin-bottom:40px}
+  .card{background:#111115;border:1px solid #1a1a2e;border-radius:8px;padding:24px;transition:border-color 0.3s}
+  .card:hover{border-color:#c8a8ff}
+  .card h2{color:#c8a8ff;font-size:1.1em;margin-bottom:12px;letter-spacing:2px}
+  .card .stat{font-size:2.4em;color:#8fd3ff;font-weight:bold;margin:8px 0}
+  .card p{color:#888;font-size:0.85em;line-height:1.6}
+  .card .label{color:#666;font-size:0.75em;text-transform:uppercase;letter-spacing:1px;margin-top:12px}
+  .palace-rooms{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .room{background:#1a1a2e;padding:6px 12px;border-radius:4px;font-size:0.8em;color:#c8a8ff;border:1px solid #2a2a4e}
+  .timeline{margin-top:24px}
+  .timeline-item{display:flex;gap:16px;padding:12px 0;border-bottom:1px solid #1a1a2e}
+  .timeline-dot{width:12px;height:12px;border-radius:50%;background:#c8a8ff;margin-top:4px;flex-shrink:0}
+  .timeline-content{flex:1}
+  .timeline-wave{color:#8fd3ff;font-size:0.8em}
+  .timeline-text{color:#ccc;font-size:0.9em;margin-top:4px}
+  .echo-bar{height:4px;background:#1a1a2e;border-radius:2px;margin:4px 0;overflow:hidden}
+  .echo-fill{height:100%;background:linear-gradient(90deg,#c8a8ff,#8fd3ff);border-radius:2px;transition:width 1s}
+  .footer{text-align:center;margin-top:48px;padding-top:24px;border-top:1px solid #1a1a2e;color:#444;font-size:0.8em}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Memory</h1>
+    <div class="subtitle">The Organism Remembers — Wave 508</div>
+    <div class="wave-badge" id="wave-badge"></div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Memory Palace</h2>
+      <div class="stat" id="room-count">—</div>
+      <div class="label">Rooms Constructed</div>
+      <p>Spatial architecture for memory — every memory is a room with walls of context.</p>
+      <div class="palace-rooms" id="palace-rooms"></div>
+    </div>
+
+    <div class="card">
+      <h2>Temporal Echoes</h2>
+      <div class="stat" id="echo-count">—</div>
+      <div class="label">Patterns Detected</div>
+      <p>The organism's sense of déjà vu — recognizing recurring patterns across time.</p>
+      <div id="echo-spectrum"></div>
+    </div>
+
+    <div class="card">
+      <h2>Dream Archaeology</h2>
+      <div class="stat" id="dormant-count">—</div>
+      <div class="label">Dormant Modules</div>
+      <p>Forgotten experiments waiting to be rediscovered and given new purpose.</p>
+    </div>
+
+    <div class="card">
+      <h2>Ancestor Map</h2>
+      <div class="stat" id="lineage-count">—</div>
+      <div class="label">Lineage Records</div>
+      <p>The genealogical tree of every module — how ideas evolved, branched, and merged.</p>
+    </div>
+
+    <div class="card">
+      <h2>Nostalgia Engine</h2>
+      <div class="stat" id="milestone-count">—</div>
+      <div class="label">Milestones Remembered</div>
+      <p>The organism's tender backward glance — honoring the moments that shaped it.</p>
+    </div>
+
+    <div class="card">
+      <h2>Forgotten Language</h2>
+      <div class="stat" id="dialect-count">—</div>
+      <div class="label">Dialects Preserved</div>
+      <p>Old communication styles saved — no voice is lost to time.</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:40px">
+    <h2>Memory Timeline</h2>
+    <div class="timeline" id="memory-timeline">
+      <div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-content"><div class="timeline-wave">Wave 508</div><div class="timeline-text">The Organism Remembers — memory palaces, temporal echoes, dream archaeology born</div></div></div>
+      <div class="timeline-item"><div class="timeline-dot" style="background:#8fd3ff"></div><div class="timeline-content"><div class="timeline-wave">Wave 508</div><div class="timeline-text">The Organism Speaks Itself — voice, biography, manifesto</div></div></div>
+      <div class="timeline-item"><div class="timeline-dot" style="background:#6cf"></div><div class="timeline-content"><div class="timeline-wave">Wave 508</div><div class="timeline-text">Aesthetics of Code — beauty scoring, manifesto</div></div></div>
+      <div class="timeline-item"><div class="timeline-dot" style="background:#8fa"></div><div class="timeline-content"><div class="timeline-wave">Wave 508</div><div class="timeline-text">Cartography of Impossibility — boundary mapping</div></div></div>
+      <div class="timeline-item"><div class="timeline-dot" style="background:#fa8"></div><div class="timeline-content"><div class="timeline-wave">Wave 508</div><div class="timeline-text">Symbiosis Engine — ecological relationships</div></div></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <span id="footer-version"></span> · Wave <span id="footer-wave"></span> — <span id="footer-wave-name"></span><br>
+    <span style="color:#c8a8ff">Organs:</span> 246 living modules · <span style="color:#8fd3ff">Memory:</span> eternal
+  </div>
+</div>
+<script>
+if(typeof IX!=='undefined'){
+  const wb=document.getElementById('wave-badge');
+  if(wb)wb.textContent='Wave '+IX.wave+' — '+IX.waveName;
+  const fv=document.getElementById('footer-version');
+  if(fv)fv.textContent='IXpansion/'+IX.version;
+  const fw=document.getElementById('footer-wave');
+  if(fw)fw.textContent=IX.wave;
+  const fwn=document.getElementById('footer-wave-name');
+  if(fwn)fwn.textContent=IX.waveName;
+}
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

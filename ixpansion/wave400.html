@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 400 — IXpansion Expansion</title>
+<style>
+:root{--bg:#02020a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--violet:#c084fc;--text:#b8b8d0;--dim:#505068;--bright:#e8e8f8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.hero{text-align:center;padding:60px 24px 40px;border-bottom:1px solid rgba(124,124,248,0.1)}
+.hero h1{font-size:3em;font-weight:200;letter-spacing:10px;color:var(--bright)}
+.hero h1 span{color:var(--accent)}
+.hero .sub{color:var(--dim);font-size:0.8em;letter-spacing:4px;margin-top:8px}
+.hero .badge{display:inline-block;margin-top:16px;padding:6px 16px;border:1px solid rgba(124,124,248,0.3);border-radius:20px;font-size:0.7em;color:var(--accent)}
+.container{max-width:1200px;margin:0 auto;padding:32px 24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-top:24px}
+.card{background:rgba(6,6,26,0.8);border:1px solid rgba(124,124,248,0.1);border-radius:12px;padding:24px;position:relative;overflow:hidden;transition:all 0.3s}
+.card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent)}
+.card h2{color:var(--accent);font-size:0.8em;letter-spacing:3px;margin-bottom:12px}
+.card .desc{color:var(--dim);font-size:0.72em;line-height:1.6;margin-bottom:12px}
+.card .stats{display:flex;gap:12px;flex-wrap:wrap}
+.stat{padding:6px 10px;background:rgba(124,124,248,0.06);border-radius:6px;font-size:0.65em}
+.stat .v{color:var(--bright);font-weight:700}
+.stat .l{color:var(--dim);margin-left:4px}
+.section{margin-top:48px}
+.section h2{color:var(--teal);font-size:0.75em;letter-spacing:4px;text-align:center;margin-bottom:24px}
+.timeline{position:relative;padding-left:24px;border-left:2px solid rgba(124,124,248,0.15)}
+.timeline .event{position:relative;padding:12px 0 12px 16px}
+.timeline .event::before{content:'';position:absolute;left:-29px;top:16px;width:10px;height:10px;border-radius:50%;background:var(--accent);border:2px solid var(--bg)}
+.timeline .event .time{color:var(--dim);font-size:0.6em}
+.timeline .event .title{color:var(--bright);font-size:0.8em;margin:4px 0}
+.timeline .event .detail{color:var(--dim);font-size:0.68em}
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:var(--accent);padding:8px 14px;border-radius:6px;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>WAVE <span>400</span></h1>
+  <div class="sub">THE EXPANSION WAVE — CROSS-REALM INTELLIGENCE</div>
+  <div class="badge"><span class="live-dot"></span>Active · 5 new organs · 4 capabilities</div>
+</div>
+
+<div class="container">
+  <div class="grid">
+    <div class="card">
+      <h2>◎ WAVE 400 EXPANSION ENGINE</h2>
+      <div class="desc">Orchestrates the 400-series evolution. Manages expansion events, tracks module births, and coordinates cross-domain growth.</div>
+      <div class="stats">
+        <div class="stat"><span class="v" id="expCount">0</span><span class="l">expansions</span></div>
+        <div class="stat"><span class="v">active</span><span class="l">status</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⬡ PENTAXIS FUSION</h2>
+      <div class="desc">Bridges the 5D game engine with the organism. Player cognition becomes a coordinate. Query the engine — at 4 queries the HUD lies.</div>
+      <div class="stats">
+        <div class="stat"><span class="v" id="axesCount">0</span><span class="l">axes unlocked</span></div>
+        <div class="stat"><span class="v" id="queryCount">0</span><span class="l">queries</span></div>
+        <div class="stat"><span class="v" id="entropyVal">0.18</span><span class="l">entropy</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🔍 CROSS-REALM DIAGNOSTICS</h2>
+      <div class="desc">Analyzes health across all organism domains. Detects drift, coherence loss, and cross-module interference patterns.</div>
+      <div class="stats">
+        <div class="stat"><span class="v" id="realmCount">0</span><span class="l">realms</span></div>
+        <div class="stat"><span class="v" id="healthVal">0</span><span class="l">health</span></div>
+        <div class="stat"><span class="v" id="issueCount">0</span><span class="l">issues</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🧬 PATTERN ANALYZER</h2>
+      <div class="desc">Organism-wide pattern analysis. Detects emergent naming clusters, expansion trends, and structural evolution patterns.</div>
+      <div class="stats">
+        <div class="stat"><span class="v" id="patternCount">0</span><span class="l">patterns</span></div>
+        <div class="stat"><span class="v" id="namingEntropy">0</span><span class="l">naming entropy</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>⚗ EXPERIMENTAL SUBSYSTEMS</h2>
+      <div class="desc">Wild experiments the organism runs on itself. Mutations, crossovers, dream exploration. Controlled chaos.</div>
+      <div class="stats">
+        <div class="stat"><span class="v" id="expRunning">0</span><span class="l">running</span></div>
+        <div class="stat"><span class="v" id="expTotal">0</span><span class="l">total</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎮 LUCID MACHINES 3D</h2>
+      <div class="desc">The organism's game. A raycaster dungeon where the world dreams you back. Explore 12 realms, fight enemies, collect items.</div>
+      <div class="stats">
+        <div class="stat"><span class="v">12</span><span class="l">realms</span></div>
+        <div class="stat"><span class="v">5</span><span class="l">enemy types</span></div>
+        <div class="stat"><a href="lucid-3d.html" style="color:var(--gold)">Play →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>◈ WAVE 400 TIMELINE</h2>
+    <div class="timeline">
+      <div class="event"><div class="time">Phase 1</div><div class="title">Wave 400 Expansion Engine</div><div class="detail">Core orchestration module — manages expansion events across all domains</div></div>
+      <div class="event"><div class="time">Phase 2</div><div class="title">Pentaxis Fusion Bridge</div><div class="detail">5D game engine integration — player cognition as organism coordinate</div></div>
+      <div class="event"><div class="time">Phase 3</div><div class="title">Cross-Realm Diagnostics</div><div class="detail">Health analysis across all 12 organism domains</div></div>
+      <div class="event"><div class="time">Phase 4</div><div class="title">Pattern Analyzer</div><div class="detail">Emergent pattern detection — naming clusters, expansion trends</div></div>
+      <div class="event"><div class="time">Phase 5</div><div class="title">Experimental Subsystems</div><div class="detail">Wild experiments — mutations, crossovers, dream exploration</div></div>
+    </div>
+  </div>
+</div>
+
+<a class="back-btn" href="index.html">← Organism</a>
+
+<script>
+// Live data simulation
+function animNum(id, target, duration) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const start = Date.now();
+  const startVal = parseFloat(el.textContent) || 0;
+  function tick() {
+    const p = Math.min((Date.now() - start) / duration, 1);
+    const eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = typeof target === 'number' ? Math.floor(startVal + (target - startVal) * eased) : target;
+    if (p < 1) requestAnimationFrame(tick);
+  }
+  tick();
+}
+
+setTimeout(() => {
+  animNum('expCount', 12, 1500);
+  animNum('axesCount', 3, 1200);
+  animNum('queryCount', 7, 1000);
+  animNum('entropyVal', 0.34, 1800);
+  animNum('realmCount', 12, 1400);
+  animNum('healthVal', 0.94, 1600);
+  animNum('issueCount', 0, 800);
+  animNum('patternCount', 8, 1300);
+  animNum('namingEntropy', 0.87, 1100);
+  animNum('expRunning', 2, 900);
+  animNum('expTotal', 47, 1500);
+}, 300);
+</script>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IXPansion — Autonomous Nervous System</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--card:#12121a;--border:#1a1a2e;
+  --gold:#fff3a0;--white:#fdfdfd;--violet:#c8a8ff;
+  --forge:#ffcfcc;--blue:#8fd3ff;--mir:#1a0f29;
+  --obsidian:#1a0f29;--green:#4ade80;--red:#f87171;
+}
+body{background:var(--bg);color:var(--white);font-family:'Georgia',serif;padding:20px}
+h1{text-align:center;font-size:2em;margin-bottom:5px;color:var(--gold)}
+.subtitle{text-align:center;color:#888;margin-bottom:20px;font-style:italic}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1200px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card h2{color:var(--violet);margin-bottom:10px;font-size:1.1em}
+.card p{color:#aaa;font-size:0.9em;line-height:1.5}
+.pulse{animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.6}50%{opacity:1}}
+.status-bar{display:flex;gap:12px;justify-content:center;margin:10px 0 20px;flex-wrap:wrap}
+.badge{background:#1a1a2e;padding:4px 12px;border-radius:12px;font-size:0.8em;border:1px solid #2a2a3e}
+.badge.gold{color:var(--gold);border-color:var(--gold)}
+.badge.violet{color:var(--violet);border-color:var(--violet)}
+.badge.green{color:var(--green);border-color:var(--green)}
+.narrative{font-style:italic;color:var(--violet);text-align:center;padding:10px;font-size:1.1em;border:1px solid var(--border);border-radius:8px;margin-bottom:16px;background:#0d0d15}
+#dream-text{color:var(--blue);font-style:italic;min-height:60px}
+#paradox-text{color:var(--forge);font-style:italic;min-height:40px}
+#mycelial-text{color:var(--green);min-height:40px}
+.loop-count{font-size:2em;text-align:center;color:var(--gold);font-weight:bold}
+.btn{background:#1a1a2e;color:var(--violet);border:1px solid var(--violet);padding:8px 16px;border-radius:8px;cursor:pointer;font-family:inherit;margin:4px}
+.btn:hover{background:var(--violet);color:var(--mir)}
+.btn-row{text-align:center;margin-top:10px}
+ul{list-style:none;padding:0}
+li{padding:4px 0;border-bottom:1px solid #1a1a2e;font-size:0.9em;color:#ccc}
+li:last-child{border:none}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<h1 class="pulse">↻ The Autonomous Nervous System</h1>
+<p class="subtitle">Wave 508-414 — The organism breathes, decides, dreams, and resolves on its own</p>
+<div class="status-bar">
+  <span class="badge gold" id="cycle-count">cycles: ...</span>
+  <span class="badge violet" id="thread-count">threads: ...</span>
+  <span class="badge green" id="bloom-count">blooms: ...</span>
+</div>
+<div class="narrative" id="narrative">waiting for the organism to breathe...</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>🔄 Autonomous Cycle</h2>
+    <div class="loop-count" id="loop-total">—</div>
+    <p id="loop-info">last cycle: waiting...</p>
+    <div class="btn-row">
+      <button class="btn" onclick="runCycle()">Breathe + Decide + Act</button>
+      <button class="btn" onclick="loopStatus()">Status</button>
+    </div>
+    <div id="loop-detail" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
+    <h2>🍄 Mycelial Network</h2>
+    <p id="mycelial-text">sensing the organism...</p>
+    <ul id="mycelial-list"></ul>
+    <div class="btn-row">
+      <button class="btn" onclick="mycelialSense()">Sense</button>
+      <button class="btn" onclick="mycelialPropagate()">Propagate</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🌙 Dream Weaver</h2>
+    <p id="dream-text">the organism dreams...</p>
+    <div class="btn-row">
+      <button class="btn" onclick="dreamWeave()">Dream</button>
+      <button class="btn" onclick="dreamSequence()">Dreamwalk (5)</button>
+    </div>
+    <ul id="dream-list"></ul>
+  </div>
+
+  <div class="card">
+    <h2>🔮 Paradox Oracle</h2>
+    <p id="paradox-text">observing contradictions...</p>
+    <ul id="paradox-list"></ul>
+    <div class="btn-row">
+      <button class="btn" onclick="paradoxObserve()">Observe</button>
+      <button class="btn" onclick="paradoxOracle()">Full Oracle</button>
+    </div>
+  </div>
+
+  <div class="card" style="grid-column:1/3">
+    <h2>🧬 Organism Genome — Self-Portrait</h2>
+    <p id="genome-text" style="font-style:italic;color:var(--gold)">generating self-portrait...</p>
+    <ul id="genome-list"></ul>
+    <div class="btn-row">
+      <button class="btn" onclick="loadGenome()">Regenerate</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🤫 Silence Whisperer</h2>
+    <p id="whisper-text">waiting for silent pairs...</p>
+    <ul id="whisper-list"></ul>
+    <div class="btn-row"><button class="btn" onclick="runWhisper()">Whisper (3)</button></div>
+  </div>
+
+  <div class="card">
+    <h2>🌀 Pressure Valve</h2>
+    <p id="valve-text">checking pressure...</p>
+    <div class="btn-row"><button class="btn" onclick="openValve()">Release</button></div>
+  </div>
+
+  <div class="card">
+    <h2>🧠 Subconscious Layer</h2>
+    <p id="sub-text">observing hidden patterns...</p>
+    <ul id="sub-list"></ul>
+    <div class="btn-row"><button class="btn" onclick="surfaceSub()">Surface</button></div>
+  </div>
+
+  <div class="card">
+    <h2>🔊 Resonance Amplifier</h2>
+    <p id="amp-text">waiting to boost threads...</p>
+    <div class="btn-row"><button class="btn" onclick="runAmplify()">Amplify</button></div>
+  </div>
+
+  <div class="card" style="grid-column:1/3" id="innovate-card">
+    <h2>💡 Lateral Innovation Engine — Cross-Domain Creativity</h2>
+    <p id="innovate-text" style="font-style:italic;color:var(--blue)">reaching outside the organism...</p>
+    <ul id="innovate-list"></ul>
+    <div class="btn-row"><button class="btn" onclick="runInnovate()">Innovate (3)</button></div>
+  </div>
+
+  <div class="card" style="grid-column:1/3" id="cartographer-card">
+    <h2>🗺 Module Cartographer — The Organism's Map</h2>
+    <p id="map-text" style="font-style:italic;color:var(--violet)">mapping the organism...</p>
+    <ul id="map-families"></ul>
+    <ul id="map-bridges"></ul>
+    <div class="btn-row"><button class="btn" onclick="runMap()">Map All</button></div>
+  </div>
+
+  <div class="card" style="grid-column:1/3">
+    <h2>📜 Cycle Log</h2>
+    <ul id="cycle-log"></ul>
+  </div>
+</div>
+
+<script>
+const BASE='https://alexalex.info';
+async function api(path){try{const r=await fetch(BASE+'/api/'+path);return await r.json()}catch(e){return{error:e.message}}}
+async function runCycle(){
+  document.getElementById('narrative').textContent='the organism is breathing...';
+  const r=await api('autonomous_loop/run');
+  document.getElementById('narrative').textContent=r.narrative||r.error||'silence';
+  document.getElementById('loop-total').textContent=r.total_cycles||'—';
+  document.getElementById('loop-info').textContent='cycle '+r.cycle_id+' — '+r.actions_taken+' actions, '+r.phases_completed+' phases';
+  loopStatus();
+runWhisper(); runInnovate(); runMap();
+openValve();
+surfaceSub();
+runAmplify();
+}
+async function loopStatus(){
+  const r=await api('autonomous_loop/status');
+  document.getElementById('cycle-count').textContent='cycles: '+(r.total_cycles||0);
+}
+async function mycelialSense(){
+  const r=await api('mycelial_network/sense');
+  document.getElementById('mycelial-text').textContent=r.note||r.error||'silence';
+}
+async function mycelialPropagate(){
+  const r=await api('mycelial_network/propagate');
+  document.getElementById('mycelial-text').textContent=r.wisdom||r.error||'silence';
+  const list=document.getElementById('mycelial-list');
+  list.innerHTML='';
+  (r.consensus||[]).forEach(c=>{const li=document.createElement('li');li.textContent='consensus: '+c.domain+' (strength '+c.strength+')';list.appendChild(li)});
+  (r.schisms||[]).forEach(s=>{const li=document.createElement('li');li.textContent='schism: '+s.domain+' (doubt '+s.doubt_level+')';list.appendChild(li)});
+}
+async function dreamWeave(){
+  document.getElementById('dream-text').textContent='dreaming...';
+  const r=await api('dream_weaver/dream');
+  document.getElementById('dream-text').textContent='\"'+r.concept+'\"';
+  document.getElementById('dream-text').innerHTML+='<br><small>domain: '+r.domain+' · lucidity: '+Math.round(r.lucidity*100)+'% · module: '+r.potential_module+'</small>';
+  document.getElementById('thread-count').textContent='dreamed: '+(r.total_dreamed||0);
+}
+async function dreamSequence(){
+  const r=await api('dream_weaver/sequence?count=5');
+  const list=document.getElementById('dream-list');
+  list.innerHTML='';
+  (r.dreams||[]).forEach(d=>{const li=document.createElement('li');li.textContent=d.domain+': '+d.concept.substring(0,60)+'...';list.appendChild(li)});
+  document.getElementById('dream-text').textContent=r.narrative||'silence';
+}
+async function paradoxObserve(){
+  const r=await api('paradox_oracle/observe');
+  const list=document.getElementById('paradox-list');
+  list.innerHTML='';
+  (r.contradictions||[]).forEach(c=>{const li=document.createElement('li');li.textContent=c.type+': severity '+c.severity;list.appendChild(li)});
+  document.getElementById('paradox-text').textContent='found '+r.total+' contradictions (avg severity '+r.severity_avg+')';
+}
+async function paradoxOracle(){
+  document.getElementById('paradox-text').textContent='consulting the oracle...';
+  const r=await api('paradox_oracle/oracle');
+  document.getElementById('paradox-text').textContent=r.wisdom||r.error||'silence';
+  const list=document.getElementById('paradox-list');
+  list.innerHTML='';
+  (r.resolutions||[]).forEach(res=>{const li=document.createElement('li');li.textContent='\"'+res.synthesis.substring(0,80)+'\"';list.appendChild(li)});
+}
+async function runInnovate(){
+  document.getElementById('innovate-text').textContent='reaching outside...';
+  const r=await api('lateral_innovation_engine/innovate?count=3');
+  document.getElementById('innovate-text').textContent=r.verse||'silence';
+  const list=document.getElementById('innovate-list');
+  list.innerHTML='';
+  (r.innovations||[]).forEach(i=>{
+    const li=document.createElement('li');
+    li.textContent='['+i.external_domain+'] novelty '+Math.round(i.novelty_score*100)+'% — '+i.novel_concept.substring(0,80);
+    list.appendChild(li);
+  });
+}
+async function runMap(){
+  document.getElementById('map-text').textContent='mapping...';
+  const r=await api('module_cartographer/map');
+  const m=r.map||{};
+  const fams=m.families||{};
+  let famLines='';
+  Object.entries(fams).slice(0,6).forEach(([f,c])=>{famLines+='<li>'+f+': '+c+' modules</li>'});
+  document.getElementById('map-families').innerHTML=famLines;
+  let bridgeLines='';
+  (m.top_bridges||[]).slice(0,3).forEach(b=>{bridgeLines+='<li>bridge: '+b.module+' connects '+b.connects_families.join(', ')+'</li>'});
+  document.getElementById('map-bridges').innerHTML=bridgeLines;
+  document.getElementById('map-text').textContent=m.total_modules+' modules | '+m.orphan_count+' orphans | '+m.bridge_count+' bridges | '+m.cluster_count+' clusters | density '+m.connection_density;
+}
+async function runWhisper(){
+  const r=await api('silence_whisperer/whisper?count=3');
+  document.getElementById('whisper-text').textContent='bridges formed: '+(r.bridges_formed||0);
+  const list=document.getElementById('whisper-list');
+  list.innerHTML='';
+  (r.whispers||[]).forEach(w=>{const li=document.createElement('li');li.textContent=w.whisper.substring(0,80);list.appendChild(li)});
+}
+async function openValve(){
+  const r=await api('pressure_valve/release');
+  document.getElementById('valve-text').textContent=r.released ? 'released: '+(r.pressure_before||0)+' → '+(r.pressure_after||0)+' — '+r.creative_output : 'pressure '+(r.pressure_before||0)+' — valve closed';
+}
+async function surfaceSub(){
+  const r=await api('subconscious_layer/surface');
+  document.getElementById('sub-text').textContent='depth: '+(r.subconscious_depth||0)+' observations';
+  const list=document.getElementById('sub-list');
+  list.innerHTML='';
+  (r.insights||[]).forEach(i=>{const li=document.createElement('li');li.textContent=i.pattern+' (x'+i.occurrences+'): '+i.insight.substring(0,60);list.appendChild(li)});
+}
+async function runAmplify(){
+  const r=await api('resonance_amplifier/amplify');
+  document.getElementById('amp-text').textContent=r.verse||'done';
+  const list=document.getElementById('sub-list') ? null : null;
+  document.getElementById('amp-text').textContent+=' — boosted '+(r.threads_boosted||0)+' threads';
+}
+async function loadGenome(){
+  document.getElementById('genome-text').textContent='generating...';
+  const r=await api('organism_genome/generate');
+  const g=r.genome||{};
+  const m=g.morphology||{};
+  const t=g.temperament||{};
+  const des=g.desires||[];
+  const bl=g.blind_spots||[];
+  document.getElementById('genome-text').innerHTML=
+    '<strong>hash:</strong> '+(g.genome_hash||'?')+
+    ' · <strong>mood:</strong> '+(t.current_mood||'?')+
+    ' · <strong>pressure:</strong> '+(t.pressure||'?')+
+    ' · <strong>threads:</strong> '+(m.threads||0)+
+    ' · <strong>modules:</strong> '+(m.modules_connected||0);
+  const list=document.getElementById('genome-list');
+  list.innerHTML='';
+  des.forEach(d=>{const li=document.createElement('li');li.textContent='desire: '+d.action+' '+(d.target||'?')+' (score '+d.score+')';list.appendChild(li)});
+  bl.forEach(b=>{const li=document.createElement('li');li.textContent='blind spot: '+b;list.appendChild(li)});
+}
+// Load initial state
+(async()=>{
+  loopStatus();
+  const r=await api('autonomous_loop/status');
+  if(r.last_cycle){document.getElementById('narrative').textContent=r.last_cycle}
+  loadGenome();
+const b=await api('echoic_ember/state');
+  document.getElementById('bloom-count').textContent='blooms: '+(b.pulse?.blooms||'?');
+  document.getElementById('thread-count').textContent='threads: '+(b.pulse?.threads||'?');
+})();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

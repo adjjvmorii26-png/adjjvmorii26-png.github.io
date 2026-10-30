@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Wave 694 — Quantum Coherence Lattice</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a12;color:#e0e0e0;font-family:'Courier New',monospace;padding:20px}
+h1{text-align:center;color:#c38d9e;margin-bottom:10px;font-size:1.4em}
+.sub{text-align:center;color:#666;margin-bottom:20px;font-size:.85em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;margin:0 auto}
+.card{background:#151520;border:1px solid #2a2a3a;border-radius:8px;padding:16px}
+.card h2{color:#41b3a3;font-size:1em;margin-bottom:10px}
+.stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1a1a2a;font-size:.85em}
+.stat .label{color:#888}.stat .val{color:#e8a87c;font-weight:bold}
+.lattice{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.node{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7em;font-weight:bold;cursor:pointer;transition:all .3s}
+.node.superposed{background:#33334d;color:#c8a8ff;border:2px solid #c8a8ff;animation:pulse 2s infinite}
+.node.collapsed{background:#41b3a3;color:#0a0a12;border:2px solid #41b3a3}
+@keyframes pulse{0%,100%{box-shadow:0 0 8px #c8a8ff33}50%{box-shadow:0 0 20px #c8a8ffaa}}
+.btn{background:#2a2a3a;color:#e8a87c;border:1px solid #444;padding:8px 16px;border-radius:4px;cursor:pointer;margin:4px;font-family:inherit;font-size:.85em}
+.btn:hover{background:#3a3a4a}
+.controls{text-align:center;margin:20px auto;max-width:900px}
+#log{max-width:900px;margin:20px auto;background:#151520;border:1px solid #2a2a3a;border-radius:8px;padding:12px;max-height:200px;overflow-y:auto;font-size:.8em;color:#666}
+</style>
+</head>
+<body>
+<h1>⚛ Wave 694 — Quantum Coherence Lattice</h1>
+<div class="sub">Superposition → Observation → Collapse → Resolution</div>
+
+<div class="controls">
+  <button class="btn" onclick="superpose()">Superpose New Node</button>
+  <button class="btn" onclick="observeAll()">Observe All</button>
+  <button class="btn" onclick="collapseFirst()">Collapse First Unresolved</button>
+  <button class="btn" onclick="loadStatus()">Refresh Status</button>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Lattice State</h2>
+    <div class="stat"><span class="label">Superpositions</span><span class="val" id="s_sup">0</span></div>
+    <div class="stat"><span class="label">Collapses</span><span class="val" id="s_col">0</span></div>
+    <div class="stat"><span class="label">Coherence Score</span><span class="val" id="s_coh">0.0</span></div>
+    <div class="stat"><span class="label">Lattice Size</span><span class="val" id="s_size">0</span></div>
+    <div class="lattice" id="lattice"></div>
+  </div>
+  <div class="card">
+    <h2>Collapsed Resolutions</h2>
+    <div id="resolutions" style="font-size:.85em">No collapses yet</div>
+  </div>
+</div>
+
+<div id="log"></div>
+
+<script>
+const API = '/api/quantum_coherence_lattice';
+let nodes = {};
+let collapsed = [];
+let nodeIds = [];
+
+function log(msg) {
+  const el = document.getElementById('log');
+  el.innerHTML = `<div>[${new Date().toISOString().slice(11,19)}] ${msg}</div>` + el.innerHTML;
+}
+
+async function api(params) {
+  const qs = Object.entries(params).map(([k,v]) => `${k}=${encodeURIComponent(v)}`).join('&');
+  const r = await fetch(`${API}?${qs}`);
+  return r.json();
+}
+
+async function loadStatus() {
+  const st = await api({action:'status'});
+  document.getElementById('s_sup').textContent = st.superpositions;
+  document.getElementById('s_col').textContent = st.collapses;
+  document.getElementById('s_coh').textContent = st.coherence_score;
+  document.getElementById('s_size').textContent = st.lattice_size;
+  log(`Status: ${st.lattice_size} nodes, coherence ${st.coherence_score}`);
+}
+
+async function superpose() {
+  const labels = ['forge_path', 'bloom_direction', 'entropy_route', 'dream_axis', 'void_choice', 'paradox_seed'];
+  const opts = ['alpha', 'beta', 'gamma', 'delta'];
+  const label = labels[Math.floor(Math.random() * labels.length)];
+  const s = await api({action:'superpose', label, options: opts.join(',')});
+  if (s.status === 'superposed') {
+    nodeIds.push(s.node_id);
+    nodes[s.node_id] = {label: s.label, collapsed: false};
+    log(`Superposed: ${s.label} (${s.node_id})`);
+    renderLattice();
+  }
+}
+
+async function collapseFirst() {
+  const open = nodeIds.filter(id => !nodes[id]?.collapsed);
+  if (!open.length) { log('No unresolved nodes to collapse'); return; }
+  const id = open[0];
+  const c = await api({action:'collapse', node_id: id});
+  if (c.status === 'collapsed') {
+    nodes[id].collapsed = true;
+    nodes[id].result = c.result;
+    collapsed.push({id, label: nodes[id].label, result: c.result});
+    log(`Collapsed: ${nodes[id].label} → ${c.result} (coherence: ${c.coherence_score})`);
+    renderLattice();
+    renderResolutions();
+    loadStatus();
+  }
+}
+
+async function observeAll() {
+  for (const id of nodeIds) {
+    await api({action:'observe', node_id: id});
+  }
+  log(`Observed ${nodeIds.length} nodes`);
+}
+
+function renderLattice() {
+  const el = document.getElementById('lattice');
+  el.innerHTML = nodeIds.map(id => {
+    const n = nodes[id];
+    const cls = n.collapsed ? 'collapsed' : 'superposed';
+    const letter = (n.result || n.label[0]).toUpperCase();
+    return `<div class="node ${cls}" title="${n.label}${n.result ? ' → '+n.result : ''}">${letter}</div>`;
+  }).join('');
+}
+
+function renderResolutions() {
+  const el = document.getElementById('resolutions');
+  if (!collapsed.length) { el.innerHTML = 'No collapses yet'; return; }
+  el.innerHTML = collapsed.map(c => `<div style="padding:4px 0;border-bottom:1px solid #1a1a2a">▸ ${c.label} → <strong style="color:#41b3a3">${c.result}</strong></div>`).join('');
+}
+
+loadStatus();
+</script>
+</body>
+</html>

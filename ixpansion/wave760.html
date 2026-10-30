@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 760 — Mutation Engine</title>
+<script src="/shared.js"></script>
+<style>
+:root{--bg:#02020a;--accent:#fbbf24;--teal:#2dd4bf;--gold:#fbbf24;--text:#b8b8d0;--dim:#505068;--bright:#e8e8f8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.hero{text-align:center;padding:60px 24px 40px;border-bottom:1px solid #fbbf2422}
+.hero h1{font-size:3em;font-weight:200;letter-spacing:10px;color:var(--bright)}
+.hero h1 span{color:#fbbf24}
+.hero .sub{color:var(--dim);font-size:0.8em;letter-spacing:4px;margin-top:8px}
+.hero .badge{display:inline-block;margin-top:16px;padding:6px 16px;border:1px solid #fbbf2444;border-radius:20px;font-size:0.7em;color:#fbbf24}
+.container{max-width:1200px;margin:0 auto;padding:32px 24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px;margin-top:24px}
+.card{background:rgba(6,6,26,0.8);border:1px solid #fbbf2418;border-radius:12px;padding:24px;position:relative;overflow:hidden;transition:all 0.3s}
+.card:hover{border-color:#fbbf24;transform:translateY(-2px)}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#fbbf24,transparent)}
+.card h2{color:#fbbf24;font-size:0.8em;letter-spacing:3px;margin-bottom:12px}
+.card .desc{color:var(--dim);font-size:0.72em;line-height:1.6;margin-bottom:12px}
+.stat{padding:6px 10px;background:#fbbf2411;border-radius:6px;font-size:0.65em}
+.stat .v{color:var(--bright);font-weight:700}
+.stat .l{color:var(--dim);margin-left:4px}
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid #fbbf2444;color:#fbbf24;padding:8px 14px;border-radius:6px;font-size:0.7em;cursor:pointer;text-decoration:none}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#4ade80;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>WAVE <span>760</span></h1>
+  <div class="sub">GENE SPLICER PATTERNS ACROSS THE 914+ MODULE CANVAS</div>
+  <div class="badge"><span class="live-dot"></span>Active · Mutate · Express · Propagate · Canvas</div>
+</div>
+<div class="container">
+  <div class="grid">
+  <div class="card">
+    <h2>MUTATE</h2>
+    <div class="desc">Cross-breeds repo DNA paradigms using Gene Splicer logic. Selects dominant/recessive donors, mixes patterns, synthesizes new skills.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="stat"><span class="v">180+</span><span class="l">donors</span></span><span class="stat"><span class="v">20</span><span class="l">paradigms</span></span><span class="stat"><span class="v">mixed</span><span class="l">patterns</span></span></div>
+  </div>
+  <div class="card">
+    <h2>EXPRESS</h2>
+    <div class="desc">Generates Codex skills from mutated DNA. Each skill is install-compliant with commands, roots, and tags.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="stat"><span class="v">installable</span><span class="l">skills</span></span><span class="stat"><span class="v">dynamic</span><span class="l">commands</span></span><span class="stat"><span class="v">paradigm-tagged</span><span class="l">tags</span></span></div>
+  </div>
+  <div class="card">
+    <h2>PROPAGATE</h2>
+    <div class="desc">Spreads mutations through resonance graph (wave753). Affected modules inherit paradigm influence.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="stat"><span class="v">914+</span><span class="l">modules</span></span><span class="stat"><span class="v">traced</span><span class="l">resonance</span></span><span class="stat"><span class="v">computed</span><span class="l">reach</span></span></div>
+  </div>
+  <div class="card">
+    <h2>CANVAS</h2>
+    <div class="desc">Visualizes the organism's evolutionary canvas — paradigm distribution, mutation history, skill count.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><span class="stat"><span class="v">panoramic</span><span class="l">view</span></span><span class="stat"><span class="v">live</span><span class="l">history</span></span><span class="stat"><span class="v">4D</span><span class="l">dimensions</span></span></div>
+  </div></div>
+</div>
+<a href="/" class="back-btn">← IXpansion</a>
+</body>
+</html>

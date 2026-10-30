@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Void Mirror</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#050508;color:#c38d9e;font-family:'Courier New',monospace;padding:20px}
+h1{text-align:center;color:#c38d9e;margin-bottom:4px;font-size:1.5em;text-shadow:0 0 20px #c38d9e44}
+.sub{text-align:center;color:#666;margin-bottom:20px;font-size:.85em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:1000px;margin:0 auto}
+.card{background:#0d0d18;border:1px solid #1a1a3a;border-radius:8px;padding:16px;position:relative;overflow:hidden}
+.card h2{color:#c38d9e;font-size:1em;margin-bottom:10px;text-shadow:0 0 10px #c38d9e33}
+.stat{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #1a1a2a;font-size:.85em}
+.stat .label{color:#888}.stat .val{color:#e8a87c;font-weight:bold}
+.void-fill{height:40px;border-radius:4px;background:linear-gradient(90deg,#0a0a14,#1a0a1a,#c38d9e);transition:width .5s;position:relative;overflow:hidden}
+.void-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:.9em;font-weight:bold;color:#e0e0e0;text-shadow:0 0 8px #000}
+.void-particle{position:absolute;width:3px;height:3px;background:#c38d9e;border-radius:50%;opacity:0;animation:float 3s infinite}
+@keyframes float{0%{opacity:0;transform:translateY(0)}50%{opacity:0.6}100%{opacity:0;transform:translateY(-100px)}}
+.btn{background:#1a1a2a;color:#c38d9e;border:1px solid #333;padding:8px 16px;border-radius:4px;cursor:pointer;margin:4px;font-family:inherit;font-size:.85em}
+.btn:hover{background:#2a2a3a;border-color:#c38d9e}
+.btn.danger{border-color:#c38d9e66;color:#c38d9e}
+.dissolution{background:#0a0a18;border:1px solid #1a1a3a;border-radius:4px;padding:6px 10px;margin:3px 0;font-size:.75em;color:#888;animation:fadeIn .5s}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.dissolution .id{color:#c38d9e;font-weight:bold}
+.dissolution .depth{color:#e8a87c}
+canvas{width:100%;height:150px;background:#050508;border:1px solid #1a1a3a;border-radius:4px}
+#log{max-width:1000px;margin:16px auto;background:#0d0d18;border:1px solid #1a1a3a;border-radius:8px;padding:12px;max-height:150px;overflow-y:auto;font-size:.8em;color:#666}
+</style>
+</head>
+<body>
+<h1>🌑 Void Mirror</h1>
+<div class="sub">Where syntax dissolves into silence — listening to the void's whispers</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Void Depth</h2>
+    <div class="stat"><span class="label">Dissolutions</span><span class="val" id="s-dis">0</span></div>
+    <div class="stat"><span class="label">Reconstitutions</span><span class="val" id="s-rec">0</span></div>
+    <div class="stat"><span class="label">Void Depth</span><span class="val" id="s-depth">0</span></div>
+    <div class="stat"><span class="label">Silence Score</span><span class="val" id="s-sil">0.0</span></div>
+    <div class="void-fill" id="voidFill" style="width:0%"><div class="void-label" id="voidLabel">0%</div></div>
+    <br>
+    <button class="btn danger" onclick="dissolve()">Dissolve Into Void</button>
+    <button class="btn" onclick="reconstitute()">Reconstitute</button>
+    <button class="btn" onclick="checkSilence()">Check Silence</button>
+    <button class="btn" onclick="loadVoid()">Refresh</button>
+  </div>
+  <div class="card">
+    <h2>Dissolution Log</h2>
+    <div id="log-container"></div>
+    <canvas id="voidChart" width="400" height="150"></canvas>
+  </div>
+</div>
+
+<div id="log" style="max-width:1000px;margin:16px auto"></div>
+
+<script>
+const API = '/api/void-syntax';
+let voidState = {};
+let dissolutionHistory = [];
+let chartAnim = null;
+
+async function apiCall(action, payload) {
+  try {
+    const r = await fetch(`${API}?action=${action}`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload || {})});
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+async function loadVoid() {
+  const s = await apiCall('status');
+  if (s) {
+    voidState = s;
+    document.getElementById('s-dis').textContent = s.dissolutions;
+    document.getElementById('s-rec').textContent = s.reconstitutions;
+    document.getElementById('s-depth').textContent = s.void_depth;
+    document.getElementById('s-sil').textContent = s.silence_score;
+    const pct = Math.round(s.silence_score * 100);
+    document.getElementById('voidFill').style.width = pct + '%';
+    document.getElementById('voidLabel').textContent = pct + '%';
+    log(`Void depth: ${s.void_depth}, silence: ${s.silence_score}`);
+    drawChart();
+  }
+}
+
+async function dissolve() {
+  const r = await apiCall('dissolve', {content:'void meditation', reason:'contemplation'});
+  if (r && r.status === 'dissolved') {
+    dissolutionHistory.push({id: r.session_id, depth: r.depth, time: new Date().toLocaleTimeString()});
+    log(`Dissolved into void at depth ${r.depth} (${r.session_id})`);
+    addDissolution(r);
+    loadVoid();
+  }
+}
+
+async function reconstitute() {
+  if (dissolutionHistory.length === 0) { log('No dissolutions to reconstitute'); return; }
+  const last = dissolutionHistory[dissolutionHistory.length - 1];
+  const r = await apiCall('reconstitute', {session_id: last.id});
+  if (r && r.status === 'reconstituted') {
+    log(`Reconstituted ${last.id} from depth ${last.depth}`);
+    loadVoid();
+  }
+}
+
+async function checkSilence() {
+  const s = await apiCall('silence');
+  if (s) log(`Silence intensity: ${s.intensity} at depth ${s.depth}`);
+}
+
+function addDissolution(d) {
+  const el = document.getElementById('log-container');
+  const div = document.createElement('div');
+  div.className = 'dissolution';
+  div.innerHTML = `<span class="id">${d.id}</span> — dissolved at depth <span class="depth">${d.depth}</span> at ${d.time}`;
+  el.prepend(div);
+}
+
+function drawChart() {
+  const canvas = document.getElementById('voidChart');
+  const ctx = canvas.getContext('2d');
+  const w = canvas.width, h = canvas.height;
+  ctx.clearRect(0, 0, w, h);
+  
+  // Draw void gradient background
+  const grad = ctx.createLinearGradient(0, 0, w, h);
+  grad.addColorStop(0, '#050508');
+  grad.addColorStop(1, '#1a0a1a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, w, h);
+  
+  // Draw dissolution events as rising particles
+  const t = Date.now() / 1000;
+  for (let i = 0; i < dissolutionHistory.length; i++) {
+    const d = dissolutionHistory[i];
+    const x = (i / Math.max(dissolutionHistory.length, 1)) * w;
+    const y = h - (d.depth / 10) * h;
+    const alpha = 0.3 + (Math.sin(t * 2 + i) * 0.3);
+    ctx.fillStyle = `rgba(195, 141, 158, ${alpha})`;
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    // Rising line
+    ctx.beginPath();
+    ctx.moveTo(x, h);
+    ctx.lineTo(x, y);
+    ctx.strokeStyle = `rgba(195, 141, 158, ${alpha * 0.5})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
+  
+  // Silence wave
+  const sil = voidState.silence_score || 0;
+  ctx.beginPath();
+  ctx.strokeStyle = '#c38d9e';
+  ctx.lineWidth = 2;
+  for (let x = 0; x < w; x++) {
+    const y = h / 2 + Math.sin(x * 0.05 + t) * 20 * sil + Math.sin(x * 0.02 + t * 0.5) * 10 * sil;
+    if (x === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  
+  chartAnim = requestAnimationFrame(drawChart);
+}
+
+function log(msg) {
+  const el = document.getElementById('log');
+  el.innerHTML += `<div>[${new Date().toISOString().slice(11,19)}] ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+loadVoid();
+</script>
+</body>
+</html>

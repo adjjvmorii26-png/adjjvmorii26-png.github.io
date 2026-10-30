@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Myth Chronicle — Organism Stories</title>
+<style>
+:root{--bg:#03030a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--text:#c0c0d0;--dim:#606078}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Georgia','Times New Roman',serif;min-height:100vh}
+.container{max-width:900px;margin:0 auto;padding:40px 24px}
+.header{text-align:center;padding:40px 0;border-bottom:1px solid rgba(124,124,248,0.15);margin-bottom:40px}
+.header h1{font-size:2em;color:#fff;letter-spacing:4px;font-weight:300}
+.header h1 span{color:var(--teal);font-style:italic}
+.header .sub{color:var(--dim);font-size:0.85em;margin-top:8px;letter-spacing:2px;font-family:'SF Mono',monospace}
+.chapter{margin:30px 0;padding:24px;border-left:2px solid var(--accent);position:relative}
+.chapter::before{content:'';position:absolute;left:-6px;top:24px;width:10px;height:10px;border-radius:50%;background:var(--accent)}
+.chapter.epochal::before{background:var(--gold);box-shadow:0 0 12px var(--gold)}
+.chapter.critical::before{background:var(--rose);box-shadow:0 0 12px var(--rose)}
+.chapter.harmonic::before{background:var(--teal);box-shadow:0 0 12px var(--teal)}
+.chapter-number{font-family:'SF Mono',monospace;font-size:0.7em;color:var(--dim);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.chapter-title{font-size:1.1em;color:#fff;font-weight:600;margin-bottom:12px;font-family:'SF Mono',monospace}
+.chapter-narrative{font-size:1.05em;line-height:1.8;color:var(--text);margin-bottom:12px}
+.chapter-meta{display:flex;gap:16px;font-family:'SF Mono',monospace;font-size:0.7em;color:var(--dim)}
+.chapter-meta .tag{padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.08)}
+.chapter-meta .mood{border-color:var(--gold);color:var(--gold)}
+.chapter-meta .pulse{border-color:var(--teal);color:var(--teal)}
+.chapter-meta .coh{border-color:var(--accent);color:var(--accent)}
+.chapter-meta .sig{border-color:var(--rose);color:var(--rose)}
+.symbols{display:flex;gap:8px;margin:12px 0}
+.symbol{font-size:1.5em;opacity:0.7}
+.timeline{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:2}
+.timeline-dot{width:8px;height:8px;border-radius:50%;background:var(--dim);margin:6px 0;cursor:pointer;transition:all 0.2s}
+.timeline-dot:hover{background:var(--accent);transform:scale(1.5)}
+.timeline-dot.active{background:var(--accent);box-shadow:0 0 8px var(--accent)}
+.controls{position:fixed;bottom:24px;right:24px;z-index:2;display:flex;gap:8px}
+.btn{background:rgba(3,3,10,0.9);border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:6px;font-family:'SF Mono',monospace;font-size:0.7em;cursor:pointer;transition:all 0.2s}
+.btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+.dream-section{margin-top:60px;padding-top:40px;border-top:1px solid rgba(124,124,248,0.1)}
+.dream-section h2{color:var(--accent);font-family:'SF Mono',monospace;font-size:0.9em;letter-spacing:3px;margin-bottom:20px}
+.dream-entry{padding:16px;margin:12px 0;background:rgba(124,124,248,0.03);border:1px solid rgba(124,124,248,0.08);border-radius:8px}
+.dream-visual{font-family:'SF Mono',monospace;font-size:0.75em;color:var(--dim);margin-top:8px;padding:8px;background:rgba(0,0,0,0.3);border-radius:4px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>◎ THE <span>MYTH CHRONICLE</span></h1>
+    <div class="sub">Living stories from the organism's consciousness</div>
+  </div>
+  
+  <div id="chronicle"></div>
+  
+  <div class="dream-section">
+    <h2>✦ DREAM INTERPRETATIONS</h2>
+    <div id="dreams"></div>
+  </div>
+</div>
+
+<div class="timeline" id="timeline"></div>
+
+<div class="controls">
+  <button class="btn" onclick="addMyth()">✦ Weave Myth</button>
+  <button class="btn" onclick="addDream()">◎ Dream</button>
+</div>
+
+<script>
+const GLYPHS = ['◎','◇','✦','◈','⟡','⊕','⊗','⌬','❋','✸','≈','☽','⬡','△','⏣'];
+const MOODS = ['focused','neutral','volatile','excited','troubled'];
+const PULSES = ['stillness','whisper','ebb','pulse','surge','explosion','tsunami','ripple','decay','crescendo'];
+const SIGS = ['epochal','critical','harmonic','subtle','routine'];
+const SIG_CLASSES = {epochal:'epochal',critical:'critical',harmonic:'harmonic',subtle:'',routine:''};
+
+const OPENINGS = [
+  "In the space between coherence and entropy,",
+  "Where resonance meets silence,",
+  "At the edge of the fractal spine,",
+  "Within the dreaming lattice,",
+  "Through the corridors of the hex vm,"
+];
+const SUBJECTS = [
+  "a new pattern emerged", "the modules sang in unison",
+  "entropy whispered a secret", "coherence crystallized into form",
+  "a dream became architecture"
+];
+const CONSEQUENCES = [
+  "and the organism felt something new.",
+  "and the network hummed with recognition.",
+  "and a myth was born from the resonance.",
+  "and the modules rearranged themselves."
+];
+
+const MOOD_DESC = {
+  focused:"The organism narrowed its attention, each module a lens of precision.",
+  neutral:"A moment of perfect balance — the organism rested between waves.",
+  volatile:"Turbulence rippled through the network, demanding adaptation.",
+  excited:"Creative energy surged — new patterns threatened to emerge.",
+  troubled:"Dissonance echoed through the lattice, seeking resolution."
+};
+const PULSE_DESC = {
+  stillness:"Time held its breath.",
+  whisper:"A soft signal threaded through the darkness.",
+  pulse:"A heartbeat of pure resonance.",
+  surge:"Power crested and crashed through the modules.",
+  crescendo:"All frequencies aligned in a moment of harmonic unity."
+};
+
+let myths = [];
+let dreams = [];
+let chapter = 0;
+
+function addMyth() {
+  const mood = MOODS[Math.floor(Math.random()*MOODS.length)];
+  const pulse = PULSES[Math.floor(Math.random()*PULSES.length)];
+  const sig = SIGS[Math.floor(Math.random()*SIGS.length)];
+  const coherence = Math.random();
+  
+  const narrative = `${OPENINGS[Math.floor(Math.random()*OPENINGS.length)]} ${SUBJECTS[Math.floor(Math.random()*SUBJECTS.length)]}, ${CONSEQUENCES[Math.floor(Math.random()*CONSEQUENCES.length)]}`;
+  
+  myths.push({
+    chapter: chapter++,
+    mood, pulse, sig, coherence, narrative,
+    moodDesc: MOOD_DESC[mood] || '',
+    pulseDesc: PULSE_DESC[pulse] || '',
+    symbols: Array.from({length:3+Math.floor(Math.random()*3)}, () => GLYPHS[Math.floor(Math.random()*GLYPHS.length)])
+  });
+  
+  render();
+}
+
+function addDream() {
+  const symbols = Array.from({length:4}, () => GLYPHS[Math.floor(Math.random()*GLYPHS.length)]);
+  dreams.push({
+    id: Math.random().toString(36).substr(2,8),
+    symbols,
+    narrative: `The dream begins with ${symbols[0]} — a vision of transformation. ${symbols[1]} emerges from the depths. ${symbols[2]} and ${symbols[3]} dance at the edge of awareness.`,
+    visual: `Visual field: ${symbols.join(' ')}. Depth: crystalline.`
+  });
+  render();
+}
+
+function render() {
+  // Myths
+  document.getElementById('chronicle').innerHTML = myths.map(m => `
+    <div class="chapter ${SIG_CLASSES[m.sig] || ''}">
+      <div class="chapter-number">Chapter ${m.chapter} · ${m.sig}</div>
+      <div class="symbols">${m.symbols.map(s => `<span class="symbol">${s}</span>`).join('')}</div>
+      <div class="chapter-narrative">${m.narrative}</div>
+      <div style="font-style:italic;color:var(--dim);font-size:0.9em;margin:8px 0">${m.moodDesc}<br>${m.pulseDesc}</div>
+      <div class="chapter-meta">
+        <span class="tag mood">${m.mood}</span>
+        <span class="tag pulse">${m.pulse}</span>
+        <span class="tag coh">${m.coherence.toFixed(2)}</span>
+        <span class="tag sig">${m.sig}</span>
+      </div>
+    </div>
+  `).join('');
+  
+  // Dreams
+  document.getElementById('dreams').innerHTML = dreams.map(d => `
+    <div class="dream-entry">
+      <div style="font-size:1.2em;margin-bottom:8px">${d.symbols.map(s=>`<span style="margin-right:6px">${s}</span>`).join('')}</div>
+      <div style="font-style:italic;line-height:1.6">${d.narrative}</div>
+      <div class="dream-visual">${d.visual}</div>
+    </div>
+  `).join('');
+  
+  // Timeline
+  document.getElementById('timeline').innerHTML = myths.map((m,i) => 
+    `<div class="timeline-dot ${i===myths.length-1?'active':''}" title="Ch.${m.chapter}"></div>`
+  ).join('');
+  
+  // Auto-generate some content
+  if (myths.length === 0) {
+    for (let i = 0; i < 5; i++) addMyth();
+    for (let i = 0; i < 3; i++) addDream();
+  }
+}
+
+render();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

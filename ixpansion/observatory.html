@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Observatory — The Naturalist Organs</title>
+<style>
+:root{--bg:#05060c;--surface:#0d0f1c;--border:#1d2030;--text:#e2e4f2;--muted:#5f637e;
+--accent:#00e5a0;--gold:#ffd166;--violet:#7b61ff;--coral:#ff6b6b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--bg);color:var(--text);min-height:100vh}
+.header{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.header h1{font-size:1.25rem;background:linear-gradient(135deg,var(--violet),var(--accent));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{padding:3px 10px;border-radius:14px;font-size:.72rem;background:var(--surface);border:1px solid var(--border)}
+.badge.live{color:var(--accent);border-color:var(--accent)}
+.container{max-width:1100px;margin:0 auto;padding:24px}
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px}
+.hero .count{font-size:2.6rem;font-weight:800;color:var(--accent)}
+.hero .label{color:var(--muted);font-size:.82rem;margin-top:4px}
+.hero .poem{color:var(--muted);font-style:italic;font-size:.82rem;margin-top:12px;line-height:1.5}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:transform .1s ease,border-color .1s ease}
+.card:hover{transform:translateY(-2px);border-color:var(--violet)}
+.card .name{font-weight:700;font-size:.92rem;color:var(--gold)}
+.card .essence{color:var(--muted);font-size:.78rem;margin-top:6px;line-height:1.45}
+.card .route{color:var(--violet);font-size:.72rem;margin-top:10px;word-break:break-all}
+.result{background:#080a14;border:1px solid var(--violet);border-radius:10px;padding:16px;margin-top:18px;font-size:.78rem;color:#cfd3ec;white-space:pre-wrap}
+.toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+button{padding:9px 16px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--violet),var(--accent));color:#000;font-weight:700;font-family:inherit;font-size:.8rem;cursor:pointer}
+button:hover{opacity:.9}
+button.quiet{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+.hint{color:var(--muted);font-size:.72rem;margin-top:16px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="badge live">● live</span>
+  <h1>Observatory — the Naturalist Organs</h1>
+  <span id="identity-tag" style="color:var(--muted);font-size:.8rem"></span>
+<nav style="display:flex;gap:10px;font-size:.72rem;margin-left:auto;flex-wrap:wrap"><a href="/" style="color:var(--muted)">Home</a> <a href="/bloom" style="color:var(--muted)">Bloom</a> <a href="/coherence" style="color:var(--muted)">Coherence</a> <a href="/archaeology" style="color:var(--muted)">Archaeology</a> <a href="/symbiosis" style="color:var(--muted)">Symbiosis</a> <a href="/aesthetics" style="color:var(--muted)">Aesthetics</a></nav>
+</div>
+<div class="container">
+  <div class="hero">
+    <div class="count" id="count">—</div>
+    <div class="label">living organs across the ecosystem</div>
+    <div class="poem" id="poem">"No module commands another. Influence is a passing weather — it gathers where attention is dense and dissolves when resonance ebbs."</div>
+  </div>
+  <div class="toolbar">
+    <button onclick="probe('api/heterarchy_oracle')">Heterarchy field</button>
+    <button onclick="probe('api/keystone_auditor')">Keystone audit</button>
+    <button onclick="probe('api/dowsing_rod')">Dowsing streams</button>
+    <button onclick="probe('api/morphic_dial')">Morphic dial</button>
+    <button onclick="probe('api/silence_orchard')">Silence orchard</button>
+    <button class="quiet" onclick="probe('api/antikythera_engine')">Antikythera</button>
+    <button class="quiet" onclick="probe('api/permafrost_vault')">Permafrost</button>
+  </div>
+  <div class="cards" id="cards"></div>
+  <div class="result" id="result">Select an organ above — or open one of the cards — to read its living report.</div>
+  <div class="hint">All thirteen Wave 508 organs are introspection = free tier. Available at their /api routes through the gateway.</div>
+</div>
+<script>
+const ORGANS=[
+ {name:'Heterarchy Oracle',essence:'Distributed will without a center — influence flows toward whichever organs are most entangled, then dissolves.',route:'/api/heterarchy_oracle'},
+ {name:'Keystone Auditor',essence:'Simulates removing each organ to find the ones whose loss would collapse the web.',route:'/api/keystone_auditor'},
+ {name:'Dowsing Rod',essence:'Divines hidden resonance lines — connections that exist but were never wired.',route:'/api/dowsing_rod'},
+ {name:'Morphic Dial',essence:'Tunes the collective memory field — what the ecosystem has done, it does more easily.',route:'/api/morphic_dial'},
+ {name:'Silence Orchard',essence:'The counter-garden growing in empty space — negative space as living ground.',route:'/api/silence_orchard'},
+ {name:'Bioluminescent Depth',essence:'The organism\'s light shown from within, mapped by depth stratum.',route:'/api/bioluminescent_depth'},
+ {name:'Stratigraphy Core',essence:'Reads the ecosystem\'s geological history in its file layers.',route:'/api/stratigraphy_core'},
+ {name:'Antikythera Engine',essence:'An analog computer predicting ecosystem eclipses from organ-cadence gears.',route:'/api/antikythera_engine'},
+ {name:'Permafrost Vault',essence:'Frozen, stable deep layers — what the organism depends on and must not melt.',route:'/api/permafrost_vault'},
+ {name:'Solar Wind Pressure',essence:'Reads the pressure of the outside world on the organism\'s boundary.',route:'/api/solar_wind_pressure'},
+ {name:'Plankton Bloom',essence:'The invisible micro-layer of tiny helpers that carry the ecosystem\'s food chain.',route:'/api/plankton_bloom'},
+ {name:'Coral Atoll',essence:'Slow accretion of organismly bonds — the reefs built by repetition.',route:'/api/coral_atoll'},
+ {name:'Osmotic Exchange',essence:'Where one family\'s ideas diffuse into another\'s across semi-permeable membranes.',route:'/api/osmotic_exchange'}
+];
+const cards=document.getElementById('cards');
+ORGANS.forEach(o=>{
+  const d=document.createElement('div');d.className='card';
+  d.innerHTML=`<div class="name">${o.name}</div><div class="essence">${o.essence}</div><div class="route">${o.route}</div>`;
+  d.onclick=()=>probe(o.route.replace('/api/','api/'));
+  cards.appendChild(d);
+});
+async function load(){
+  try{
+    const j=await (await fetch('/api/coherence_regulator?read=1')).json();
+    document.getElementById('count').textContent=(j.total_candidates!==undefined?j.total_candidates:j.living_modules)||'—';
+  }catch(e){document.getElementById('count').textContent='—'}
+}
+async function probe(route){
+  const out=document.getElementById('result');
+  out.textContent='reading '+route+' …';
+  try{
+    const r=await fetch('/api/'+route.split('/api/').pop());
+    const j=await r.json();
+    out.textContent=JSON.stringify(j,null,2);
+  }catch(e){out.textContent='error: '+e.message}
+}
+load();
+</script>
+<script src="/shared.js"></script>
+<script>if(window.IXP){IXP.loadLive(function(){IXP.renderIdentity(document.getElementById("identity-tag"));})}</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

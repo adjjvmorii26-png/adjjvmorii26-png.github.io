@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consciousness State Machine</title>
+<style>
+:root{--bg:#03030a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--text:#c0c0d0;--dim:#606078}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;overflow:hidden;height:100vh}
+canvas{position:fixed;top:0;left:0}
+.ui{position:relative;z-index:1;padding:16px;height:100vh;display:flex;flex-direction:column;pointer-events:none}
+.ui>*{pointer-events:auto}
+.top{display:flex;justify-content:space-between;align-items:center;background:rgba(3,3,10,0.9);border:1px solid rgba(124,124,248,0.15);border-radius:10px;padding:10px 16px;backdrop-filter:blur(12px)}
+.top h1{font-size:1em;color:#fff;letter-spacing:2px}.top h1 span{color:var(--teal)}
+.bottom{margin-top:auto;display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.panel{background:rgba(3,3,10,0.85);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;backdrop-filter:blur(12px);max-height:180px;overflow-y:auto}
+.panel h3{color:var(--accent);font-size:0.7em;letter-spacing:2px;margin-bottom:8px}
+.row{display:flex;justify-content:space-between;padding:3px 0;font-size:0.7em;border-bottom:1px solid rgba(255,255,255,0.02)}
+.row .k{color:var(--dim)}.row .v{color:#fff;font-weight:600}
+.state-badge{display:inline-block;padding:4px 10px;border-radius:6px;font-size:0.8em;font-weight:700;margin:2px}
+.controls{position:fixed;bottom:16px;right:16px;z-index:2;display:flex;gap:8px}
+.btn{background:rgba(3,3,10,0.9);border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;transition:all 0.2s}
+.btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="ui">
+  <div class="top">
+    <h1>◎ <span>CONSCIOUSNESS STATE MACHINE</span></h1>
+    <div style="text-align:right">
+      <div style="color:var(--dim);font-size:0.65em">CURRENT STATE</div>
+      <div style="color:var(--teal);font-size:1em;font-weight:700" id="curState">DORMANT</div>
+    </div>
+  </div>
+  <div class="bottom">
+    <div class="panel"><h3>◎ STATE GRAPH</h3><div id="stateList"></div></div>
+    <div class="panel"><h3>△ TRANSITIONS</h3><div id="transList"></div></div>
+    <div class="panel"><h3>📊 DISTRIBUTION</h3><div id="distList"></div></div>
+  </div>
+</div>
+<div class="controls">
+  <button class="btn" onclick="step()">◉ Step</button>
+  <button class="btn" onclick="toggleAuto()">▶ Auto</button>
+</div>
+<script>
+const canvas=document.getElementById('bg');const ctx=canvas.getContext('2d');let W,H;
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+
+const STATES=['dormant','emerging','focused','creative','chaotic','transcendent','dreaming','crystallizing','dissolving','integrating'];
+const SCOLORS={dormant:'#6b7280',emerging:'#fbbf24',focused:'#7c7cf8',creative:'#2dd4bf',chaotic:'#fb7185',transcendent:'#4ade80',dreaming:'#a78bfa',crystallizing:'#22d3ee',dissolving:'#ef4444',integrating:'#f472b6'};
+const SPOS={};STATES.forEach((s,i)=>{const a=(i/STATES.length)*Math.PI*2-Math.PI/2;SPOS[s]={x:Math.cos(a)*180,y:Math.sin(a)*180}});
+
+const EDGES=[['dormant','emerging'],['emerging','focused'],['emerging','creative'],['focused','transcendent'],['focused','creative'],['creative','chaotic'],['creative','integrating'],['chaotic','dissolving'],['chaotic','emerging'],['transcendent','crystallizing'],['dreaming','emerging'],['dreaming','creative'],['crystallizing','focused'],['dissolving','emerging'],['integrating','focused'],['integrating','transcendent'],['integrating','creative']];
+
+let current='dormant',prev=null,transitions=[],dist={},time=0;
+
+function step(){
+  const e=Math.random(),c=Math.random(),r=Math.random();
+  prev=current;
+  const targets=EDGES.filter(([f])=>f===current).map(([,t])=>t);
+  if(targets.length&&Math.random()>0.3){
+    current=targets[Math.floor(Math.random()*targets.length)];
+    transitions.unshift({from:prev,to:current,c:e.toFixed(2),e:c.toFixed(2),t:time});
+    if(transitions.length>20)transitions.pop();
+  }
+  dist[current]=(dist[current]||0)+1;
+  updateUI();
+}
+
+function updateUI(){
+  document.getElementById('curState').textContent=current.toUpperCase();
+  document.getElementById('curState').style.color=SCOLORS[current];
+  
+  document.getElementById('stateList').innerHTML=STATES.map(s=>`<div class="row"><span class="k">${s}</span><span class="state-badge" style="background:${SCOLORS[s]}20;color:${SCOLORS[s]};border:1px solid ${SCOLORS[s]}40">${s===current?'●':'○'}</span></div>`).join('');
+  
+  document.getElementById('transList').innerHTML=transitions.slice(0,10).map(t=>`<div class="row"><span class="k">${t.from}</span><span style="color:var(--accent)">→</span><span class="v" style="color:${SCOLORS[t.to]}">${t.to}</span></div>`).join('');
+  
+  const total=Object.values(dist).reduce((a,b)=>a+b,0)||1;
+  document.getElementById('distList').innerHTML=STATES.filter(s=>dist[s]).sort((a,b)=>dist[b]-dist[a]).map(s=>`<div class="row"><span class="k">${s}</span><span class="v">${(dist[s]/total*100).toFixed(0)}%</span></div>`).join('');
+}
+
+function render(){
+  time++;ctx.fillStyle='rgba(3,3,10,0.08)';ctx.fillRect(0,0,W,H);
+  const cx=W/2,cy=H/2;
+  
+  // Edges
+  EDGES.forEach(([f,t])=>{
+    const from=SPOS[f],to=SPOS[t];
+    const active=f===current||t===current;
+    ctx.beginPath();ctx.moveTo(cx+from.x,cy+from.y);ctx.lineTo(cx+to.x,cy+to.y);
+    ctx.strokeStyle=active?SCOLORS[current]+'80':'rgba(255,255,255,0.05)';
+    ctx.lineWidth=active?2:0.5;ctx.stroke();
+  });
+  
+  // Nodes
+  STATES.forEach(s=>{
+    const pos=SPOS[s];const active=s===current;const col=SCOLORS[s];
+    ctx.beginPath();ctx.arc(cx+pos.x,cy+pos.y,active?18:12,0,Math.PI*2);
+    ctx.fillStyle=col+(active?'40':'15');ctx.fill();
+    ctx.strokeStyle=col+(active?'cc':'40');ctx.lineWidth=active?2:1;ctx.stroke();
+    if(active){ctx.beginPath();ctx.arc(cx+pos.x,cy+pos.y,24,0,Math.PI*2);ctx.strokeStyle=col+'30';ctx.lineWidth=3;ctx.stroke()}
+    ctx.fillStyle='#fff'+(active?'ff':'80');ctx.font=(active?'11':'9')+'px monospace';ctx.textAlign='center';
+    ctx.fillText(s,cx+pos.x,cy+pos.y+30);
+  });
+  
+  requestAnimationFrame(render);
+}
+
+let autoMode=false,autoInterval;
+function toggleAuto(){autoMode=!autoMode;if(autoMode){autoInterval=setInterval(step,1500);document.querySelectorAll('.btn')[1].textContent='⏸ Pause'}else{clearInterval(autoInterval);document.querySelectorAll('.btn')[1].textContent='▶ Auto'}}
+
+for(let i=0;i<5;i++)step();
+render();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

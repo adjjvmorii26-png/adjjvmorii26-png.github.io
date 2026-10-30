@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coherence Regulator — IXpansion Homeostasis</title>
+<style>
+:root{--bg:#02020a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--violet:#c084fc;--text:#b8b8d0;--dim:#505068;--bright:#e8e8f8}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.hero{text-align:center;padding:60px 24px 30px;border-bottom:1px solid rgba(124,124,248,0.1);background:linear-gradient(180deg,rgba(124,124,248,0.05),transparent)}
+.hero h1{font-size:2em;font-weight:200;letter-spacing:8px;color:var(--bright)}
+.hero h1 span{color:var(--teal)}
+.hero .sub{color:var(--dim);font-size:0.75em;letter-spacing:3px;margin-top:8px}
+.container{max-width:1200px;margin:0 auto;padding:32px 24px}
+.gauges{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-bottom:32px}
+.gauge{background:rgba(6,6,26,0.8);border:1px solid rgba(124,124,248,0.1);border-radius:12px;padding:20px;text-align:center}
+.gauge .label{color:var(--dim);font-size:0.65em;letter-spacing:2px;margin-bottom:8px}
+.gauge .value{font-size:2em;font-weight:200;color:var(--bright)}
+.gauge .bar{width:100%;height:6px;background:rgba(255,255,255,0.06);border-radius:3px;margin-top:10px;overflow:hidden}
+.gauge .fill{height:100%;border-radius:3px;transition:width 1s ease}
+.gauge .fill.green{background:var(--green)}
+.gauge .fill.accent{background:var(--accent)}
+.gauge .fill.gold{background:var(--gold)}
+.gauge .fill.cyan{background:var(--cyan)}
+.correction-log{padding:16px;background:rgba(6,6,26,0.6);border:1px solid rgba(124,124,248,0.08);border-radius:10px;font-size:0.68em;max-height:200px;overflow-y:auto}
+.correction-log .entry{padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.correction-log .ok{color:var(--green)}
+.correction-log .drift{color:var(--gold)}
+.correction-log .critical{color:var(--rose)}
+.btn{display:inline-block;margin:12px 0;background:rgba(6,6,26,0.9);border:1px solid rgba(124,124,248,0.3);color:var(--accent);padding:10px 24px;border-radius:8px;font-family:inherit;font-size:0.72em;cursor:pointer;transition:all 0.2s}
+.btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:var(--accent);padding:8px 14px;border-radius:6px;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>COHERENCE <span>REGULATOR</span></h1>
+  <div class="sub">HOMEOSTASIS ENGINE · THE ORGANISM'S EQUILIBRIUM POINT</div>
+</div>
+<div class="container">
+  <div class="gauges">
+    <div class="gauge"><div class="label">EQUILIBRIUM</div><div class="value" id="eqVal">0.85</div><div class="bar"><div class="fill green" id="eqBar" style="width:85%"></div></div></div>
+    <div class="gauge"><div class="label">RESONANCE</div><div class="value" id="resVal">0.70</div><div class="bar"><div class="fill accent" id="resBar" style="width:70%"></div></div></div>
+    <div class="gauge"><div class="label">ENTROPY</div><div class="value" id="entVal">0.20</div><div class="bar"><div class="fill gold" id="entBar" style="width:20%"></div></div></div>
+    <div class="gauge"><div class="label">TEMPERATURE</div><div class="value" id="tempVal">0.50</div><div class="bar"><div class="fill cyan" id="tempBar" style="width:50%"></div></div></div>
+    <div class="gauge"><div class="label">CORRECTIONS</div><div class="value" id="corrVal">0</div><div class="bar"><div class="fill gold" id="corrBar" style="width:0%"></div></div></div>
+  </div>
+  <button class="btn" onclick="runCorrection()">⚡ Run Correction</button>
+  <button class="btn" onclick="sampleAll()">◉ Sample All</button>
+  <div class="correction-log" id="corrLog"></div>
+</div>
+<a class="back-btn" href="index.html">← Organism</a>
+<script>
+let corrections = 0;
+const log = document.getElementById('corrLog');
+const entries = [];
+
+function addEntry(msg, cls) {
+  entries.unshift({msg, cls, time: new Date().toLocaleTimeString()});
+  if (entries.length > 30) entries.pop();
+  log.innerHTML = entries.slice(0, 15).map(e =>
+    `<div class="entry ${e.cls}">[${e.time}] ${e.msg}</div>`
+  ).join('');
+}
+
+function runCorrection() {
+  corrections++;
+  const drift = Math.random() * 0.3;
+  document.getElementById('corrVal').textContent = corrections;
+  document.getElementById('corrBar').style.width = Math.min(100, corrections * 5) + '%';
+  if (drift > 0.15) {
+    addEntry(`DRIFT detected (${drift.toFixed(3)}) — correction applied`, 'drift');
+  } else {
+    addEntry(`No drift — organism stable (${drift.toFixed(3)})`, 'ok');
+  }
+}
+
+function sampleAll() {
+  const eq = 0.85 + (Math.random() - 0.5) * 0.1;
+  const res = 0.7 + (Math.random() - 0.5) * 0.3;
+  const ent = 0.2 + (Math.random() - 0.5) * 0.1;
+  const temp = 0.5 + (Math.random() - 0.5) * 0.2;
+  document.getElementById('eqVal').textContent = eq.toFixed(2);
+  document.getElementById('eqBar').style.width = eq * 100 + '%';
+  document.getElementById('resVal').textContent = res.toFixed(2);
+  document.getElementById('resBar').style.width = res * 100 + '%';
+  document.getElementById('entVal').textContent = ent.toFixed(2);
+  document.getElementById('entBar').style.width = ent * 100 + '%';
+  document.getElementById('tempVal').textContent = temp.toFixed(2);
+  document.getElementById('tempBar').style.width = temp * 100 + '%';
+  addEntry(`Vitals sampled — eq:${eq.toFixed(2)} res:${res.toFixed(2)} ent:${ent.toFixed(2)} temp:${temp.toFixed(2)}`, 'ok');
+}
+
+addEntry('Coherence Regulator online — equilibrium 0.85', 'ok');
+addEntry('Watching 13 ganglia · 890 modules · 119 dashboards', 'ok');
+</script>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>
