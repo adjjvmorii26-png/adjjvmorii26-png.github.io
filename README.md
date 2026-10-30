@@ -18,6 +18,7 @@ Landing site and dashboard for **IXPANSION** — served by GitHub Pages at
 | `skills/skill-creator/SKILL.md` | The meta-skill: how to write a skill, what the validator enforces, and the anti-patterns. |
 | `scripts/new-skill.py` | Scaffolds `skills/<slug>/SKILL.md`; rejects bad slugs and never overwrites. |
 | `scripts/check-skills.py` | Validates every skill: name/dir match, description bounds and trigger wording, body length, relative links. |
+| `scripts/check-html.py` | Flags duplicate ids and dead in-page anchors. Script/style bodies are stripped first, so ids inside JS strings don't false-positive. |
 | `scripts/check-secrets.py` | Fails when a credential-shaped string appears in files git would publish. Matches are masked. |
 | `data/figures.json` | The single source of truth for every figure the site quotes, with provenance and whether it is verified. |
 | `.gitignore` | Keeps `.cline-home/` (agent transcripts) and env/key files out of the repo. |

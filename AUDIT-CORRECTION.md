@@ -98,8 +98,30 @@ not evidence of absence.
   It could not be pushed: the GitHub App credential is not permitted to create or
   update files under `.github/workflows/`. Add it manually, or grant the app
   `workflows` permission. The checker itself is committed and passes today.
-- **`README.md.bak` replaced with a real `README.md`** documenting the layout,
-  the archive, and the known Vercel outage.
+- **`README.md.bak` replaced with a real `README.md`** documenting the layout, the
+  archive, and the known Vercel outage.
+- **Structural HTML defects found and fixed.** `garden_live.html` concatenates two
+  pyvis exports: both graphs built into the *same* `#mynetwork` container, so the
+  second canvas stacked onto the first and the second card stayed empty. The
+  second graph now has its own container (`#mynetwork-2`) and its script uses it.
+  `genealogy.html` was a false positive — its `<defs>` is replaced via
+  `innerHTML`, so only one exists at runtime.
+- **`scripts/check-html.py`** now flags duplicate ids and dead `#anchors`, with
+  script/style bodies stripped so ids inside JS strings are not miscounted.
+  Authored pages: clean. `--include-snapshot` reports one deliberate exception
+  (below).
+
+## Known archive defect, left alone on purpose
+
+`ixpansion/communion.html` is five separate mini-apps concatenated into one file
+(5 `<html>`, 5 `<body>`, 5 `<script>`). Its ids collide — 3 references to
+`#statsContainer` for 2 elements, 4 to `#total` for 3 — so each pane's script
+updates whichever element matched first. Every one of those scripts also calls
+root-absolute `/api/...` endpoints that do not exist on GitHub Pages.
+
+Splitting and re-wiring it would mean inventing behaviour for archived code that
+cannot run here anyway. It is recorded instead: `check-html.py --include-snapshot`
+reports exactly this one page, by design.
 - **Figures centralised.** `data/figures.json` holds every number the site quotes
   (with provenance and a `verified` flag), and `scripts/check-claims.py` fails
   when the HTML disagrees — including a "Showing N of M" invariant that checks the

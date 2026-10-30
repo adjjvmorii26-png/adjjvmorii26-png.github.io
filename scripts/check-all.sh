@@ -20,6 +20,7 @@ run() {
 run "internal links (authored pages)" python3 scripts/check-links.py
 run "internal links (incl. archive)" python3 scripts/check-links.py --include-snapshot
 run "figure claims" python3 scripts/check-claims.py
+run "html structure (duplicate ids, anchors)" python3 scripts/check-html.py
 run "skill definitions" python3 scripts/check-skills.py
 run "no credentials in publishable files" python3 scripts/check-secrets.py
 
