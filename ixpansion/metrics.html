@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IXpansion — Live Metrics</title>
+<style>
+:root{--bg:#0a0a0f;--surface:#12121a;--border:#1e1e2e;--text:#e0e0e0;--dim:#666;--accent:#7c3aed;--accent2:#a78bfa;--green:#22c55e;--red:#ef4444;--gold:#f59e0b;--blue:#3b82f6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:.8rem}
+.container{max-width:1400px;margin:0 auto;padding:1.5rem}
+header{display:flex;justify-content:space-between;align-items:center;padding:1rem 0;border-bottom:1px solid var(--border)}
+h1{font-size:1.2rem;color:var(--accent)}
+.back{color:var(--accent2);text-decoration:none;font-size:.8rem}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-top:1.5rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:.75rem;padding:1.25rem;text-align:center}
+.stat .num{font-size:2rem;font-weight:800;color:#fff}
+.stat .label{color:var(--dim);font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;margin-top:.25rem}
+.stat.green .num{color:var(--green)}
+.stat.blue .num{color:var(--blue)}
+.stat.gold .num{color:var(--gold)}
+.stat.accent .num{color:var(--accent2)}
+.chart-section{margin-top:2rem}
+.chart-section h2{font-size:1rem;color:var(--accent2);margin-bottom:1rem}
+.chart{background:var(--surface);border:1px solid var(--border);border-radius:.75rem;padding:1.25rem;height:200px;position:relative;overflow:hidden}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:150px;padding-top:10px}
+.bar{flex:1;background:var(--accent);border-radius:2px 2px 0 0;min-width:8px;transition:height .5s;position:relative}
+.bar:hover{opacity:.8}
+.bar-label{position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);font-size:.55rem;color:var(--dim);white-space:nowrap}
+.table-section{margin-top:2rem}
+.table-section h2{font-size:1rem;color:var(--accent2);margin-bottom:1rem}
+table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:.75rem;overflow:hidden}
+th{text-align:left;padding:.75rem 1rem;color:var(--dim);border-bottom:1px solid var(--border);font-weight:400;font-size:.75rem}
+td{padding:.6rem 1rem;border-bottom:1px solid rgba(30,30,46,.3);font-size:.8rem}
+.tag{display:inline-block;padding:.1rem .4rem;border-radius:.75rem;font-size:.6rem;font-weight:600}
+.tag.ok{background:rgba(34,197,94,.15);color:var(--green)}
+.tag.warn{background:rgba(245,158,11,.15);color:var(--gold)}
+.tag.err{background:rgba(239,68,68,.15);color:var(--red)}
+.sparkline{display:flex;align-items:flex-end;gap:1px;height:20px}
+.spark{width:3px;background:var(--accent);border-radius:1px}
+.footer{text-align:center;padding:2rem 0;color:var(--dim);font-size:.7rem;border-top:1px solid var(--border);margin-top:2rem}
+@media(max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+
+.nav{display:flex;gap:10px;font-size:.72rem;flex-wrap:wrap;margin-left:auto}
+.nav a{color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+  <nav class="nav"><a href="/">Home</a> <a href="/bloom">Bloom</a> <a href="/coherence">Coherence</a> <a href="/archaeology">Archaeology</a> <a href="/symbiosis">Symbiosis</a> <a href="/aesthetics">Aesthetics</a> <a href="/stream">Stream</a></nav>
+  <h1>📊 Live Metrics</h1>
+  <a href="index.html" class="back">← Back to Observatory</a>
+</header>
+
+<div class="grid">
+  <div class="stat green"><div class="num" id="modules">345</div><div class="label">API Modules</div></div>
+  <div class="stat blue"><div class="num" id="experiments">157</div><div class="label">Experiments</div></div>
+  <div class="stat gold"><div class="num" id="tests">182</div><div class="label">Tests Passing</div></div>
+  <div class="stat accent"><div class="num" id="waves">102</div><div class="label">Waves Shipped</div></div>
+</div>
+
+<div class="grid" style="margin-top:1rem">
+  <div class="stat"><div class="num" id="routes">352</div><div class="label">API Routes</div></div>
+  <div class="stat"><div class="num" id="regions">3</div><div class="label">Regions</div></div>
+  <div class="stat green"><div class="num" id="uptime">99.9%</div><div class="label">Uptime</div></div>
+  <div class="stat blue"><div class="num" id="commits">120</div><div class="label">Commits</div></div>
+</div>
+
+<!-- Module Activity Chart -->
+<div class="chart-section">
+  <h2>Module Activity (Last 24h)</h2>
+  <div class="chart">
+    <div class="bar-chart" id="activityChart"></div>
+  </div>
+</div>
+
+<!-- Revenue Breakdown -->
+<div class="chart-section">
+  <h2>Revenue Streams</h2>
+  <div class="chart">
+    <div class="bar-chart" id="revenueChart"></div>
+  </div>
+</div>
+
+<!-- Module Status Table -->
+<div class="table-section">
+  <h2>Module Status</h2>
+  <table>
+    <tr><th>Module</th><th>Category</th><th>Status</th><th>Latency</th><th>Activity</th></tr>
+    <tr><td>agent_rental</td><td>revenue</td><td><span class="tag ok">online</span></td><td>45ms</td><td><div class="sparkline" id="spark-ar"></div></td></tr>
+    <tr><td>cognitive_resonance</td><td>intelligence</td><td><span class="tag ok">online</span></td><td>120ms</td><td><div class="sparkline" id="spark-cr"></div></td></tr>
+    <tr><td>dream_synthesis</td><td>experimental</td><td><span class="tag ok">online</span></td><td>200ms</td><td><div class="sparkline" id="spark-ds"></div></td></tr>
+    <tr><td>neural_fabric</td><td>infrastructure</td><td><span class="tag ok">online</span></td><td>35ms</td><td><div class="sparkline" id="spark-nf"></div></td></tr>
+    <tr><td>temporal_market</td><td>commerce</td><td><span class="tag ok">online</span></td><td>80ms</td><td><div class="sparkline" id="spark-tm"></div></td></tr>
+    <tr><td>gravitational_pricing</td><td>commerce</td><td><span class="tag ok">online</span></td><td>35ms</td><td><div class="sparkline" id="spark-gp"></div></td></tr>
+    <tr><td>warp_drive_optimizer</td><td>infrastructure</td><td><span class="tag ok">online</span></td><td>40ms</td><td><div class="sparkline" id="spark-wd"></div></td></tr>
+    <tr><td>quantum_entanglement</td><td>infrastructure</td><td><span class="tag ok">online</span></td><td>25ms</td><td><div class="sparkline" id="spark-qe"></div></td></tr>
+    <tr><td>paradox_marketplace</td><td>experimental</td><td><span class="tag ok">online</span></td><td>150ms</td><td><div class="sparkline" id="spark-pm"></div></td></tr>
+    <tr><td>memory_palace</td><td>intelligence</td><td><span class="tag ok">online</span></td><td>60ms</td><td><div class="sparkline" id="spark-mp"></div></td></tr>
+  </table>
+</div>
+
+<div class="footer">
+  IXpansion Live Metrics · Auto-updating every 5s · <a href="index.html" style="color:var(--accent2)">Observatory</a>
+</div>
+</div>
+
+<script>
+// Generate random bar chart
+function renderBars(id, count, maxH, color) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  for (let i = 0; i < count; i++) {
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = (Math.random() * maxH + 10) + '%';
+    if (color) bar.style.background = color;
+    el.appendChild(bar);
+  }
+}
+
+// Generate sparkline
+function renderSparkline(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '';
+  for (let i = 0; i < 20; i++) {
+    const spark = document.createElement('div');
+    spark.className = 'spark';
+    spark.style.height = (Math.random() * 18 + 2) + 'px';
+    el.appendChild(spark);
+  }
+}
+
+// Initial render
+renderBars('activityChart', 48, 90, 'var(--accent)');
+renderBars('revenueChart', 7, 80, 'var(--green)');
+document.querySelectorAll('.sparkline').forEach(el => renderSparkline(el.id));
+
+// Auto-update every 5s
+setInterval(() => {
+  renderBars('activityChart', 48, 90, 'var(--accent)');
+  renderBars('revenueChart', 7, 80, 'var(--green)');
+  document.querySelectorAll('.sparkline').forEach(el => renderSparkline(el.id));
+}, 5000);
+</script>
+<a class="back-btn" href="index.html" style="position:fixed;bottom:20px;right:20px;background:rgba(124,124,248,0.15);color:#7c7cf8;padding:8px 16px;border-radius:8px;text-decoration:none;font-family:monospace;font-size:13px;border:1px solid rgba(124,124,248,0.3);z-index:9999;backdrop-filter:blur(8px);">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

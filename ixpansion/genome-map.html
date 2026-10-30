@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Genome Map — IXPANSION</title>
+<style>
+:root{--bg:#03030a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--text:#c0c0d0;--dim:#606078}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+.header{text-align:center;padding:30px;border-bottom:1px solid rgba(124,124,248,0.15);background:linear-gradient(180deg,rgba(124,124,248,0.06)0%,transparent 100%)}
+.header h1{font-size:1.5em;color:#fff;letter-spacing:3px}.header h1 span{color:var(--teal)}
+.header .sub{color:var(--dim);font-size:0.75em;margin-top:4px}
+.container{max-width:1000px;margin:0 auto;padding:24px}
+.card{background:rgba(3,3,10,0.85);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:16px;margin-bottom:12px;backdrop-filter:blur(12px)}
+.card h3{color:var(--accent);font-size:0.75em;letter-spacing:2px;margin-bottom:10px}
+.row{display:flex;justify-content:space-between;padding:4px 0;font-size:0.75em;border-bottom:1px solid rgba(255,255,255,0.02)}
+.row .k{color:var(--dim)}.row .v{color:#fff;font-weight:600}
+canvas{width:100%;height:200px;border-radius:6px;margin-top:8px}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:0.7em;margin:2px}
+.badge.active{background:rgba(74,222,128,0.15);color:var(--green);border:1px solid rgba(74,222,128,0.2)}
+.badge.warn{background:rgba(251,188,35,0.15);color:var(--gold);border:1px solid rgba(251,188,35,0.2)}
+.badge.info{background:rgba(124,124,248,0.15);color:var(--accent);border:1px solid rgba(124,124,248,0.2)}
+.back{position:fixed;top:16px;left:16px;z-index:10;color:var(--accent);text-decoration:none;font-size:0.75em;opacity:0.6;transition:opacity 0.2s}.back:hover{opacity:1}
+</style>
+</head>
+<body>
+<a class="back" href="index.html">← Back to Index</a>
+<div class="header"><h1>🧬 <span>Genome Map</span></h1><div class="sub">Module genome — traits, capabilities, and evolution</div></div>
+<div class="container">
+
+<div class="card"><h3>🧬 GENOME STRUCTURE</h3>
+<div class="row"><span class="k">Total Genes (Modules)</span><span class="v">881</span></div>
+<div class="row"><span class="k">Active Genes</span><span class="v">881 active</span></div>
+<div class="row"><span class="k">Skill Genes</span><span class="v">79 expressed</span></div>
+<div class="row"><span class="k">Mutation Rate</span><span class="v">0.05 / cycle</span></div>
+<div class="row"><span class="k">Generation</span><span class="v">5</span></div>
+</div>
+<div class="card"><h3>🔬 TRAIT DOMAINS</h3>
+<div class="row"><span class="k">Coherence</span><span class="badge info">Core</span></div>
+<div class="row"><span class="k">Entropy</span><span class="badge warn">Chaos</span></div>
+<div class="row"><span class="k">Resonance</span><span class="badge info">Core</span></div>
+<div class="row"><span class="k">Dream</span><span class="badge info">Cognition</span></div>
+<div class="row"><span class="k">Paradox</span><span class="badge warn">Chaos</span></div>
+<div class="row"><span class="k">Fractal</span><span class="badge info">Core</span></div>
+<div class="row"><span class="k">Memory</span><span class="badge info">Memory</span></div>
+<div class="row"><span class="k">Evolution</span><span class="badge info">Evolution</span></div>
+</div>
+</div>
+<script>
+
+</script>
+<a class="back-btn" href="index.html" style="position:fixed;bottom:20px;right:20px;background:rgba(124,124,248,0.15);color:#7c7cf8;padding:8px 16px;border-radius:8px;text-decoration:none;font-family:monospace;font-size:13px;border:1px solid rgba(124,124,248,0.3);z-index:9999;backdrop-filter:blur(8px);">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

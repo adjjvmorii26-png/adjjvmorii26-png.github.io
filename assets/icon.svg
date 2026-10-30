@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="IXPANSION">
+  <rect width="64" height="64" rx="14" fill="#0b0b0d"/>
+  <g fill="none" stroke="#c8a8ff" stroke-opacity=".5" stroke-width="2">
+    <circle cx="32" cy="32" r="21"/>
+    <circle cx="32" cy="32" r="14"/>
+  </g>
+  <circle cx="32" cy="32" r="7" fill="none" stroke="#fff3a0" stroke-opacity=".85" stroke-width="2"/>
+  <path d="M32 4v56" stroke="#fff3a0" stroke-opacity=".9" stroke-width="2"/>
+</svg>

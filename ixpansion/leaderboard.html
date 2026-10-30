@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Leaderboard — IXpansion</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a14;color:#e0e0e0;min-height:100vh}
+.header{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:24px 32px;border-bottom:1px solid #222244}
+.header h1{font-size:1.5em;color:#41b3a3}.header p{color:#888;margin-top:4px;font-size:0.9em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:24px 32px}
+@media(max-width:768px){.grid{grid-template-columns:1fr}}
+.card{background:#161628;border:1px solid #222244;border-radius:10px;padding:20px}
+.card h2{color:#41b3a3;font-size:1.1em;margin-bottom:12px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid #222244;font-size:0.85em}
+th{color:#41b3a3;font-weight:600;font-size:0.8em;text-transform:uppercase}
+.gold{color:#ffd700}.silver{color:#c0c0c0}.bronze{color:#cd7f32}
+.rank{font-weight:700;width:30px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🏆 Leaderboard</h1>
+  <p>Lucid Machines runs and module fitness rankings.</p>
+</div>
+<div class="grid">
+  <div class="card">
+    <h2>🎮 Lucid Machines — Top Runs</h2>
+    <div id="lucid"><div style="color:#555;padding:12px">Loading...</div></div>
+  </div>
+  <div class="card">
+    <h2>🧬 Module Fitness — Top Resonance</h2>
+    <div id="fitness"><div style="color:#555;padding:12px">Loading...</div></div>
+  </div>
+</div>
+<script>
+async function load() {
+  try {
+    const resp = await fetch('/leaderboard');
+    const data = await resp.json();
+    renderLucid(data.lucid_runs || []);
+    renderFitness(data.module_fitness || []);
+  } catch(e) {
+    document.getElementById('lucid').innerHTML = '<div style="color:#555">API unavailable</div>';
+    document.getElementById('fitness').innerHTML = '<div style="color:#555">API unavailable</div>';
+  }
+}
+function renderLucid(runs) {
+  if (!runs.length) { document.getElementById('lucid').innerHTML = '<div style="color:#555;padding:12px">No runs recorded yet. Play <a href="/lucid-game" style="color:#41b3a3">Lucid Machines</a> to set a record!</div>'; return; }
+  let h = '<table><tr><th>#</th><th>Player</th><th>Score</th><th>Realm</th></tr>';
+  runs.forEach((r,i) => {
+    const cls = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    h += `<tr><td class="rank ${cls}">${i+1}</td><td>${r.player||r.name||'Anonymous'}</td><td>${r.score||r.depth||0}</td><td>${r.realm||'—'}</td></tr>`;
+  });
+  document.getElementById('lucid').innerHTML = h + '</table>';
+}
+function renderFitness(mods) {
+  if (!mods.length) { document.getElementById('fitness').innerHTML = '<div style="color:#555;padding:12px">No fitness data yet.</div>'; return; }
+  let h = '<table><tr><th>#</th><th>Module</th><th>Resonance</th></tr>';
+  mods.forEach((m,i) => {
+    const cls = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    h += `<tr><td class="rank ${cls}">${i+1}</td><td>${m.module||m.name||'—'}</td><td>${(m.resonance||0).toFixed(3)}</td></tr>`;
+  });
+  document.getElementById('fitness').innerHTML = h + '</table>';
+}
+load();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

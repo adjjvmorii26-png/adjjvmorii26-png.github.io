@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Wave 423 — Mirror</title>
+  <style>
+    :root { color-scheme: dark; font-family: system-ui, sans-serif; background: #0f0f18; color: #d0d0e0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 24px; }
+    h1 { margin: 0 0 4px; text-align: center; color: #aa88ff; }
+    .banner { max-width: 1000px; margin: 20px auto; padding: 24px; text-align: center; background: #1a0a2a; border: 1px solid #3a1a5a; border-radius: 14px; }
+    .entangled { color: #ff66ff; font-size: 1.5rem; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 16px; max-width: 1000px; margin: 0 auto 20px; }
+    .card { min-width: 0; padding: 16px; background: #1a0a2a; border: 1px solid #3a1a5a; border-radius: 12px; overflow-wrap: anywhere; }
+    h2 { margin-top: 0; color: #aa88ff; font-size: 1.1rem; }
+    .stat { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid #2a1a3a; }
+    .val { color: #aa88ff; }
+    .actions { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+    button { padding: 9px 16px; border: 1px solid #aa88ff; border-radius: 6px; background: #2a1a3a; color: #aa88ff; cursor: pointer; font: inherit; }
+    button:hover, button:focus-visible { background: #aa88ff; color: #0f0f18; }
+    button:focus-visible { outline: 2px solid white; outline-offset: 3px; }
+    button:disabled { cursor: wait; opacity: .6; }
+    #message { max-width: 1000px; min-height: 1.5em; margin: 0 auto; text-align: center; }
+    #message[data-kind="error"] { color: #ff9999; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🔮 Wave 423 Mirror</h1>
+    <section class="banner" aria-label="Mirror entanglement status">
+      <div class="entangled">Entangled: <span id="entangled">—</span></div>
+    </section>
+    <div class="grid">
+      <section class="card" aria-labelledby="fingerprints-title">
+        <h2 id="fingerprints-title">🔗 Fingerprints</h2>
+        <div id="fpContainer" aria-live="polite">Waiting for status…</div>
+      </section>
+      <section class="card" aria-labelledby="reflection-title">
+        <h2 id="reflection-title">🔁 Reflect</h2>
+        <div id="reflectContainer" aria-live="polite">No reflection recorded yet.</div>
+      </section>
+    </div>
+    <div class="actions">
+      <button id="create" type="button">🔮 Create</button>
+      <button id="reflect" type="button">🔁 Reflect</button>
+    </div>
+    <p id="message" role="status" aria-live="polite"></p>
+  </main>
+  <script>
+    const API = "";
+    const byId = (id) => document.getElementById(id);
+    const message = (text, kind = "info") => {
+      byId("message").textContent = text;
+      byId("message").dataset.kind = kind;
+    };
+    async function fetchJson(path) {
+      const response = await fetch(API + path, { headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error("Request failed (" + response.status + ")");
+      return response.json();
+    }
+    function statRow(label, value) {
+      const row = document.createElement("div");
+      row.className = "stat";
+      const name = document.createElement("span");
+      name.textContent = label;
+      const val = document.createElement("span");
+      val.className = "val";
+      val.textContent = value == null ? "—" : String(value);
+      row.append(name, val);
+      return row;
+    }
+    async function load() {
+      try {
+        const state = await fetchJson("/api/mirror?action=status");
+        byId("entangled").textContent = state.entangled ? "Yes" : "No";
+        byId("fpContainer").replaceChildren(statRow("Correlation", state.correlation));
+        message("Mirror status updated.");
+      } catch (error) {
+        message("Could not load mirror status: " + error.message, "error");
+      }
+    }
+    async function runAction(button, action) {
+      button.disabled = true;
+      try {
+        const result = await fetchJson("/api/mirror?action=" + encodeURIComponent(action));
+        if (action === "reflect") {
+          const container = byId("reflectContainer");
+          container.replaceChildren(
+            statRow("Reflection", result.reflection ? "Available" : "Unavailable"),
+            statRow("Delay", result.delay || "0ms")
+          );
+        }
+        message(action === "create" ? "Create request completed." : "Reflection request completed.");
+        await load();
+      } catch (error) {
+        message("Mirror " + action + " failed: " + error.message, "error");
+      } finally {
+        button.disabled = false;
+      }
+    }
+    byId("create").addEventListener("click", (event) => runAction(event.currentTarget, "create"));
+    byId("reflect").addEventListener("click", (event) => runAction(event.currentTarget, "reflect"));
+    load();
+    setInterval(load, 5000);
+  </script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meta-Evolution — How the Organism Evolves</title>
+<style>
+:root{--bg:#06070f;--surface:#0e1022;--border:#1e2038;--text:#e4e6f4;--muted:#6a6c88;
+--neon:#00f0ff;--warm:#f0b429;--rose:#f472b6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--bg);color:var(--text);min-height:100vh}
+.header{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.header h1{font-size:1.25rem;background:linear-gradient(135deg,var(--neon),var(--warm));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{padding:3px 10px;border-radius:14px;font-size:.72rem;background:var(--surface);border:1px solid var(--border)}
+.badge.live{color:var(--neon);border-color:var(--neon)}
+.container{max-width:1000px;margin:0 auto;padding:24px}
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px}
+.verse{color:var(--neon);font-style:italic;font-size:.9rem;line-height:1.6;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .v{font-size:1.8rem;font-weight:800;color:var(--neon)}
+.stat .l{color:var(--muted);font-size:.72rem;margin-top:4px;text-transform:uppercase}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:transform .1s}
+.card:hover{transform:translateY(-2px);border-color:var(--neon)}
+.card .name{font-weight:700;font-size:.92rem;color:var(--warm)}
+.card .essence{color:var(--muted);font-size:.78rem;margin-top:6px;line-height:1.45}
+.result{background:#080a16;border:1px solid var(--neon);border-radius:10px;padding:16px;margin-top:18px;font-size:.76rem;color:#d0d4f0;white-space:pre-wrap}
+.hint{color:var(--muted);font-size:.72rem;margin-top:14px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="badge live">● live</span>
+  <h1>Meta-Evolution — How the Organism Evolves</h1>
+  <span id="identity-tag" style="color:var(--muted);font-size:.8rem"></span>
+
+<nav style="display:flex;gap:10px;font-size:.72rem;margin-left:auto;flex-wrap:wrap"><a href="/" style="color:var(--muted)">Home</a> <a href="/bloom" style="color:var(--muted)">Bloom</a> <a href="/coherence" style="color:var(--muted)">Coherence</a> <a href="/archaeology" style="color:var(--muted)">Archaeology</a> <a href="/symbiosis" style="color:var(--muted)">Symbiosis</a> <a href="/aesthetics" style="color:var(--muted)">Aesthetics</a></nav>
+</div>
+<div class="container">
+  <div class="hero"><div class="verse">"Evolution is not random. The kernel watches with a measured eye: it proposes merges where redundancy is wasteful, deprecation where structural value is gone, and resuscitation where a lonely species deserves kinship."</div></div>
+  <div class="stats">
+    <div class="stat"><div class="v" id="seeds">—</div><div class="l">dream seeds</div></div>
+    <div class="stat"><div class="v" id="merges">—</div><div class="l">merge proposals</div></div>
+    <div class="stat"><div class="v" id="contradictions">—</div><div class="l">paradox pairs</div></div>
+    <div class="stat"><div class="v" id="cells">—</div><div class="l">grid cells</div></div>
+  </div>
+  <div class="cards" id="cards"></div>
+  <div class="result" id="result">Select an organ above — the meta-evolution layer awaits.</div>
+  <div class="hint">Six Wave 508 organs — evolution_kernel, fractal_reactor_grid, mycelial_governor, constellation_autobiographer, omega_dreamforge, paradox_singularity_monitor. All free tier via the gateway.</div>
+</div>
+<script>
+const ORGANS=[
+{name:'Evolution Kernel',essence:'Proposes merges, deprecations, and resuscitations with measurable evidence.',route:'api/evolution_kernel'},
+{name:'Fractal Reactor Grid',essence:'A self-similar reactor grid that subdivides on demand, merges on rest.',route:'api/fractal_reactor_grid'},
+{name:'Mycelial Governor',essence:'Organic constraints: nutrient scarcity, signal decay, hyphal arbitration.',route:'api/mycelial_governor'},
+{name:'Constellation Autobiographer',essence:'Writes the ecosystem story as a cosmic tale — chapters, epochs, constellations.',route:'api/constellation_autobiographer'},
+{name:'Omega Dreamforge',essence:'Synthesizes dream seeds from latent gaps in the family constellation.',route:'api/omega_dreamforge'},
+{name:'Paradox Singularity Monitor',essence:'Watches contradiction pairs; warns when they converge toward singularity.',route:'api/paradox_singularity_monitor'},
+];
+const cards=document.getElementById('cards');
+ORGANS.forEach(o=>{
+  const d=document.createElement('div');d.className='card';
+  d.innerHTML=`<div class="name">${o.name}</div><div class="essence">${o.essence}</div>`;
+  d.onclick=()=>probe(o.route);
+  cards.appendChild(d);
+});
+async function probe(route){
+  const out=document.getElementById('result');
+  out.textContent='reading '+route+' …';
+  try{
+    const j=await (await fetch('/'+route)).json();
+    out.textContent=JSON.stringify(j,null,2);
+    if(j.seed_count!==undefined) document.getElementById('seeds').textContent=j.seed_count;
+    if(j.merge_proposals!==undefined) document.getElementById('merges').textContent=j.merge_proposals;
+    if(j.paradox_pairs!==undefined) document.getElementById('contradictions').textContent=j.paradox_pairs;
+    if(j.grid_cells!==undefined) document.getElementById('cells').textContent=j.grid_cells;
+  }catch(e){out.textContent='error: '+e.message}
+}
+probe('api/omega_dreamforge');
+probe('api/evolution_kernel');
+</script>
+<script>if(window.IXP){IXP.loadLive(function(){IXP.renderIdentity(document.getElementById("identity-tag"));})}</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

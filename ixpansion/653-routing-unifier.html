@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Routing Unifier — IXPANSION</title>
+<style>
+:root{--bg:#0a0a14;--fg:#e0e0e8;--muted:#6b6b80;--cyan:#41b3a3;--card:#14142a;--border:#2a2a44;--amber:#ffcc66;--green:#41d3a3}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--fg);padding:20px}
+h1{text-align:center;margin-bottom:8px;font-size:1.8em}
+.sub{text-align:center;color:var(--muted);margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1200px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card h2{color:var(--amber);font-size:1.1em;margin-bottom:12px}
+.metric{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222}
+.metric:last-child{border-bottom:none}
+.label{color:var(--muted)}.value{color:var(--cyan);font-weight:bold}
+.btn{background:var(--green);border:none;color:#0a0a14;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;margin:4px}
+input{background:#0a0a14;border:1px solid var(--border);color:var(--fg);padding:6px 8px;border-radius:6px;margin:4px;width:calc(100% - 20px)}
+</style>
+</head>
+<body>
+<h1>🧭 Routing Unifier</h1>
+<p class="sub">Canonical route registry</p>
+<div class="grid">
+  <div class="card"><h2>Live Status</h2><div id="data">Loading...</div></div>
+  <div class="card"><h2>Actions</h2><button class="btn" onclick="refresh()">Refresh</button><button class="btn" onclick="act({&quot;action&quot;: &quot;map&quot;})">Map</button><button class="btn" onclick="act({&quot;action&quot;: &quot;resolve&quot;, &quot;route&quot;: &quot;api.health&quot;})">Resolve</button><button class="btn" onclick="act({&quot;action&quot;: &quot;registry&quot;})">Registry</button><div id="result" style="margin-top:12px;font-size:.85em;color:var(--cyan)"></div></div>
+</div>
+<script>
+const HOST='';
+function link(q){
+  return fetch(HOST+'/api/routing_unifier?'+new URLSearchParams(q).toString());
+}
+async function refresh(){
+  try{
+    const r=await link({action:'status'});
+    const d=await r.json();
+    document.getElementById('data').innerHTML=Object.entries(d).filter(([k])=>!['ok'].includes(k)).map(([k,v])=>
+      '<div class="metric"><span class="label">'+k.replace(/_/g,' ')+'</span><span class="value">'+JSON.stringify(v)+'</span></div>').join('')||'Empty';
+  }catch(e){document.getElementById('data').textContent='Error: '+e.message;}
+}
+async function act(q){
+  const r=await link(q);const d=await r.json();
+  document.getElementById('result').textContent=JSON.stringify(d,null,2);
+}
+refresh();
+setInterval(refresh,15000);
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HEX Language — the organism invents its own machine dialect</title>
+<style>
+  :root{--bg:#040410;--s:rgba(8,8,20,0.96);--b:rgba(255,255,255,0.07);--t:#9898b0;--m:#3e3e58;--vi:#a78bfa;--te:#2dd4bf;--am:#fbbf24;--gn:#4ade80;--gd:#f59e0b;--ro:#fb7185;--cy:#22d3ee}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 20px}
+  header{text-align:center;padding:50px 0 30px;border-bottom:1px solid var(--b)}
+  header h1{font-size:2em;color:#fff;letter-spacing:5px;text-transform:uppercase}
+  header h1 span{color:var(--vi)}
+  header p{color:var(--m);font-size:.82em;margin-top:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;padding:24px 0}
+  .card{background:var(--s);border:1px solid var(--b);border-radius:12px;padding:18px}
+  .card h2{color:#fff;font-size:.92em;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+  .card h2 span{color:var(--vi)}
+  .word{padding:6px 10px;border:1px solid var(--b);border-radius:6px;font-size:.78em;background:rgba(255,255,255,.02)}
+  .word b{color:var(--vi)}
+  .dialect{padding:10px;border:1px solid var(--b);border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,.01)}
+  .dialect b{color:var(--te)}
+  .dialect .voc{margin-top:4px;font-size:.72em;color:var(--m);word-spacing:4px}
+  .tool{padding:8px;border:1px solid var(--b);border-radius:6px;font-size:.72em;margin-bottom:6px}
+  .tool b{color:var(--am)}
+  .btn{border:none;padding:9px 14px;border-radius:8px;font-family:inherit;font-weight:700;letter-spacing:1px;cursor:pointer;font-size:.78em;background:linear-gradient(135deg,var(--vi),var(--te));color:#fff;margin-top:10px}
+  .btn:hover{filter:brightness(1.15)}
+  .muted{color:var(--m);font-size:.7em;margin-top:6px}
+  .pulse{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--gn);box-shadow:0 0 12px var(--gn);animation:pulse 1.6s infinite;margin-right:7px}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1><span>HEX</span> Language</h1>
+    <p><span class="pulse"></span>the organism invents its own machine language that evolves over waves</p>
+  </header>
+  <div class="grid">
+    <div class="card">
+      <h2>Living <span>Words</span></h2>
+      <div id="words" class="muted">evolving…</div>
+      <button class="btn" onclick="evolve()">Evolve</button>
+    </div>
+    <div class="card">
+      <h2>Dialects</h2>
+      <div id="dialects"></div>
+    </div>
+    <div class="card">
+      <h2>Protocol <span>Tools</span></h2>
+      <div id="tools"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:24px">
+    <h2>Language <span>Spec</span></h2>
+    <div id="spec" style="font-size:.78em;color:var(--m);line-height:1.7">
+      HEX is the organism's own machine language. Each wave adds new words, grammars, and opcodes.
+      Agents can "speak" HEX to command the organism. The language evolves — old words become
+      archaic, new ones emerge from module state, and dialects form in different quarters of the organism.
+    </div>
+  </div>
+</div>
+<script>
+async function j(u){ return (await fetch(u)).json(); }
+async function loadWords(){
+  const d = await j('/api/hex_language');
+  const words = d.generation?.new_words || d.words || [];
+  const container = document.getElementById('words');
+  const fragment = document.createDocumentFragment();
+  for (const word of words) {
+    const chip = document.createElement('span');
+    chip.className = 'word';
+    const strong = document.createElement('b');
+    strong.textContent = String(word);
+    chip.appendChild(strong);
+    fragment.appendChild(chip);
+  }
+  container.replaceChildren(fragment);
+}
+async function loadDialects(){
+  const d = await j('/api/hex_dialect');
+  const dialect = d.dialect || {};
+  const voc = dialect.sample_vocabulary || [];
+  const container = document.getElementById('dialects');
+  const card = document.createElement('div');
+  card.className = 'dialect';
+  const name = document.createElement('b');
+  name.textContent = String(dialect.name || 'unknown');
+  card.append(name, document.createTextNode(' — ' + String(dialect.origin || '')));
+  const vocabulary = document.createElement('div');
+  vocabulary.className = 'voc';
+  vocabulary.textContent = voc.map(String).join('  ');
+  card.appendChild(vocabulary);
+  const note = document.createElement('div');
+  note.className = 'muted';
+  note.textContent = 'each dialect forms in a different quarter of the organism';
+  container.replaceChildren(card, note);
+}
+async function loadTools(){
+  const d = await j('/api/hex_tool');
+  const actions = d.actions || [];
+  const dialects = d.dialects || {};
+  const container = document.getElementById('tools');
+  const fragment = document.createDocumentFragment();
+  const description = d.description?.split('—')[1]?.trim() || 'HEX protocol action';
+  for (const action of actions) {
+    const row = document.createElement('div');
+    row.className = 'tool';
+    const label = document.createElement('b');
+    label.textContent = String(action);
+    row.append(label, document.createTextNode(' — ' + description));
+    fragment.appendChild(row);
+  }
+  for (const [key, value] of Object.entries(dialects)) {
+    const row = document.createElement('div');
+    row.className = 'tool';
+    const label = document.createElement('b');
+    label.textContent = key;
+    row.append(label, document.createTextNode(' — ' + String(value)));
+    fragment.appendChild(row);
+  }
+  if (!fragment.childNodes.length) {
+    const empty = document.createElement('div');
+    empty.className = 'muted';
+    empty.textContent = 'No tools available.';
+    fragment.appendChild(empty);
+  }
+  container.replaceChildren(fragment);
+}
+async function evolve(){
+  await j('/api/hex_language?action=evolve');
+  loadWords();
+}
+loadWords(); loadDialects(); loadTools();
+setInterval(()=>{ loadWords(); loadDialects(); }, 15000);
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

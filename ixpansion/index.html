@@ -4,6 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>IXPANSION — Dashboard Index</title>
+<meta name="description" content="Dashboard index for the IXPANSION organism: living organs, helix experiments, and the module map.">
+<link rel="canonical" href="https://adjjvmorii26-png.github.io/ixpansion/">
+<meta name="theme-color" content="#03030a">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="/assets/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="IXPANSION — Dashboard Index">
+<meta property="og:description" content="Dashboard index for the IXPANSION organism: living organs, helix experiments, and the module map.">
+<meta property="og:url" content="https://adjjvmorii26-png.github.io/ixpansion/">
+<meta property="og:image" content="https://adjjvmorii26-png.github.io/assets/og-card.png">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 :root{--bg:#03030a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--text:#c0c0d0;--dim:#606078}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -24,6 +37,10 @@ body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',mo
 .card:hover{border-color:var(--accent);background:rgba(124,124,248,0.08);transform:translateY(-2px)}
 .card .name{color:#fff;font-size:0.8em;font-weight:600}
 .card .desc{color:var(--dim);font-size:0.6em;margin-top:4px}
+/* Pages referenced by this dashboard that exist neither in the repo nor on the
+   live site. Rendered as inert cards instead of shipping 404 links. */
+.card.pending{border-style:dashed;cursor:not-allowed;opacity:0.45}
+.card.pending:hover{border-color:rgba(255,255,255,0.06);background:rgba(3,3,10,0.6);transform:none}
 .helix .card{border-color:rgba(45,212,191,0.25)}
 .helix .card:hover{border-color:var(--teal);background:rgba(45,212,191,0.08)}
 .footer{text-align:center;padding:40px 0;border-top:1px solid rgba(124,124,248,0.15);margin-top:40px;color:var(--dim);font-size:0.7em}
@@ -61,10 +78,10 @@ body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',mo
       <a class="card" href="coherence.html"><div class="name">Coherence</div><div class="desc">Open →</div></a>
       <a class="card" href="commune.html"><div class="name">Commune</div><div class="desc">Open →</div></a>
       <a class="card" href="confluence.html"><div class="name">Confluence</div><div class="desc">Open →</div></a>
-      <a class="card" href="connections.html"><div class="name">Connections</div><div class="desc">Open →</div></a>
-      <a class="card" href="consciousness-field.html"><div class="name">Consciousness Field</div><div class="desc">Open →</div></a>
-      <a class="card" href="consciousness-stream.html"><div class="name">Consciousness Stream</div><div class="desc">Open →</div></a>
-      <a class="card" href="constitution.html"><div class="name">Constitution</div><div class="desc">Open →</div></a>
+      <a class="card pending" aria-disabled="true"><div class="name">Connections</div><div class="desc">Not yet shipped</div></a>
+      <a class="card pending" aria-disabled="true"><div class="name">Consciousness Field</div><div class="desc">Not yet shipped</div></a>
+      <a class="card pending" aria-disabled="true"><div class="name">Consciousness Stream</div><div class="desc">Not yet shipped</div></a>
+      <a class="card pending" aria-disabled="true"><div class="name">Constitution</div><div class="desc">Not yet shipped</div></a>
       <a class="card" href="genome-map.html"><div class="name">Genome Map</div><div class="desc">Open →</div></a>
       <a class="card" href="module-soul.html"><div class="name">Module Soul</div><div class="desc">Open →</div></a>
       <a class="card" href="territory-map.html"><div class="name">Territory Map</div><div class="desc">Open →</div></a>
@@ -75,7 +92,7 @@ body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',mo
     <h2>Visualizations</h2>
     <div class="grid">
       <a class="card" href="broadcast.html"><div class="name">Broadcast</div><div class="desc">Open →</div></a>
-      <a class="card" href="census.html"><div class="name">Census</div><div class="desc">Open →</div></a>
+      <a class="card pending" aria-disabled="true"><div class="name">Census</div><div class="desc">Not yet shipped</div></a>
       <a class="card" href="choral.html"><div class="name">Choral</div><div class="desc">Open →</div></a>
       <a class="card" href="dream-gallery.html"><div class="name">Dream Gallery</div><div class="desc">Open →</div></a>
       <a class="card" href="myth-chronicle.html"><div class="name">Myth Chronicle</div><div class="desc">Open →</div></a>
@@ -90,7 +107,7 @@ body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',mo
   <div class="category">
     <h2>Intelligence</h2>
     <div class="grid">
-      <a class="card" href="entropy-weather.html"><div class="name">Entropy Weather</div><div class="desc">Open →</div></a>
+      <a class="card pending" aria-disabled="true"><div class="name">Entropy Weather</div><div class="desc">Not yet shipped</div></a>
       <a class="card" href="state-machine.html"><div class="name">State Machine</div><div class="desc">Open →</div></a>
     </div>
   </div>
@@ -98,9 +115,9 @@ body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',mo
   <div class="category">
     <h2>Game</h2>
     <div class="grid">
-      <a class="card" href="lucid-experiments.html"><div class="name">Lucid Experiments</div><div class="desc">Open →</div></a>
-      <a class="card" href="lucid-prototype.html"><div class="name">Lucid Prototype</div><div class="desc">Open →</div></a>
-      <a class="card" href="lucid_game.html"><div class="name">Lucid Game</div><div class="desc">Open →</div></a>
+      <a class="card pending" aria-disabled="true"><div class="name">Lucid Experiments</div><div class="desc">Not yet shipped</div></a>
+      <a class="card pending" aria-disabled="true"><div class="name">Lucid Prototype</div><div class="desc">Not yet shipped</div></a>
+      <a class="card pending" aria-disabled="true"><div class="name">Lucid Game</div><div class="desc">Not yet shipped</div></a>
     </div>
   </div>
 

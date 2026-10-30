@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Phase Transition — Organism State Visualizer</title>
+<style>
+:root{--bg:#03030a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--text:#c0c0d0;--dim:#606078}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;height:100vh;overflow:hidden}
+canvas{position:fixed;top:0;left:0;z-index:0}
+.ui{position:relative;z-index:1;padding:16px;height:100vh;display:flex;flex-direction:column;pointer-events:none}
+.ui>*{pointer-events:auto}
+.top{display:flex;justify-content:space-between;align-items:center;background:rgba(3,3,10,0.9);border:1px solid rgba(124,124,248,0.15);border-radius:10px;padding:10px 16px;backdrop-filter:blur(12px)}
+.top h1{font-size:1em;color:#fff;letter-spacing:2px}
+.top h1 span{color:var(--teal)}
+.phase-display{display:flex;gap:12px;margin-top:12px}
+.phase-card{flex:1;background:rgba(3,3,10,0.85);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;text-align:center;backdrop-filter:blur(12px);transition:all 0.3s}
+.phase-card.active{border-color:var(--accent);box-shadow:0 0 20px rgba(124,124,248,0.1)}
+.phase-card .icon{font-size:2em;margin-bottom:4px}
+.phase-card .name{color:#fff;font-size:0.8em;font-weight:600}
+.phase-card .desc{color:var(--dim);font-size:0.6em;margin-top:4px}
+.phase-card.active .name{color:var(--accent)}
+.bottom{margin-top:auto;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.panel{background:rgba(3,3,10,0.85);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:12px;backdrop-filter:blur(12px);max-height:180px;overflow-y:auto}
+.panel h3{color:var(--accent);font-size:0.7em;letter-spacing:2px;margin-bottom:8px}
+.metric{display:flex;justify-content:space-between;padding:3px 0;font-size:0.7em;border-bottom:1px solid rgba(255,255,255,0.02)}
+.metric .k{color:var(--dim)}
+.metric .v{color:#fff;font-weight:600}
+.alert{padding:6px;border-radius:4px;margin-top:4px;font-size:0.7em}
+.alert.good{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);color:var(--green)}
+.alert.warn{background:rgba(251,188,35,0.1);border:1px solid rgba(251,188,35,0.2);color:var(--gold)}
+.alert.crit{background:rgba(251,113,133,0.1);border:1px solid rgba(251,113,133,0.2);color:var(--rose)}
+.controls{position:fixed;bottom:16px;right:16px;z-index:2;display:flex;gap:8px}
+.btn{background:rgba(3,3,10,0.9);border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;transition:all 0.2s}
+.btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+<div class="ui">
+  <div class="top">
+    <h1>◎ <span>PHASE TRANSITION</span> — Organism State Space</h1>
+    <div style="text-align:right">
+      <div style="color:var(--dim);font-size:0.65em">CURRENT PHASE</div>
+      <div style="color:var(--teal);font-size:1em;font-weight:700" id="currentPhase">EMERGENT</div>
+    </div>
+  </div>
+  
+  <div class="phase-display">
+    <div class="phase-card" id="pc-crystalline">
+      <div class="icon">◇</div>
+      <div class="name">Crystalline</div>
+      <div class="desc">High order, low entropy</div>
+    </div>
+    <div class="phase-card" id="pc-emergent">
+      <div class="icon">◈</div>
+      <div class="name">Emergent</div>
+      <div class="desc">Building new order</div>
+    </div>
+    <div class="phase-card" id="pc-chaos">
+      <div class="icon">✸</div>
+      <div class="name">Chaos</div>
+      <div class="desc">Creative dissolution</div>
+    </div>
+    <div class="phase-card" id="pc-liminal">
+      <div class="icon">⌬</div>
+      <div class="name">Liminal</div>
+      <div class="desc">Between states</div>
+    </div>
+    <div class="phase-card" id="pc-void">
+      <div class="icon">◯</div>
+      <div class="name">Void</div>
+      <div class="desc">Dormant potential</div>
+    </div>
+    <div class="phase-card" id="pc-living_crystal">
+      <div class="icon">❋</div>
+      <div class="name">Living Crystal</div>
+      <div class="desc">Rare: order meets vitality</div>
+    </div>
+  </div>
+  
+  <div class="bottom">
+    <div class="panel">
+      <h3>◎ STATE METRICS</h3>
+      <div id="metrics"></div>
+    </div>
+    <div class="panel">
+      <h3>△ TRANSITION ALERTS</h3>
+      <div id="alerts"></div>
+    </div>
+  </div>
+</div>
+
+<div class="controls">
+  <button class="btn" onclick="sampleState()">◉ Sample</button>
+  <button class="btn" onclick="perturbState()">⚡ Perturb</button>
+  <button class="btn" onclick="stabilize()">◇ Stabilize</button>
+</div>
+
+<script>
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize(){ W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
+resize();
+window.addEventListener('resize', resize);
+
+// State
+let coherence = 0.5, entropy = 0.5;
+let phase = 'emergent';
+let samples = [];
+let time = 0;
+
+const PHASE_COLORS = {
+  crystalline: '#7c7cf8', emergent: '#2dd4bf', chaos: '#fb7185',
+  liminal: '#fbbf24', void: '#6b7280', living_crystal: '#4ade80'
+};
+
+function classifyPhase(c, e) {
+  if (c > 0.7 && e < 0.3) return 'crystalline';
+  if (c > 0.7 && e > 0.6) return 'living_crystal';
+  if (c < 0.3 && e > 0.7) return 'chaos';
+  if (c < 0.3 && e < 0.3) return 'void';
+  if (c > 0.5) return 'emergent';
+  if (e > 0.5) return 'chaos';
+  return 'liminal';
+}
+
+function sampleState() {
+  coherence = Math.max(0.05, Math.min(0.95, coherence + (Math.random()-0.5)*0.2));
+  entropy = Math.max(0.05, Math.min(0.95, entropy + (Math.random()-0.5)*0.25));
+  phase = classifyPhase(coherence, entropy);
+  
+  samples.push({c: coherence, e: entropy, phase, t: time});
+  if (samples.length > 100) samples.shift();
+  
+  // Burst particles
+  for (let i = 0; i < 15; i++) {
+    particles.push(new Particle(W/2 + (Math.random()-0.5)*200, H/2 + (Math.random()-0.5)*200));
+  }
+  
+  updateUI();
+  checkTransition();
+}
+
+function perturbState() {
+  coherence += (Math.random()-0.5) * 0.4;
+  entropy += (Math.random()-0.5) * 0.4;
+  coherence = Math.max(0.05, Math.min(0.95, coherence));
+  entropy = Math.max(0.05, Math.min(0.95, entropy));
+  phase = classifyPhase(coherence, entropy);
+  for (let i = 0; i < 30; i++) particles.push(new Particle(Math.random()*W, Math.random()*H));
+  updateUI();
+}
+
+function stabilize() {
+  coherence = 0.5 + (Math.random()-0.5)*0.1;
+  entropy = 0.5 + (Math.random()-0.5)*0.1;
+  phase = 'emergent';
+  updateUI();
+}
+
+let lastPhase = 'emergent';
+function checkTransition() {
+  if (phase !== lastPhase) {
+    const alerts = document.getElementById('alerts');
+    const alertClass = phase === 'void' || phase === 'chaos' ? 'crit' : phase === 'liminal' ? 'warn' : 'good';
+    alerts.innerHTML = `<div class="alert ${alertClass}">Phase shift: ${lastPhase} → ${phase} at t=${time}</div>` + alerts.innerHTML;
+    lastPhase = phase;
+  }
+}
+
+function updateUI() {
+  document.getElementById('currentPhase').textContent = phase.toUpperCase();
+  document.getElementById('currentPhase').style.color = PHASE_COLORS[phase];
+  
+  document.querySelectorAll('.phase-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('pc-' + phase)?.classList.add('active');
+  
+  document.getElementById('metrics').innerHTML = `
+    <div class="metric"><span class="k">Coherence</span><span class="v" style="color:var(--accent)">${coherence.toFixed(3)}</span></div>
+    <div class="metric"><span class="k">Entropy</span><span class="v" style="color:var(--rose)">${entropy.toFixed(3)}</span></div>
+    <div class="metric"><span class="k">Phase</span><span class="v" style="color:${PHASE_COLORS[phase]}">${phase}</span></div>
+    <div class="metric"><span class="k">Samples</span><span class="v">${samples.length}</span></div>
+    <div class="metric"><span class="k">Distance to boundary</span><span class="v">${Math.min(coherence, 1-coherence, entropy, 1-entropy).toFixed(3)}</span></div>
+    <div class="metric"><span class="k">Time</span><span class="v">${time}</span></div>
+  `;
+}
+
+// Particles
+const particles = [];
+class Particle {
+  constructor(x, y) {
+    this.x = x; this.y = y;
+    this.vx = (Math.random()-0.5)*3;
+    this.vy = (Math.random()-0.5)*3;
+    this.size = Math.random()*3+1;
+    this.life = 1;
+    this.decay = Math.random()*0.01+0.003;
+  }
+  update() {
+    this.vx += (W/2-this.x)*0.001*coherence + (Math.random()-0.5)*entropy*0.1;
+    this.vy += (H/2-this.y)*0.001*coherence + (Math.random()-0.5)*entropy*0.1;
+    this.vx *= 0.97; this.vy *= 0.97;
+    this.x += this.vx; this.y += this.vy;
+    this.life -= this.decay;
+  }
+  draw() {
+    const col = PHASE_COLORS[phase];
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size*this.life, 0, Math.PI*2);
+    ctx.fillStyle = col + Math.floor(this.life*180).toString(16).padStart(2,'0');
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(this.x, this.y, this.size*this.life*3, 0, Math.PI*2);
+    ctx.fillStyle = col + Math.floor(this.life*25).toString(16).padStart(2,'0');
+    ctx.fill();
+  }
+}
+
+// Phase boundary visualization
+function drawPhaseSpace() {
+  const cx = W/2, cy = H/2;
+  const size = Math.min(W, H) * 0.35;
+  
+  // Phase regions
+  const regions = [
+    {name:'void', x:0, y:0, w:0.3, h:0.3, color:'#6b7280'},
+    {name:'chaos', x:0, y:0.3, w:0.3, h:0.7, color:'#fb7185'},
+    {name:'crystalline', x:0.7, y:0, w:0.3, h:0.3, color:'#7c7cf8'},
+    {name:'living_crystal', x:0.7, y:0, w:0.3, h:0.3, color:'#4ade80'},
+    {name:'emergent', x:0.3, y:0, w:0.4, h:0.5, color:'#2dd4bf'},
+    {name:'liminal', x:0.3, y:0.5, w:0.4, h:0.5, color:'#fbbf24'}
+  ];
+  
+  regions.forEach(r => {
+    ctx.fillStyle = r.color + '08';
+    ctx.fillRect(cx - size + r.x*size*2, cy - size + r.y*size*2, r.w*size*2, r.h*size*2);
+  });
+  
+  // Current position
+  const px = cx - size + coherence * size * 2;
+  const py = cy - size + entropy * size * 2;
+  
+  // Trail
+  if (samples.length > 1) {
+    ctx.beginPath();
+    ctx.moveTo(cx - size + samples[0].c*size*2, cy - size + samples[0].e*size*2);
+    for (let i = 1; i < samples.length; i++) {
+      ctx.lineTo(cx - size + samples[i].c*size*2, cy - size + samples[i].e*size*2);
+    }
+    ctx.strokeStyle = PHASE_COLORS[phase] + '40';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+  }
+  
+  // Current point
+  ctx.beginPath();
+  ctx.arc(px, py, 8, 0, Math.PI*2);
+  ctx.fillStyle = PHASE_COLORS[phase];
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(px, py, 16, 0, Math.PI*2);
+  ctx.strokeStyle = PHASE_COLORS[phase] + '40';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  
+  // Labels
+  ctx.fillStyle = '#ffffff40';
+  ctx.font = '10px SF Mono, monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('COHERENCE →', cx, cy + size + 20);
+  ctx.save();
+  ctx.translate(cx - size - 20, cy);
+  ctx.rotate(-Math.PI/2);
+  ctx.fillText('ENTROPY →', 0, 0);
+  ctx.restore();
+}
+
+function render() {
+  time++;
+  ctx.fillStyle = 'rgba(3,3,10,0.1)';
+  ctx.fillRect(0, 0, W, H);
+  
+  drawPhaseSpace();
+  
+  for (let i = particles.length-1; i >= 0; i--) {
+    particles[i].update();
+    particles[i].draw();
+    if (particles[i].life <= 0) particles.splice(i, 1);
+  }
+  
+  requestAnimationFrame(render);
+}
+
+// Auto-sample
+setInterval(sampleState, 4000);
+sampleState();
+render();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

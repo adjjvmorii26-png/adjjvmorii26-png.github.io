@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucid Machines — The Organism's Game</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#02020a;color:#e0e0e0;font-family:'Courier New',monospace;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
+.bg-glow{position:fixed;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse at 50% 40%, rgba(124,124,248,0.06) 0%, transparent 70%);pointer-events:none}
+.container{position:relative;z-index:2;text-align:center;max-width:600px;padding:40px 24px}
+h1{font-size:2.8em;color:#7c7cf8;text-shadow:0 0 60px rgba(124,124,248,0.4);letter-spacing:8px;margin-bottom:12px}
+.sub{color:#2dd4bf;font-size:0.95em;margin-bottom:40px;letter-spacing:2px}
+.desc{color:#888;font-size:0.85em;line-height:1.8;margin-bottom:32px}
+.features{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:32px;text-align:left}
+.feature{background:rgba(124,124,248,0.06);border:1px solid rgba(124,124,248,0.1);border-radius:8px;padding:12px 14px}
+.feature .icon{font-size:1.2em;margin-bottom:4px}
+.feature .title{color:#7c7cf8;font-size:0.8em;font-weight:bold}
+.feature .text{color:#666;font-size:0.72em;margin-top:2px}
+.play-btn{display:inline-block;background:rgba(124,124,248,0.2);border:1px solid rgba(124,124,248,0.5);color:#7c7cf8;padding:14px 40px;border-radius:10px;text-decoration:none;font-family:inherit;font-size:1em;letter-spacing:3px;transition:all 0.3s;cursor:pointer}
+.play-btn:hover{background:rgba(124,124,248,0.3);color:#fff;box-shadow:0 0 30px rgba(124,124,248,0.3)}
+.vercel-btn{display:inline-block;margin-top:16px;padding:10px 28px;border-radius:8px;text-decoration:none;font-family:inherit;font-size:0.8em;letter-spacing:1px;transition:all 0.3s;background:rgba(45,212,191,0.1);border:1px solid rgba(45,212,191,0.3);color:#2dd4bf}
+.vercel-btn:hover{background:rgba(45,212,191,0.2)}
+.controls-help{color:#555;font-size:0.7em;margin-top:24px}
+.controls-help span{color:#888}
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="container">
+<h1>GROWTH</h1>
+<div class="sub">The Organism's Living World</div>
+<div class="desc">A non-violent exploration game where you understand, not destroy.<br>The organism generates its own world. You discover its modules, plant seeds,<br>listen to its whispers, and grow together.</div>
+<div class="features">
+<div class="feature"><div class="icon">🌱</div><div class="title">Discover Modules</div><div class="text">Approach glowing orbs to understand what each module does</div></div>
+<div class="feature"><div class="icon">🌱</div><div class="title">Plant Seeds</div><div class="text">Plant seeds that grow into connections in the organism</div></div>
+<div class="feature"><div class="icon">👂</div><div class="title">Listen</div><div class="text">Hear what the modules whisper about their purpose</div></div>
+<div class="feature"><div class="icon">🧠</div><div class="title">Meditate</div><div class="text">Deepen harmony between discovered modules</div></div>
+</div>
+<a class="play-btn" href="lucid-3d.html">⟡ ENTER THE WORLD ⟡</a>
+<div><a class="vercel-btn" href="https://pentaxis-5d-engine.vercel.app/" target="_blank">Pentaxis 5D Engine (Vercel)</a></div>
+<div class="controls-help"><span>WASD</span> move · <span>SPACE</span> understand · <span>Click</span> pointer lock · <span>Mouse</span> look</div>
+</div>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

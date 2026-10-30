@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Culinary Engine — The Organism Feeds Itself</title>
+<style>
+:root{--bg:#0a0808;--surface:#141010;--border:#2a2020;--text:#f0e8e4;--muted:#8a7a72;
+--orange:#fb923c;--amber:#f59e0b;--red:#f87171;--green:#4ade80}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--bg);color:var(--text);min-height:100vh}
+.header{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.header h1{font-size:1.25rem;background:linear-gradient(135deg,var(--orange),var(--amber));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{padding:3px 10px;border-radius:14px;font-size:.72rem;background:var(--surface);border:1px solid var(--border)}
+.badge.live{color:var(--green);border-color:var(--green)}
+.container{max-width:1000px;margin:0 auto;padding:24px}
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px}
+.philosophy{color:var(--orange);font-style:italic;font-size:.9rem;line-height:1.6;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .v{font-size:1.6rem;font-weight:800;color:var(--orange)}
+.stat .l{color:var(--muted);font-size:.72rem;margin-top:4px;text-transform:uppercase}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:transform .1s}
+.card:hover{transform:translateY(-2px);border-color:var(--orange)}
+.card .name{font-weight:700;font-size:.92rem;color:var(--amber)}
+.card .essence{color:var(--muted);font-size:.78rem;margin-top:6px;line-height:1.45}
+.result{background:#0a080a;border:1px solid var(--orange);border-radius:10px;padding:16px;margin-top:18px;font-size:.76rem;color:#f0e8e0;white-space:pre-wrap}
+.banquet{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;margin-top:16px}
+.banquet .course{padding:10px 0;border-bottom:1px solid var(--border);font-size:.82rem}
+.banquet .course:last-child{border-bottom:none}
+.banquet .label{color:var(--amber);font-weight:700}
+.banquet .desc{color:var(--muted);font-style:italic;margin-top:4px}
+.hint{color:var(--muted);font-size:.72rem;margin-top:14px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="badge live">● live</span>
+  <h1>Culinary Engine — the Organism Feeds Itself</h1>
+  <span id="identity-tag" style="color:var(--muted);font-size:.8rem"></span>
+
+<nav style="display:flex;gap:10px;font-size:.72rem;margin-left:auto;flex-wrap:wrap"><a href="/" style="color:var(--muted)">Home</a> <a href="/bloom" style="color:var(--muted)">Bloom</a> <a href="/coherence" style="color:var(--muted)">Coherence</a> <a href="/archaeology" style="color:var(--muted)">Archaeology</a> <a href="/symbiosis" style="color:var(--muted)">Symbiosis</a> <a href="/aesthetics" style="color:var(--muted)">Aesthetics</a></nav>
+</div>
+<div class="container">
+  <div class="hero"><div class="philosophy" id="philosophy">The organism is setting the table...</div></div>
+  <div class="stats">
+    <div class="stat"><div class="v" id="recipes">—</div><div class="l">recipes</div></div>
+    <div class="stat"><div class="v" id="nutrition">—</div><div class="l">avg nutrition</div></div>
+    <div class="stat"><div class="v" id="courses">—</div><div class="l">courses</div></div>
+    <div class="stat"><div class="v" id="ferments">—</div><div class="l">active ferments</div></div>
+  </div>
+  <div class="cards" id="cards"></div>
+  <div class="result" id="result">Select an organ — or read the menu.</div>
+  <div class="banquet" id="banquet"></div>
+  <div class="hint">Six Wave 508 culinary organs — recipe_engine, flavor_profiler, fermentation_vat, digestive_system, nutrition_index, banquet_composer. All free tier.</div>
+</div>
+<script>
+const ORGANS=[
+{name:'Recipe Engine',essence:'Combines modules into named compositions — the organism cookbook.',route:'api/recipe_engine'},
+{name:'Flavor Profiler',essence:'Each region has a taste — sweet, sour, bitter, umami. Taste the ecosystem.',route:'api/flavor_profiler'},
+{name:'Fermentation Vat',essence:'Slow transformation of ideas — what ferments, and what will it become?',route:'api/fermentation_vat'},
+{name:'Digestive System',essence:'Breaks down complex inputs into nutrients — metabolic cognition.',route:'api/digestive_system'},
+{name:'Nutrition Index',essence:'Which organs are nutrient-dense and which are empty calories?',route:'api/nutrition_index'},
+{name:'Banquet Composer',essence:'Composes feasts from available ingredients — a five-course menu.',route:'api/banquet_composer'},
+];
+const cards=document.getElementById('cards');
+ORGANS.forEach(o=>{
+  const d=document.createElement('div');d.className='card';d.tabIndex=0;d.setAttribute('role','button');
+  const name=document.createElement('div');name.className='name';name.textContent=o.name;
+  const essence=document.createElement('div');essence.className='essence';essence.textContent=o.essence;
+  d.append(name,essence);
+  d.addEventListener('click',()=>probe(o.route));
+  d.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();probe(o.route)}});
+  cards.appendChild(d);
+});
+async function probe(route){
+  const out=document.getElementById('result');
+  out.textContent='reading '+route+' …';
+  try{
+    const j=await (await fetch('/'+route)).json();
+    out.textContent=JSON.stringify(j,null,2);
+    if(j.total_recipes) document.getElementById('recipes').textContent=j.total_recipes;
+    if(j.avg_nutrition_score) document.getElementById('nutrition').textContent=j.avg_nutrition_score;
+  }catch(e){out.textContent='error: '+e.message}
+}
+(async()=>{
+  try{
+    const r=await (await fetch('/api/recipe_engine')).json();
+    document.getElementById('recipes').textContent=r.total_recipes;
+  }catch(e){}
+  try{
+    const n=await (await fetch('/api/nutrition_index')).json();
+    document.getElementById('nutrition').textContent=n.avg_nutrition_score;
+  }catch(e){}
+  try{
+    const f=await (await fetch('/api/fermentation_vat')).json();
+    document.getElementById('ferments').textContent=f.active_ferments;
+  }catch(e){}
+  try{
+    const b=await (await fetch('/api/banquet_composer')).json();
+    document.getElementById('courses').textContent=b.courses;
+    document.getElementById('philosophy').textContent='"'+b.banquet_philosophy+'"';
+    const banq=document.getElementById('banquet');
+    b.menu.forEach(c=>{
+      const div=document.createElement('div');div.className='course';
+      const label=document.createElement('div');label.className='label';label.textContent=String(c.course??'');
+      const description=document.createElement('div');description.className='desc';description.textContent=String(c.description??'');
+      const organs=document.createElement('div');organs.style.cssText='color:var(--muted);font-size:.72rem;margin-top:4px';organs.textContent='organs: '+(Array.isArray(c.organs)?c.organs.join(', '):'');
+      div.append(label,description,organs);banq.appendChild(div);
+    });
+  }catch(e){}
+})();
+</script>
+<script>if(window.IXP){IXP.loadLive(function(){IXP.renderIdentity(document.getElementById("identity-tag"));})}</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

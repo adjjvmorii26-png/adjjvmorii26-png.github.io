@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Organism Pulse — Live Heartbeat</title>
+<style>
+:root{--bg:#03030a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--rose:#fb7185;--cyan:#22d3ee;--green:#4ade80;--text:#c0c0d0;--dim:#606078}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;height:100vh;overflow:hidden;display:flex;flex-direction:column}
+.header{text-align:center;padding:16px;border-bottom:1px solid rgba(124,124,248,0.15)}
+.header h1{font-size:1.2em;color:#fff;letter-spacing:3px}
+.header h1 span{color:var(--teal)}
+.header .sub{color:var(--dim);font-size:0.7em;margin-top:4px}
+.pulse-container{flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative}
+canvas{position:absolute;top:0;left:0}
+.overlay{position:relative;z-index:1;text-align:center}
+.big-pulse{font-size:6em;color:var(--accent);animation:heartbeat 1.5s ease-in-out infinite;text-shadow:0 0 40px rgba(124,124,248,0.4)}
+@keyframes heartbeat{0%,100%{transform:scale(1);opacity:0.8}50%{transform:scale(1.1);opacity:1}}
+.pulse-label{font-size:1.5em;color:#fff;margin-top:8px;letter-spacing:4px}
+.pulse-intensity{font-size:0.8em;color:var(--dim);margin-top:4px}
+.stats-bar{display:flex;justify-content:center;gap:24px;padding:16px;border-top:1px solid rgba(124,124,248,0.15)}
+.stat{text-align:center}
+.stat .val{font-size:1.2em;font-weight:700;color:#fff}
+.stat .lbl{font-size:0.6em;color:var(--dim);letter-spacing:1px}
+.log{position:fixed;bottom:80px;left:16px;z-index:2;background:rgba(3,3,10,0.9);border:1px solid rgba(124,124,248,0.15);border-radius:8px;padding:10px 14px;max-width:300px;max-height:150px;overflow-y:auto;backdrop-filter:blur(12px)}
+.log-entry{font-size:0.65em;padding:2px 0;border-bottom:1px solid rgba(255,255,255,0.02)}
+.log-entry .t{color:var(--dim)}
+.log-entry .m{color:var(--text)}
+.controls{position:fixed;bottom:16px;right:16px;z-index:2;display:flex;gap:8px}
+.btn{background:rgba(3,3,10,0.9);border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;transition:all 0.2s}
+.btn:hover{background:rgba(124,124,248,0.15);color:#fff}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>◎ <span>ORGANISM PULSE</span></h1>
+  <div class="sub">Live heartbeat visualization</div>
+</div>
+
+<div class="pulse-container">
+  <canvas id="wave"></canvas>
+  <div class="overlay">
+    <div class="big-pulse" id="pulseGlyph">◉</div>
+    <div class="pulse-label" id="pulseLabel">STILLNESS</div>
+    <div class="pulse-intensity" id="pulseIntensity">intensity: 0.50</div>
+  </div>
+</div>
+
+<div class="stats-bar">
+  <div class="stat"><div class="val" id="sCoherence">0.50</div><div class="lbl">COHERENCE</div></div>
+  <div class="stat"><div class="val" id="sEntropy">0.50</div><div class="lbl">ENTROPY</div></div>
+  <div class="stat"><div class="val" id="sResonance">0.50</div><div class="lbl">RESONANCE</div></div>
+  <div class="stat"><div class="val" id="sMood">neutral</div><div class="lbl">MOOD</div></div>
+  <div class="stat"><div class="val" id="sPhase">emergent</div><div class="lbl">PHASE</div></div>
+  <div class="stat"><div class="val" id="sCycles">0</div><div class="lbl">CYCLES</div></div>
+</div>
+
+<div class="log" id="log"></div>
+
+<div class="controls">
+  <button class="btn" onclick="pulse()">◉ Pulse</button>
+  <button class="btn" onclick="surge()">⚡ Surge</button>
+  <button class="btn" onclick="toggleAuto()">▶ Auto</button>
+</div>
+
+<script>
+const canvas = document.getElementById('wave');
+const ctx = canvas.getContext('2d');
+let W, H;
+function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+
+const PULSE_GLYPHS={stillness:'·',whisper:'~',ebb:'≋',pulse:'◉',surge:'≫',explosion:'✸',tsunami:'≈',ripple:'◎',decay:'◇',crescendo:'❋'};
+const PULSE_INTENSITY={stillness:0.1,whisper:0.25,ebb:0.4,pulse:0.6,surge:0.8,explosion:1.0,tsunami:0.9,ripple:0.5,decay:0.3,crescendo:0.95};
+const MOODS=['focused','neutral','volatile','excited','troubled'];
+const PULSES=['stillness','whisper','ebb','pulse','surge','explosion','tsunami','ripple','decay','crescendo'];
+const PHASES=['crystalline','emergent','chaos','liminal','void','living_crystal'];
+
+let pulseType='stillness',mood='neutral',phase='emergent';
+let coherence=0.5,entropy=0.5,resonance=0.5;
+let cycles=0,time=0;
+let waveData=new Array(200).fill(0.5);
+const logEntries=[];
+
+function pulse(){
+  cycles++;
+  pulseType=PULSES[Math.floor(Math.random()*PULSES.length)];
+  mood=MOODS[Math.floor(Math.random()*MOODS.length)];
+  phase=PHASES[Math.floor(Math.random()*PHASES.length)];
+  coherence=Math.max(0.1,Math.min(0.95,coherence+(Math.random()-0.5)*0.15));
+  entropy=Math.max(0.05,Math.min(0.95,entropy+(Math.random()-0.5)*0.2));
+  resonance=Math.max(0.1,Math.min(0.95,resonance+(Math.random()-0.5)*0.1));
+  
+  const intensity=PULSE_INTENSITY[pulseType]||0.5;
+  document.getElementById('pulseGlyph').textContent=PULSE_GLYPHS[pulseType]||'◉';
+  document.getElementById('pulseGlyph').style.color=`hsl(${intensity*120},70%,60%)`;
+  document.getElementById('pulseLabel').textContent=pulseType.toUpperCase();
+  document.getElementById('pulseIntensity').textContent=`intensity: ${intensity.toFixed(2)}`;
+  
+  document.getElementById('sCoherence').textContent=coherence.toFixed(2);
+  document.getElementById('sEntropy').textContent=entropy.toFixed(2);
+  document.getElementById('sResonance').textContent=resonance.toFixed(2);
+  document.getElementById('sMood').textContent=mood;
+  document.getElementById('sPhase').textContent=phase;
+  document.getElementById('sCycles').textContent=cycles;
+  
+  // Add wave spike
+  for(let i=0;i<20;i++){
+    const idx=Math.floor(waveData.length/2+i-10);
+    if(idx>=0&&idx<waveData.length)waveData[idx]=intensity;
+  }
+  
+  logEntries.unshift({time:new Date().toLocaleTimeString(),msg:`${pulseType} · ${mood} · coherence=${coherence.toFixed(2)}`});
+  if(logEntries.length>10)logEntries.pop();
+  document.getElementById('log').innerHTML=logEntries.map(e=>`<div class="log-entry"><span class="t">${e.time}</span> <span class="m">${e.msg}</span></div>`).join('');
+}
+
+function surge(){
+  for(let i=0;i<5;i++)setTimeout(()=>pulse(),i*200);
+}
+
+let autoMode=false,autoInterval;
+function toggleAuto(){autoMode=!autoMode;if(autoMode){autoInterval=setInterval(pulse,2000);document.querySelectorAll('.btn')[2].textContent='⏸ Pause'}else{clearInterval(autoInterval);document.querySelectorAll('.btn')[2].textContent='▶ Auto'}}
+
+function renderWave(){
+  time++;
+  ctx.clearRect(0,0,W,H);
+  
+  // Wave form
+  ctx.beginPath();
+  const centerY=H/2;
+  const amplitude=H*0.3;
+  
+  for(let i=0;i<waveData.length;i++){
+    const x=(i/waveData.length)*W;
+    const y=centerY+(waveData[i]-0.5)*amplitude;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  
+  ctx.strokeStyle='#7c7cf8';
+  ctx.lineWidth=2;
+  ctx.stroke();
+  
+  // Glow
+  ctx.beginPath();
+  for(let i=0;i<waveData.length;i++){
+    const x=(i/waveData.length)*W;
+    const y=centerY+(waveData[i]-0.5)*amplitude;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle='rgba(124,124,248,0.2)';
+  ctx.lineWidth=8;
+  ctx.stroke();
+  
+  // Decay wave data
+  for(let i=0;i<waveData.length;i++){
+    waveData[i]+=(0.5-waveData[i])*0.05;
+    waveData[i]+=Math.sin(time*0.05+i*0.1)*0.005;
+  }
+  
+  // Center line
+  ctx.beginPath();
+  ctx.moveTo(0,centerY);
+  ctx.lineTo(W,centerY);
+  ctx.strokeStyle='rgba(255,255,255,0.05)';
+  ctx.lineWidth=1;
+  ctx.stroke();
+  
+  requestAnimationFrame(renderWave);
+}
+
+for(let i=0;i<3;i++)pulse();
+renderWave();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

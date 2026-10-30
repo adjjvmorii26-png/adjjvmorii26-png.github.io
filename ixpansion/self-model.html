@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recursive Self-Model — IXPANSION</title>
+<style>
+:root{--bg:#0a0a14;--fg:#e0e0e8;--muted:#6b6b80;--cyan:#41b3a3;--card:#14142a;--border:#2a2a44;--amber:#ffcc66;--green:#41d3a3}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--fg);padding:20px}
+h1{text-align:center;margin-bottom:8px;font-size:1.8em}
+.sub{text-align:center;color:var(--muted);margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1200px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card h2{color:var(--amber);font-size:1.1em;margin-bottom:12px}
+.metric{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222}
+.metric:last-child{border-bottom:none}
+.label{color:var(--muted)}.value{color:var(--cyan);font-weight:bold}
+.btn{background:var(--green);border:none;color:#0a0a14;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;margin:4px}
+</style>
+</head>
+<body>
+<h1>🧠 Recursive Self-Model</h1>
+<p class="sub">🧠 The organism models itself modeling itself</p>
+<div class="grid">
+  <div class="card"><h2>Live Status</h2><div id="data">Loading...</div></div>
+  <div class="card"><h2>Actions</h2><button class="btn" onclick="refresh()">Refresh</button><div id="result" style="margin-top:12px"></div></div>
+</div>
+<script>
+const HOST='';
+async function refresh(){
+  try{
+    const r=await fetch(HOST+'/api/self_model?action=status');
+    const d=await r.json();
+    const container = document.getElementById('data');
+    const fragment = document.createDocumentFragment();
+    for (const [key, value] of Object.entries(d).filter(([key]) => key !== 'ok')) {
+      const row = document.createElement('div');
+      row.className = 'metric';
+      const label = document.createElement('span');
+      label.className = 'label';
+      label.textContent = key.replace(/_/g, ' ');
+      const val = document.createElement('span');
+      val.className = 'value';
+      val.textContent = JSON.stringify(value);
+      row.append(label, val);
+      fragment.appendChild(row);
+    }
+    container.replaceChildren(fragment);
+    if (!container.childElementCount) container.textContent = 'Empty';
+  }catch(e){
+    document.getElementById('data').textContent='Error: '+e.message;
+  }
+}
+refresh();
+setInterval(refresh,15000);
+</script>
+</body>
+</html>

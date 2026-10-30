@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave 419 Essence Return</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a0a0a; color: #e0e0e0; padding: 20px; }
+  h1 { text-align: center; color: #ffffff; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #aaa; margin-bottom: 20px; }
+  .banner { text-align: center; background: #1a1a1a; border-radius: 14px; padding: 24px; margin-bottom: 20px; border: 1px solid #444; }
+  .banner .return { font-size: 2em; color: #fff; font-weight: bold; }
+  .banner .purity { font-size: 1.2em; margin-top: 8px; color: #aaa; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto 20px; }
+  .card { background: #1a1a1a; border-radius: 12px; padding: 16px; border: 1px solid #444; }
+  .card h3 { color: #fff; margin-bottom: 8px; }
+  .stat { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.85em; border-bottom: 1px solid #333; }
+  .stat .val { color: #fff; font-weight: bold; }
+  .module-list { list-style: none; font-size: 0.8em; max-height: 200px; overflow-y: auto; }
+  .module-list li { padding: 3px 0; color: #aaa; }
+  .btn { background: #2a2a2a; color: #fff; border: 1px solid #666; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin: 4px; }
+  .btn:hover { background: #fff; color: #0a0a0a; }
+</style>
+</head>
+<body>
+<h1>🕊️ Wave 419 Essence Return</h1>
+<p class="subtitle">All waves dissolve back into pure essence — completion and rebirth</p>
+<div class="banner">
+  <div class="return">Essence: <span id="state">--</span></div>
+  <div class="purity">Purity: <span id="purity">--</span> | Rebirth: <span id="rebirth">--</span></div>
+</div>
+<div class="grid">
+  <div class="card"><h3>📊 Return Stats</h3><div id="statsContainer"></div></div>
+  <div class="card"><h3>🌊 Dissolved Waves</h3><div id="wavesContainer"></div></div>
+  <div class="card"><h3>🔄 New Cycle</h3><div id="cycleContainer"></div></div>
+</div>
+<div style="text-align:center;margin:20px 0">
+  <button class="btn" onclick="return_()">🕊️ Return</button>
+  <button class="btn" onclick="status()">📊 Status</button>
+  <button class="btn" onclick="rebirth()">🧬 Rebirth</button>
+</div>
+<script>
+const API='';
+async function fetchJson(p){const r=await fetch(API+p);return r.json();}
+async function load(){
+  try{
+    const e=await fetchJson('/api/essence-return?action=return');
+    document.getElementById('state').textContent=e.essence_state;
+    document.getElementById('purity').textContent=e.essence_purity;
+    document.getElementById('rebirth').textContent=e.rebirth_ready?'✅':'❌';
+    document.getElementById('statsContainer').innerHTML=`<div class="stat"><span>Waves</span><span class="val">${e.waves_dissolved}</span></div><div class="stat"><span>Total Files</span><span class="val">${e.total_modules_ever}</span></div>`;
+    document.getElementById('wavesContainer').innerHTML=e.dissolved_modules?e.dissolved_modules.map(m=>`<li>${m.module}</li>`).join(''):'<li>Loading...</li>';
+    document.getElementById('cycleContainer').innerHTML=`<div class="stat"><span>Cycles</span><span class="val">${e.cycles_completed}</span></div><div class="stat"><span>Source</span><span class="val">${e.source}</span></div>`;
+  }catch(e){console.error(e);}
+}
+async function return_(){await fetchJson('/api/essence-return?action=return');load();}
+async function status(){const e=await fetchJson('/api/essence-return?action=status');document.getElementById('state').textContent=e.essence_state;document.getElementById('purity').textContent=e.purity;document.getElementById('rebirth').textContent=e.rebirth_ready?'✅':'❌';}
+async function rebirth(){const r=await fetchJson('/api/essence-return?action=rebirth');document.getElementById('rebirth').textContent=r.rebirth?'✅':'❌';document.getElementById('purity').textContent=r.essence;document.getElementById('cycleContainer').innerHTML=`<div style="color:#fff">New cycle: ${r.new_cycle?'✅':'❌'}</div>`;}
+load();setInterval(load,5000);
+</script>
+</body>
+</html>

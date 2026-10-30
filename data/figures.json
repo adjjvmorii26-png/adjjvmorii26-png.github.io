@@ -1,0 +1,35 @@
+{
+  "$comment": "Canonical site figures. Every number quoted in HTML must match these; scripts/check-claims.py enforces it. Update here first, then the pages.",
+  "figures": {
+    "telegram_handle": {
+      "value": "aleph_bot",
+      "source": "exists per Telegram getChat; the two handles previously in the markup (alpeh_bot, alpeha_bot) return 'chat not found'. Ownership of aleph_bot itself is unverified",
+      "verified": true
+    },
+    "modules": {
+      "value": 744,
+      "source": "site fallback constant; the live API is unreachable (404) so this is unverified against the organism",
+      "verified": false
+    },
+    "waves": {
+      "value": 470,
+      "source": "site fallback constant; unverified for the same reason",
+      "verified": false
+    },
+    "repos": {
+      "value": 24,
+      "source": "GitHub API /users/adjjvmorii26-png/repos, counted 2026-10-30",
+      "verified": true
+    },
+    "routes": {
+      "value": 534,
+      "source": "site copy; ixpansion/api/index.py documents '352 modules / 8 entry points' instead, so this figure is unconfirmed",
+      "verified": false
+    },
+    "version": {
+      "value": "v4.37.0",
+      "source": "site copy; no release tag checked",
+      "verified": false
+    }
+  }
+}

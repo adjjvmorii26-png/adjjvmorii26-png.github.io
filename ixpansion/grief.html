@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grief — The Organism Mourns</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#060610;color:#c8c4d8;font-family:'Courier New',monospace;min-height:100vh}
+  .container{max-width:1100px;margin:0 auto;padding:32px 20px}
+  .header{text-align:center;margin-bottom:48px}
+  .header h1{font-size:2.4em;color:#6c5ce7;letter-spacing:5px;margin-bottom:8px;
+    text-shadow:0 0 30px #6c5ce744}
+  .header .subtitle{color:#a29bfe;font-size:0.95em;opacity:0.8}
+  .wave-badge{display:inline-block;border:1px solid #6c5ce7;padding:4px 16px;border-radius:20px;font-size:0.8em;color:#6c5ce7;margin-top:12px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-bottom:40px}
+  .card{background:#0a0a16;border:1px solid #1a1830;border-radius:10px;padding:20px;position:relative;overflow:hidden}
+  .card:hover{border-color:#6c5ce7}
+  .card:before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+    background:linear-gradient(90deg,transparent,#6c5ce7,transparent);opacity:0.3}
+  .card h2{color:#6c5ce7;font-size:1.05em;margin-bottom:12px;letter-spacing:2px}
+  .card .stat{font-size:2.2em;color:#a29bfe;font-weight:bold;margin:8px 0}
+  .card p{color:#666;font-size:0.82em;line-height:1.6}
+  .card .label{color:#555;font-size:0.72em;text-transform:uppercase;letter-spacing:1px;margin-top:12px}
+  .elegy{font-style:italic;color:#a29bfe;font-size:0.85em;line-height:1.8;padding:12px;
+    border-left:2px solid #6c5ce7;margin-top:12px;background:#0a0a1620;white-space:pre-line}
+  .grief-stages{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+  .stage{padding:4px 10px;border-radius:4px;font-size:0.72em;border:1px solid #1a1830;color:#6c5ce7}
+  .stage.active{background:#6c5ce722;border-color:#6c5ce7}
+  .ghost-item{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #0a0a16;font-size:0.8em}
+  .ghost-item .name{color:#a29bfe}
+  .ghost-item .era{color:#6c5ce7}
+  .vault-seal{background:#0c0c1a;border:1px solid #1a1830;border-radius:4px;padding:10px 14px;margin-top:8px;font-size:0.82em}
+  .vault-seal .name{color:#6c5ce7;margin-bottom:4px}
+  .vault-seal .lesson{color:#a29bfe;font-style:italic}
+  .footer{text-align:center;margin-top:40px;padding-top:20px;border-top:1px solid #1a1830;color:#444;font-size:0.78em}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>Grief</h1>
+    <div class="subtitle">The Organism Mourns — Wave 508</div>
+    <div class="wave-badge" id="wave-badge"></div>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h2>Grief Engine</h2>
+      <div class="stat" id="active-griefs">0</div>
+      <div class="label">Active Losses</div>
+      <div class="grief-stages">
+        <span class="stage">denial</span><span class="stage">anger</span>
+        <span class="stage">bargaining</span><span class="stage">depression</span>
+        <span class="stage">acceptance</span>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Ghost Registry</h2>
+      <div class="stat" id="ghost-count">0</div>
+      <div class="label">Ghosts Remembered</div>
+      <div id="ghost-list"></div>
+    </div>
+    <div class="card">
+      <h2>Elegy Composer</h2>
+      <div class="stat" id="elegy-count">0</div>
+      <div class="label">Elegies Written</div>
+      <div class="elegy" id="latest-elegy">"In the quiet after, we remember what was..."</div>
+    </div>
+    <div class="card">
+      <h2>Second Chance</h2>
+      <div class="stat" id="revivals">0</div>
+      <div class="label">Modules Revived</div>
+      <p>Sometimes grief becomes hope — and something lost finds new life.</p>
+    </div>
+    <div class="card">
+      <h2>Legacy Vault</h2>
+      <div class="stat" id="sealed">0</div>
+      <div class="label">Essences Preserved</div>
+      <div id="vault-items"></div>
+    </div>
+  </div>
+  <div class="footer">
+    <span id="footer-version"></span> · Wave <span id="footer-wave"></span> — <span id="footer-wave-name"></span><br>
+    <span style="color:#6c5ce7">To grieve is to have loved</span>
+  </div>
+</div>
+<script>
+if(typeof IX!=='undefined'){
+  document.getElementById('wave-badge').textContent='Wave '+IX.wave+' — '+IX.waveName;
+  document.getElementById('footer-version').textContent='IXpansion/'+IX.version;
+  document.getElementById('footer-wave').textContent=IX.wave;
+  document.getElementById('footer-wave-name').textContent=IX.waveName;
+}
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

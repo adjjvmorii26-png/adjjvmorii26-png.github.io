@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave 413 Underworld</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a0a0f; color: #b0a0c0; padding: 20px; }
+  h1 { text-align: center; color: #aa88ff; margin-bottom: 8px; }
+  .subtitle { text-align: center; color: #7766aa; margin-bottom: 20px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto; }
+  .card { background: #14142a; border-radius: 12px; padding: 16px; border: 1px solid #2a1a4a; }
+  .card h3 { color: #aa88ff; margin-bottom: 8px; }
+  .stat { display: flex; justify-content: space-between; padding: 4px 0; font-size: 0.9em; border-bottom: 1px solid #1a1a3a; }
+  .stat .val { color: #aa88ff; font-weight: bold; }
+  .badge { background: #1a1a4a; padding: 2px 8px; border-radius: 8px; font-size: 0.75em; color: #8866cc; }
+  .btn { background: #1a1a4a; color: #aa88ff; border: 1px solid #aa88ff; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.85em; margin: 3px; }
+  .btn:hover { background: #aa88ff; color: #0a0a0f; }
+  .migration { background: #0a0a15; padding: 8px; border-radius: 6px; margin-top: 6px; font-size: 0.8em; }
+  .migration .path { color: #6666aa; }
+  #topologyCanvas { width: 100%; height: 250px; border: 1px solid #2a1a4a; border-radius: 8px; background: #0a0a0f; }
+</style>
+</head>
+<body>
+<h1>🗿 Wave 413 Underworld</h1>
+<p class="subtitle">Root-ghosts, cavern clocks, mineral languages, echo-economies</p>
+<div style="text-align:center;margin-bottom:20px">
+  <button class="btn" onclick="grow()">🌱 Grow Underworld</button>
+  <button class="btn" onclick="migrate()">🌀 Migrate</button>
+  <button class="btn" onclick="trade()">💰 Echo Trade</button>
+  <button class="btn" onclick="loadUW()">🔄 Refresh</button>
+</div>
+<div class="grid" id="uwGrid"></div>
+<h2 style="color:#aa88ff;text-align:center;margin:20px 0">Migration Topology</h2>
+<canvas id="topologyCanvas"></canvas>
+<script>
+const API='';
+async function fetchJson(p){const r=await fetch(API+p);return r.json();}
+function textEl(tag,className,value){const node=document.createElement(tag);if(className)node.className=className;node.textContent=String(value??'');return node;}
+async function loadUW(){
+  try{
+    const uw=await fetchJson('/api/underworld?action=status');
+    const grid=document.getElementById('uwGrid');
+    if(!Array.isArray(uw.caverns)||uw.caverns.length===0){
+      grid.replaceChildren(textEl('div','card','Not grown. Click Grow.'));return;
+    }
+    const fragment=document.createDocumentFragment();
+    for(const cavern of uw.caverns){
+      const card=document.createElement('div');card.className='card';
+      const heading=document.createElement('h3');heading.append(textEl('span','',cavern.name+' '),textEl('span','badge',String(cavern.depth??'?')+'m'));
+      card.appendChild(heading);
+      const stats=[
+        ['Mineral',cavern.mineral],['Age',cavern.age],
+        ['Scrolls',cavern.subterranean_archive?.scrolls],
+        ['Deciphered',cavern.subterranean_archive?.deciphered?'✅':'❌'],
+        ['Echo Rate',cavern.echo_economy?.currency]
+      ];
+      for(const [label,value] of stats){
+        const stat=document.createElement('div');stat.className='stat';
+        stat.append(textEl('span','',label),textEl('span','val',value));card.appendChild(stat);
+      }
+      const migration=document.createElement('div');migration.className='migration';
+      migration.appendChild(textEl('span','path',(Array.isArray(cavern.migrations)?cavern.migrations:[]).map(item=>item.destination).join('→')));
+      card.appendChild(migration);fragment.appendChild(card);
+    }
+    grid.replaceChildren(fragment);
+    drawTopo(uw);
+  }catch(e){console.error(e);}
+}
+function drawTopo(uw){
+  const c=document.getElementById('topologyCanvas');const ctx=c.getContext('2d');
+  c.width=c.offsetWidth*2;c.height=c.offsetHeight*2;ctx.scale(2,2);
+  const w=c.offsetWidth,h=c.offsetHeight;ctx.fillStyle='#0a0a0f';ctx.fillRect(0,0,w,h);
+  const ca=uw.caverns||[];if(ca.length===0)return;
+  const cx=w/2,cy=h/2,r=Math.min(w,h)*0.3;
+  const pos={};ca.forEach((_,i)=>{const a=(2*Math.PI*i/ca.length)-Math.PI/2;pos[i]={x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)}});
+  ctx.strokeStyle='#2a1a4a';(uw.edges||[]).forEach(e=>{const fi=ca.findIndex(x=>x.name===e.from);const ti=ca.findIndex(x=>x.name===e.to);if(fi<0||ti<0)return;ctx.beginPath();ctx.moveTo(pos[fi].x,pos[fi].y);ctx.lineTo(pos[ti].x,pos[ti].y);ctx.stroke()});
+  ca.forEach((gr,i)=>{const p=pos[i];ctx.beginPath();ctx.arc(p.x,p.y,8,0,2*Math.PI);ctx.fillStyle='#aa88ff';ctx.fill();ctx.fillStyle='#0a0a0f';ctx.font='bold 7px sans-serif';ctx.textAlign='center';ctx.fillText(gr.name.split(' ')[0],p.x,p.y+3)})
+}
+async function grow(){await fetchJson('/api/underworld?action=grow');loadUW();}
+async function migrate(){await fetchJson('/api/underworld?action=migrate');loadUW();}
+async function trade(){
+  const result=await fetchJson('/api/underworld?action=echo_trade');
+  const card=document.createElement('div');card.className='card';card.appendChild(textEl('h3','','Echo Trade'));
+  const stat=document.createElement('div');stat.className='stat';
+  stat.append(textEl('span','','Mineral'),textEl('span','val',result.mineral));
+  const rate=document.createElement('div');rate.className='stat';
+  rate.append(textEl('span','','Rate'),textEl('span','val',result.trade?.exchange_rate));
+  card.append(stat,rate);document.getElementById('uwGrid').appendChild(card);
+}
+loadUW();setInterval(loadUW,5000);
+</script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IXpansion · Teacher</title>
+<style>
+  :root{
+    --bg:#0b0b0d; --panel:#121218; --ink:#c8c8d4; --dim:#6b6b7a;
+    --gold:#fff3a0; --violet:#c8a8ff; --blue:#8fd3ff; --mint:#7fffd4;
+    --line:#262633;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;padding:24px;min-height:100vh}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{color:var(--gold)}
+  .wrap{max-width:960px;margin:0 auto}
+  header{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:24px}
+  h1{color:var(--gold);font-size:22px;letter-spacing:2px}
+  .sub{color:var(--dim);font-size:12px;margin-top:6px}
+  .identity{color:var(--violet);font-size:12px;margin-top:8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px}
+  .card h3{color:var(--blue);font-size:14px;margin-bottom:12px;letter-spacing:1px}
+  .card p{font-size:12px;line-height:1.7;color:var(--ink)}
+  .mono{color:var(--gold)}
+  .dim{color:var(--dim)}
+  pre{background:#0f0f14;border:1px solid var(--line);border-radius:8px;padding:14px;font-size:11px;overflow-x:auto;color:var(--mint);margin-top:12px}
+  .btn{display:inline-block;background:transparent;border:1px solid var(--gold);color:var(--gold);padding:6px 14px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer;margin:4px 4px 4px 0}
+  .btn:hover{background:var(--gold);color:var(--bg)}
+  .status{color:var(--dim);font-size:11px;margin-top:10px}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th{color:var(--blue);text-align:left;padding:6px;border-bottom:1px solid var(--line)}
+  td{padding:6px;border-bottom:1px solid #1a1a24}
+  footer{margin-top:32px;border-top:1px solid var(--line);padding-top:16px;font-size:11px;color:var(--dim)}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>◈ IXPANSION · TEACHER</h1>
+    <div class="sub">Wave 508 — The Organism Teaches. Mentors, lessons, apprentices, curricula, knowledge transfer, and the exam oracle.</div>
+    <div class="identity" id="identity"></div>
+  </header>
+
+  <div class="grid">
+    <div class="card">
+      <h3>◈ Lesson Vault</h3>
+      <div id="vault-out"><p class="dim">Opening the vault…</p></div>
+      <button class="btn" onclick="loadVault()">Open Vault</button>
+      <div class="status" id="vault-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◈ Mentor Engine</h3>
+      <div id="mentor-out"><p class="dim">Pairing mentors…</p></div>
+      <button class="btn" onclick="pairMentor()">Form Mentorship</button>
+      <div class="status" id="mentor-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◈ Curriculum Forge</h3>
+      <div id="curriculum-out"><p class="dim">Forging paths…</p></div>
+      <button class="btn" onclick="forgePath()">Forge Path</button>
+      <div class="status" id="curriculum-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◈ Apprentice Weaver</h3>
+      <div id="apprentice-out"><p class="dim">Weaving apprentices…</p></div>
+      <button class="btn" onclick="enrollApprentice()">Enroll Apprentice</button>
+      <div class="status" id="apprentice-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◈ Knowledge Transfer</h3>
+      <div id="transfer-out"><p class="dim">Measuring flow…</p></div>
+      <button class="btn" onclick="measureTransfer()">Measure Flow</button>
+      <div class="status" id="transfer-status"></div>
+    </div>
+
+    <div class="card">
+      <h3>◈ Exam Oracle</h3>
+      <div id="exam-out"><p class="dim">Posing the questions…</p></div>
+      <button class="btn" onclick="runExam()">Take Exam</button>
+      <div class="status" id="exam-status"></div>
+    </div>
+  </div>
+
+  <footer>
+    Every organ is both student and teacher. Wisdom flows; the organism learns; the flame is passed.
+  </footer>
+</div>
+
+<script>
+  window.IXP.renderIdentity && window.IXP.renderIdentity(document.getElementById('identity'));
+  const q = (e)=>document.getElementById(e);
+  function renderLines(target, lines){
+    const fragment = document.createDocumentFragment();
+    for(const line of lines){
+      const p = document.createElement('p');
+      for(const part of line){
+        if(typeof part === 'string'){ p.appendChild(document.createTextNode(part)); continue; }
+        const span = document.createElement('span');
+        if(part.className) span.className = part.className;
+        span.textContent = String(part.text ?? '');
+        p.appendChild(span);
+      }
+      fragment.appendChild(p);
+    }
+    target.replaceChildren(fragment);
+  }
+  function renderTable(target, headers, rows){
+    const table = document.createElement('table');
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    for(const label of headers){ const th=document.createElement('th'); th.textContent=label; headerRow.appendChild(th); }
+    thead.appendChild(headerRow); table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    for(const row of rows){
+      const tr=document.createElement('tr');
+      for(const value of row){ const td=document.createElement('td'); td.textContent=value == null ? '' : String(value); tr.appendChild(td); }
+      tbody.appendChild(tr);
+    }
+    table.appendChild(tbody); target.replaceChildren(table);
+  }
+  async function getJSON(url){ const r = await fetch(url, {headers:{Accept:'application/json'}}); if(!r.ok) throw new Error('Request failed ('+r.status+')'); return r.json(); }
+
+  async function loadVault(){
+    try{
+      const d = await getJSON('/api/lesson_vault');
+      const lessons = Array.isArray(d.lessons) ? d.lessons : [];
+      renderTable(q('vault-out'), ['ID','Lesson','Diff'], lessons.map(l=>[l.id,l.title,l.difficulty]));
+      q('vault-status').textContent = String(d.count ?? lessons.length) + ' lessons archived';
+    }catch(e){ q('vault-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function pairMentor(){
+    try{
+      const d = await getJSON('/api/mentor_engine?action=pair&junior=lesson_vault');
+      const bond = d.bond || {};
+      renderLines(q('mentor-out'), [
+        [{text:bond.id ?? '',className:'mono'}],
+        [String(bond.mentor ?? ''), ' → ', String(bond.junior ?? '')],
+        [{text:'Syllabus: ' + (Array.isArray(bond.syllabus) ? bond.syllabus.map(String).join(' · ') : ''),className:'dim'}]
+      ]);
+      q('mentor-status').textContent = 'Mentorship formed';
+    }catch(e){ q('mentor-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function forgePath(){
+    try{
+      const d = await getJSON('/api/curriculum_forge?action=forge&track=permanence');
+      renderLines(q('curriculum-out'), [
+        [{text:String(d.track ?? ''),className:'mono'}, ' — ', String(d.steps ?? '—'), ' steps'],
+        [{text:' ' + (Array.isArray(d.path) ? d.path.map(String).join(' → ') : ''),className:'dim'}]
+      ]);
+      q('curriculum-status').textContent = String(d.advice ?? '');
+    }catch(e){ q('curriculum-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function enrollApprentice(){
+    try{
+      const d = await getJSON('/api/apprentice_weaver?action=enroll&name=student_'+Date.now().toString().slice(-4));
+      const a = d.apprentice || {};
+      renderLines(q('apprentice-out'), [
+        [{text:a.id ?? '',className:'mono'}, ' — ', String(a.name ?? '')],
+        [{text:'Field: ' + String(a.field ?? '') + ' · Mentor: ' + String(a.mentor ?? ''),className:'dim'}],
+        [{text:'Status: ' + String(a.status ?? ''),className:'dim'}]
+      ]);
+      q('apprentice-status').textContent = 'Enrolled';
+    }catch(e){ q('apprentice-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function measureTransfer(){
+    try{
+      const d = await getJSON('/api/knowledge_transfer?action=measure&mentor=eternal_flame&learner=apprentice_weaver&mentor_resonance=0.86&learner_resonance=0.6');
+      renderLines(q('transfer-out'), [
+        ['Flow: ', {text:d.flow ?? '',className:'mono'}, ' · Efficacy: ', String(d.efficacy ?? '')],
+        [{text:'Learner gain: +' + String(d.learner_gain ?? ''),className:'dim'}]
+      ]);
+      q('transfer-status').textContent = String(d.mentor ?? '') + ' → ' + String(d.learner ?? '');
+    }catch(e){ q('transfer-status').textContent = 'Error: ' + e.message; }
+  }
+
+  async function runExam(){
+    try{
+      const qd = await getJSON('/api/exam_oracle?action=questions');
+      const answers = ["coherence_vitals", "KNOWN_LIVING_MODULES", "no", "code"];
+      const d = await getJSON('/api/exam_oracle?action=examine&answers=' + JSON.stringify(answers));
+      renderLines(q('exam-out'), [
+        ['Score: ', {text:d.score ?? '',className:'mono'}],
+        ['Grade: ', {text:d.grade ?? '',className:'mono'}],
+        [{text:'Details: ' + ((Array.isArray(d.details) ? d.details : []).map(dd => dd.correct ? '✓' : '✗').join(' ')),className:'dim'}]
+      ]);
+      q('exam-status').textContent = 'Examined ' + String(qd.count ?? 0) + ' questions';
+    }catch(e){ q('exam-status').textContent = 'Error: ' + e.message; }
+  }
+
+  loadVault();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

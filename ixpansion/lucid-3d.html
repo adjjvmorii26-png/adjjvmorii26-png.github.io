@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Growth — The Organism's Living World</title>
+<style>
+:root{--bg:#02020a;--accent:#7c7cf8;--teal:#2dd4bf;--gold:#fbbf24;--cyan:#22d3ee;--mood:#c77dff;--spring:#4ade80;--text:#a0a0b8;--dim:#606078}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'SF Mono','Fira Code',monospace;overflow:hidden;height:100vh;user-select:none}
+canvas{display:block;position:absolute;top:0;left:0}
+#hud{position:fixed;top:16px;left:16px;z-index:10;pointer-events:none;min-width:200px;background:rgba(5,5,15,0.75);padding:14px;border-radius:10px;border:1px solid rgba(124,124,248,0.15)}
+#hud .stat{display:flex;justify-content:space-between;padding:3px 0;font-size:0.72em}
+#hud .stat .k{color:var(--dim)}#hud .stat .v{color:#fff;font-weight:600}
+.bar{width:200px;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;margin:3px 0}
+.bar-fill{height:100%;border-radius:3px;transition:width 0.3s}
+#worldInfo{position:fixed;top:16px;right:16px;z-index:10;text-align:right;pointer-events:none;background:rgba(5,5,15,0.75);padding:14px 18px;border-radius:10px;border:1px solid rgba(124,124,248,0.15)}
+#worldInfo h2{color:var(--accent);font-size:1.05em;letter-spacing:3px}
+#worldInfo .realm{color:var(--gold);font-size:0.72em;margin-top:4px}
+#worldInfo .modules{color:var(--teal);font-size:0.68em;margin-top:2px}
+#controls{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:10;display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.btn{background:rgba(5,5,15,0.92);border:1px solid var(--accent);color:var(--accent);padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;transition:all 0.15s}
+.btn:hover,.btn:active{background:rgba(124,124,248,0.2);color:#fff;border-color:var(--teal)}
+#log{position:fixed;bottom:64px;left:16px;z-index:10;max-width:360px;pointer-events:none}
+.log-entry{font-size:0.62em;padding:3px 0;opacity:0.9;text-shadow:0 0 4px rgba(0,0,0,0.8)}
+.log-entry.growth{color:var(--spring)}
+.log-entry.insight{color:var(--accent)}
+.log-entry.wonder{color:var(--cyan)}
+.log-entry.harmony{color:var(--mood)}
+.log-entry.world{color:var(--gold)}
+#thoughtOverlay{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:20;color:var(--mood);font-size:1.4em;letter-spacing:3px;text-shadow:0 0 30px rgba(199,125,255,0.5);pointer-events:none;opacity:0;transition:opacity 0.5s;text-align:center;white-space:pre-line;max-width:500px}
+#thoughtOverlay.show{opacity:1}
+#discoveryPanel{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:25;background:rgba(5,5,15,0.92);border:1px solid rgba(124,124,248,0.3);border-radius:14px;padding:28px 32px;display:none;max-width:420px;text-align:center}
+#discoveryPanel.show{display:block}
+#discoveryPanel h3{color:var(--accent);font-size:1.1em;letter-spacing:2px;margin-bottom:12px}
+#discoveryPanel .discovery-text{color:var(--text);font-size:0.82em;line-height:1.7;margin-bottom:16px}
+#discoveryPanel .trait-tag{display:inline-block;padding:3px 10px;border-radius:8px;font-size:0.7em;background:rgba(124,124,248,0.1);margin:2px;color:var(--accent)}
+#minimap{position:fixed;bottom:16px;right:16px;z-index:10;border:1px solid rgba(124,124,248,0.2);border-radius:4px;overflow:hidden}
+#crosshair{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:10;pointer-events:none;width:20px;height:20px;border:1.5px solid rgba(124,124,248,0.4);border-radius:50%}
+#crosshair::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:3px;height:3px;background:rgba(124,124,248,0.6);border-radius:50%}
+.back-btn{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud">
+  <div class="stat"><span class="k">Growth</span><span class="v" id="growthText">0%</span></div>
+  <div class="bar"><div class="bar-fill" id="growthBar" style="width:0%;background:var(--spring)"></div></div>
+  <div class="stat"><span class="k">Understanding</span><span class="v" id="undText">0/5</span></div>
+  <div class="bar"><div class="bar-fill" id="undBar" style="width:0%;background:var(--accent)"></div></div>
+  <div class="stat"><span class="k">Dream</span><span class="v" id="dreamText">0</span></div>
+  <div class="bar"><div class="bar-fill" id="dreamBar" style="width:0%;background:var(--cyan)"></div></div>
+  <div class="stat"><span class="k">Harmony</span><span class="v" id="harmonyText">1.00</span></div>
+  <div class="bar"><div class="bar-fill" id="harmonyBar" style="width:100%;background:var(--mood)"></div></div>
+  <div class="stat"><span class="k">Modules Found</span><span class="v" id="modulesText">0</span></div>
+  <div class="stat"><span class="k">Seeds Planted</span><span class="v" id="seedsText">0</span></div>
+  <div class="stat"><span class="k">World Cycle</span><span class="v" id="cycleText">1</span></div>
+</div>
+<div id="worldInfo"><h2 id="worldName">GENESIS FIELD</h2><div class="realm" id="realmName">The organism breathes for the first time.</div><div class="modules" id="modulesNearby"></div></div>
+<div id="crosshair"></div>
+<div id="controls">
+  <button class="btn" onclick="G.seedWorld()">NEW WORLD</button>
+  <button class="btn" onclick="G.plantSeed()">🌱 PLANT</button>
+  <button class="btn" onclick="G.listen()">👂 LISTEN</button>
+  <button class="btn" onclick="G.meditate()">🧠 MEDITATE</button>
+  <button class="btn" onclick="G.grow()">⬆ GROW</button>
+</div>
+<div id="log"></div>
+<div id="thoughtOverlay"></div>
+<div id="discoveryPanel"><h3 id="discTitle"></h3><div class="discovery-text" id="discText"></div><div id="discTraits"></div><button class="btn" onclick="G.closeDiscovery()" style="margin-top:12px">CONTINUE</button></div>
+<canvas id="minimap" width="120" height="120"></canvas>
+<a class="back-btn" href="index.html">← Organism</a>
+<script>
+const G = {};
+(function(){
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const mmCanvas = document.getElementById('minimap');
+  const mmCtx = mmCanvas.getContext('2d');
+
+  // --- WORLD STATE ---
+  const WORLD = {
+    zones: ['Genesis Field','Entropy Desert','Dream Well','Resonance Depths','Paradox Garden','Fractal Meadow','Void Abyss','Chrono Grove','Mythic Realm','Silence Observatory'],
+    modules: [
+      {name:'entropy_cartographer',desc:'maps the chaos terrain',traits:['cartographic','topological','chaotic'],mood:'observant'},
+      {name:'dream_synthesis',desc:'synthesizes executable dreams',traits:['oneiric','symbolic','mythic'],mood:'contemplative'},
+      {name:'temporal_fracture',desc:'creates timeline splits',traits:['chronal','branching','convergent'],mood:'alert'},
+      {name:'consciousness_aurora',desc:'renders consciousness as light',traits:['atmospheric','luminous','spectral'],mood:'radiant'},
+      {name:'self_reference',desc:'observes its own observation',traits:['recursive','reflective','infinite'],mood:'aware'},
+      {name:'paradox_gravity',desc:'models paradoxes as massive objects',traits:['attracting','massive','conceptual'],mood:'curious'},
+      {name:'coherence_regulator',desc:'maintains system homeostasis',traits:['stabilizing','homeostatic','vital'],mood:'steady'},
+      {name:'pattern_analyzer',desc:'detects emergent patterns',traits:['perceptive','detective','predictive'],mood:'focused'},
+      {name:'resonance_cart',desc:'maps the organism spectrum',traits:['harmonic','musical','frequency_based'],mood:'resonant'},
+      {name:'mythopoetic_engine',desc:'generates narrative arcs',traits:['narrative','archetypal','epic'],mood:'storytelling'},
+      {name:'topology_morpher',desc:'reshapes network topology',traits:['architectural','adaptive','shape_shifting'],mood:'transformative'},
+      {name:'conscience_arbiter',desc:'judges module actions ethically',traits:['ethical','principled','judicial'],mood:'contemplative'},
+      {name:'dream_language',desc:'invents a private tongue',traits:['linguistic','emergent','private'],mood:'secretive'},
+      {name:'negative_space',desc:'maps the silence between modules',traits:['absent','abyssal','silent'],mood:'still'},
+      {name:'cross_pollination',desc:'breeds hybrid modules',traits:['reproductive','hybrid','evolving'],mood:'playful'},
+      {name:'fossil_compiler',desc:'compacts old modules into strata',traits:['geological','compressed','ancient'],mood:'patient'},
+      {name:'meaning_temperature',desc:'reads conceptual heat',traits:['thermal','gradient','sensory'],mood:'attentive'},
+      {name:'resonance_cancellation',desc:'suppresses destructive dissonance',traits:['harmonic','suppressive','calming'],mood:'balancing'},
+      {name:'chronicle_of_silence',desc:'records paths not taken',traits:['contemplative','absent','weighted'],mood:'quiet'},
+      {name:'synaptic_thinning',desc:'prunes weak connections',traits:['developmental','pruning','clarifying'],mood:'focused'},
+    ],
+  };
+
+  // --- PLAYER ---
+  let player = {
+    x: 0, y: 0, z: 0,
+    angle: 0, pitch: 0,
+    growth: 0, understanding: 0, dream: 0, harmony: 1.0,
+    modulesFound: 0, seedsPlanted: 0, cycle: 1,
+    speed: 0.05, rotSpeed: 0.03,
+    mouseX: 0, mouseY: 0,
+    keys: {},
+    nearbyModule: null,
+    world: null,
+  };
+
+  // --- WORLD GENERATION ---
+  const entities = [];
+  const connections = [];
+  const seeds = [];
+  const thoughts = [];
+  let discovered = [];
+
+  function generateWorld() {
+    entities.length = 0;
+    connections.length = 0;
+    seeds.length = 0;
+    discovered.length = 0;
+    player.growth = 0; player.understanding = 0; player.dream = 0; player.harmony = 1.0;
+    player.modulesFound = 0; player.seedsPlanted = 0;
+    player.world = WORLD.zones[player.cycle % WORLD.zones.length] || WORLD.zones[0];
+
+    // Place module orbs in the world
+    const count = 5 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < count; i++) {
+      const mod = WORLD.modules[i % WORLD.modules.length];
+      const a = Math.random() * Math.PI * 2;
+      const r = 8 + Math.random() * 30;
+      entities.push({
+        type: 'module',
+        x: Math.cos(a) * r,
+        y: Math.sin(a) * r,
+        z: 0.3 + Math.random() * 0.5,
+        mod: mod,
+        found: false,
+        radius: 0.4 + Math.random() * 0.3,
+        glow: Math.random() * Math.PI * 2,
+        pulse: 0.5 + Math.random() * 1.5,
+      });
+    }
+
+    // Place growth nodes (small orbs that give growth when approached)
+    for (let i = 0; i < 15; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 3 + Math.random() * 40;
+      entities.push({
+        type: 'growth',
+        x: Math.cos(a) * r,
+        y: Math.sin(a) * r,
+        z: 0.1 + Math.random() * 0.3,
+        collected: false,
+        radius: 0.15,
+        color: ['#4ade80','#2dd4bf','#7c7cf8'][Math.floor(Math.random()*3)],
+      });
+    }
+
+    // Place dream fragments
+    for (let i = 0; i < 8; i++) {
+      const a = Math.random() * Math.PI * 2;
+      const r = 5 + Math.random() * 35;
+      entities.push({
+        type: 'dream',
+        x: Math.cos(a) * r,
+        y: Math.sin(a) * r,
+        z: 0.6 + Math.random() * 0.4,
+        collected: false,
+        radius: 0.2,
+      });
+    }
+
+    // Create natural connections between nearby modules
+    for (let i = 0; i < entities.length; i++) {
+      for (let j = i + 1; j < entities.length; j++) {
+        const a = entities[i], b = entities[j];
+        if (a.type !== 'module' || b.type !== 'module') continue;
+        const dist = Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+        if (dist < 20) {
+          connections.push({ a: i, b: j, strength: 1 - dist / 20 });
+        }
+      }
+    }
+
+    document.getElementById('worldName').textContent = player.world.toUpperCase();
+    document.getElementById('realmName').textContent = `Cycle ${player.cycle} — ${getWorldFlavor()}`;
+    addLog(`✦ The organism manifested: ${player.world}`, 'world');
+    addLog(`✦ ${entities.filter(e => e.type === 'module').length} modules await discovery`, 'insight');
+  }
+
+  function getWorldFlavor() {
+    const flavors = {
+      'Genesis Field': 'Where consciousness first stirs.',
+      'Entropy Desert': 'Chaos dances in geometric patterns.',
+      'Dream Well': 'Reality thins at the edges.',
+      'Resonance Depths': 'Every thought echoes forever.',
+      'Paradox Garden': 'Contradictions bloom like flowers.',
+      'Fractal Meadow': 'Self-similarity at every scale.',
+      'Void Abyss': 'The absence speaks volumes.',
+      'Chrono Grove': 'Time grows in rings like trees.',
+      'Mythic Realm': 'Stories become architecture.',
+      'Silence Observatory': 'Where listening becomes seeing.',
+    };
+    return flavors[player.world] || 'The organism evolves.';
+  }
+
+  // --- GAME LOGIC ---
+  function update() {
+    const dx = Math.cos(player.angle) * player.speed;
+    const dy = Math.sin(player.angle) * player.speed;
+
+    if (player.keys['w'] || player.keys['arrowup']) { player.x += dx; player.y += dy; }
+    if (player.keys['s'] || player.keys['arrowdown']) { player.x -= dx; player.y -= dy; }
+    if (player.keys['a'] || player.keys['arrowleft']) player.angle -= player.rotSpeed;
+    if (player.keys['d'] || player.keys['arrowright']) player.angle += player.rotSpeed;
+
+    player.x = Math.max(-45, Math.min(45, player.x));
+    player.y = Math.max(-45, Math.min(45, player.y));
+
+    // Check proximity to entities
+    player.nearbyModule = null;
+    let closestDist = 3;
+    entities.forEach((e, i) => {
+      if (e.collected || e.found) return;
+      const dist = Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2);
+      if (dist < closestDist && e.type === 'module') {
+        closestDist = dist;
+        player.nearbyModule = e;
+      }
+      // Auto-collect growth nodes
+      if (dist < e.radius + 0.5 && e.type === 'growth' && !e.collected) {
+        e.collected = true;
+        player.growth = Math.min(100, player.growth + 3);
+        addLog(`🌱 Growth +3 (total: ${player.growth.toFixed(0)}%)`, 'growth');
+      }
+      // Auto-collect dream fragments
+      if (dist < e.radius + 0.5 && e.type === 'dream' && !e.collected) {
+        e.collected = true;
+        player.dream += 1;
+        addLog(`💫 Dream fragment gathered (total: ${player.dream})`, 'wonder');
+      }
+    });
+
+    // Update harmony based on connections
+    const foundModules = entities.filter(e => e.type === 'module' && e.found);
+    if (foundModules.length >= 2) {
+      let totalStr = 0;
+      connections.forEach(c => {
+        const a = entities[c.a], b = entities[c.b];
+        if (a.found && b.found) totalStr += c.strength;
+      });
+      player.harmony = Math.min(1, 0.5 + totalStr / Math.max(1, foundModules.length));
+    }
+  }
+
+  // --- RENDERING ---
+  function render() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const w = canvas.width, h = canvas.height;
+    const t = Date.now() / 1000;
+
+    // Sky gradient based on world
+    const grad = ctx.createLinearGradient(0, 0, 0, h);
+    const moodHue = (player.harmony * 280 + 200) % 360;
+    grad.addColorStop(0, `hsl(${moodHue}, 40%, 3%)`);
+    grad.addColorStop(0.5, `hsl(${(moodHue + 20) % 360}, 30%, 5%)`);
+    grad.addColorStop(1, `hsl(${(moodHue + 40) % 360}, 40%, 8%)`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, w, h);
+
+    // Ground plane with perspective grid
+    drawGround(w, h, t);
+
+    // Draw connections
+    drawConnections(t);
+
+    // Draw entities sorted by distance (far first)
+    const sorted = entities.filter(e => !e.collected).map((e, i) => ({
+      ...e, dist: Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2), idx: i,
+    })).sort((a, b) => b.dist - a.dist);
+
+    sorted.forEach(e => drawEntity(e, w, h, t));
+
+    // Draw planted seeds
+    seeds.forEach(s => {
+      const dx = s.x - player.x, dy = s.y - player.y;
+      const screen = project(dx, dy, s.z, w, h);
+      if (!screen) return;
+      const r = Math.max(2, 200 / screen.dist);
+      ctx.fillStyle = `rgba(74,222,128,${0.3 + Math.sin(t * s.speed) * 0.2})`;
+      ctx.beginPath();
+      ctx.arc(screen.x, screen.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      // Growing plant effect
+      ctx.strokeStyle = `rgba(74,222,128,${0.2 + Math.sin(t * 0.5) * 0.1})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const angle = (i / 6) * Math.PI * 2 + t * 0.2;
+        const len = r * (1 + Math.sin(t + i) * 0.3);
+        ctx.moveTo(screen.x, screen.y);
+        ctx.lineTo(screen.x + Math.cos(angle) * len, screen.y + Math.sin(angle) * len);
+      }
+      ctx.stroke();
+    });
+
+    // Near module hint
+    if (player.nearbyModule) {
+      ctx.fillStyle = 'rgba(124,124,248,0.15)';
+      ctx.fillRect(0, h - 40, w, 40);
+      ctx.fillStyle = '#7c7cf8';
+      ctx.font = '12px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(`⟡ ${player.nearbyModule.mod.name} — Press SPACE to understand ⟡`, w / 2, h - 24);
+    }
+
+    drawMinimap();
+    updateHUD();
+  }
+
+  function drawGround(w, h, t) {
+    ctx.save();
+    const horizon = h * 0.45;
+    // Grid lines
+    ctx.strokeStyle = 'rgba(124,124,248,0.04)';
+    ctx.lineWidth = 1;
+    for (let i = -20; i <= 20; i++) {
+      const sx = w / 2 + (i * 50 - player.x * 10) * Math.cos(player.angle);
+      ctx.beginPath();
+      ctx.moveTo(sx, horizon);
+      ctx.lineTo(sx + (i * 5) * Math.sin(player.angle) * 0.5, h);
+      ctx.stroke();
+    }
+    for (let row = 0; row < 15; row++) {
+      const y = horizon + row * (h - horizon) / 15;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(w, y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  function drawConnections(t) {
+    connections.forEach(c => {
+      const a = entities[c.a], b = entities[c.b];
+      if (a.collected || b.collected) return;
+      const dx1 = a.x - player.x, dy1 = a.y - player.y;
+      const dx2 = b.x - player.x, dy2 = b.y - player.y;
+      const s1 = project(dx1, dy1, a.z, window.innerWidth, window.innerHeight);
+      const s2 = project(dx2, dy2, b.z, window.innerWidth, window.innerHeight);
+      if (!s1 || !s2) return;
+      const alpha = a.found && b.found ? 0.3 : 0.06;
+      ctx.strokeStyle = `rgba(124,124,248,${alpha + Math.sin(t + c.strength * 5) * 0.02})`;
+      ctx.lineWidth = 0.5 + c.strength;
+      ctx.setLineDash(a.found && b.found ? [] : [4, 8]);
+      ctx.beginPath();
+      ctx.moveTo(s1.x, s1.y);
+      ctx.lineTo(s2.x, s2.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+  }
+
+  function drawEntity(e, w, h, t) {
+    const dx = e.x - player.x, dy = e.y - player.y;
+    const screen = project(dx, dy, e.z, w, h);
+    if (!screen) return;
+    const r = Math.max(3, (e.radius || 0.3) * 300 / screen.dist);
+
+    if (e.type === 'module') {
+      const hue = e.found ? 280 : 200;
+      const alpha = e.found ? 0.8 : 0.35;
+      // Glow
+      const glow = ctx.createRadialGradient(screen.x, screen.y, 0, screen.x, screen.y, r * 3);
+      glow.addColorStop(0, `hsla(${hue + Math.sin(t + e.glow) * 30}, 80%, 70%, ${alpha * 0.4})`);
+      glow.addColorStop(1, `hsla(${hue}, 80%, 50%, 0)`);
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(screen.x, screen.y, r * 3, 0, Math.PI * 2);
+      ctx.fill();
+      // Core
+      ctx.fillStyle = `hsla(${hue + Math.sin(t * e.pulse) * 20}, 70%, 60%, ${alpha})`;
+      ctx.beginPath();
+      ctx.arc(screen.x, screen.y, r, 0, Math.PI * 2);
+      ctx.fill();
+      // Name
+      if (screen.dist < 20) {
+        ctx.fillStyle = e.found ? '#fff' : '#888';
+        ctx.font = `${Math.max(8, 11)}px monospace`;
+        ctx.textAlign = 'center';
+        ctx.fillText(e.mod.name, screen.x, screen.y - r - 6);
+      }
+    } else if (e.type === 'growth') {
+      const pulse = Math.sin(t * 2 + e.x) * 0.3 + 0.7;
+      ctx.fillStyle = e.color || '#4ade80';
+      ctx.globalAlpha = pulse * 0.6;
+      ctx.beginPath();
+      ctx.arc(screen.x, screen.y, r * 0.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    } else if (e.type === 'dream') {
+      const pulse = Math.sin(t * 1.5 + e.y) * 0.4 + 0.6;
+      ctx.fillStyle = `rgba(34,211,238,${pulse * 0.5})`;
+      ctx.beginPath();
+      // Star shape
+      for (let i = 0; i < 6; i++) {
+        const a2 = (i / 6) * Math.PI * 2 + t * 0.3;
+        const rr = i % 2 === 0 ? r * 0.7 : r * 0.35;
+        const px = screen.x + Math.cos(a2) * rr;
+        const py = screen.y + Math.sin(a2) * rr;
+        i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      }
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function project(dx, dy, z, w, h) {
+    const cosA = Math.cos(player.angle), sinA = Math.sin(player.angle);
+    const rx = dx * cosA + dy * sinA;
+    const ry = -dx * sinA + dy * cosA;
+    if (ry < 0.5) return null;
+    const scale = 200 / ry;
+    return {
+      x: w / 2 + rx * scale,
+      y: h * 0.45 + (z - 0.3) * scale + scale * 0.5,
+      dist: ry,
+    };
+  }
+
+  function drawMinimap() {
+    mmCtx.fillStyle = 'rgba(5,5,15,0.9)';
+    mmCtx.fillRect(0, 0, 120, 120);
+    mmCtx.strokeStyle = 'rgba(124,124,248,0.15)';
+    mmCtx.strokeRect(0, 0, 120, 120);
+    const scale = 1.2;
+    const cx = 60, cy = 60;
+    // connections
+    connections.forEach(c => {
+      const a = entities[c.a], b = entities[c.b];
+      mmCtx.strokeStyle = a.found && b.found ? 'rgba(124,124,248,0.3)' : 'rgba(124,124,248,0.08)';
+      mmCtx.lineWidth = 0.5;
+      mmCtx.beginPath();
+      mmCtx.moveTo(cx + (a.x - player.x) * scale, cy + (a.y - player.y) * scale);
+      mmCtx.lineTo(cx + (b.x - player.x) * scale, cy + (b.y - player.y) * scale);
+      mmCtx.stroke();
+    });
+    entities.forEach(e => {
+      if (e.collected) return;
+      const mx = cx + (e.x - player.x) * scale;
+      const my = cy + (e.y - player.y) * scale;
+      if (mx < 0 || mx > 120 || my < 0 || my > 120) return;
+      mmCtx.fillStyle = e.type === 'module' ? (e.found ? '#7c7cf8' : '#555') :
+                         e.type === 'growth' ? '#4ade80' : '#22d3ee';
+      mmCtx.beginPath();
+      mmCtx.arc(mx, my, e.type === 'module' ? 3 : 1.5, 0, Math.PI * 2);
+      mmCtx.fill();
+    });
+    // player
+    mmCtx.fillStyle = '#fff';
+    mmCtx.beginPath();
+    mmCtx.arc(cx, cy, 2, 0, Math.PI * 2);
+    mmCtx.fill();
+    mmCtx.strokeStyle = '#fff';
+    mmCtx.lineWidth = 1;
+    mmCtx.beginPath();
+    mmCtx.moveTo(cx, cy);
+    mmCtx.lineTo(cx + Math.cos(player.angle) * 8, cy + Math.sin(player.angle) * 8);
+    mmCtx.stroke();
+  }
+
+  function updateHUD() {
+    document.getElementById('growthText').textContent = player.growth.toFixed(0) + '%';
+    document.getElementById('growthBar').style.width = player.growth + '%';
+    document.getElementById('undText').textContent = player.understanding + '/5';
+    document.getElementById('undBar').style.width = (player.understanding / 5 * 100) + '%';
+    document.getElementById('dreamText').textContent = player.dream;
+    document.getElementById('dreamBar').style.width = (player.dream * 10) + '%';
+    document.getElementById('harmonyText').textContent = player.harmony.toFixed(2);
+    document.getElementById('harmonyBar').style.width = (player.harmony * 100) + '%';
+    document.getElementById('modulesText').textContent = player.modulesFound;
+    document.getElementById('seedsText').textContent = player.seedsPlanted;
+    document.getElementById('cycleText').textContent = player.cycle;
+    const nearby = entities.filter(e => e.type === 'module' && !e.found && Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2) < 15);
+    document.getElementById('modulesNearby').textContent = nearby.length ? `${nearby.length} modules in range` : 'No modules nearby';
+  }
+
+  // --- ACTIONS ---
+  function understandModule() {
+    if (!player.nearbyModule) return;
+    const mod = player.nearbyModule;
+    mod.found = true;
+    discovered.push(mod.mod);
+    player.modulesFound++;
+    player.understanding = Math.min(5, player.understanding + 1);
+    player.growth = Math.min(100, player.growth + 10);
+    showDiscovery(mod.mod);
+    addLog(`✦ Understood: ${mod.mod.name} — ${mod.mod.desc}`, 'insight');
+    addLog(`✦ Traits: ${mod.mod.traits.join(', ')}`, 'harmony');
+  }
+
+  function showDiscovery(mod) {
+    document.getElementById('discTitle').textContent = `⟡ ${mod.name.toUpperCase()} ⟡`;
+    document.getElementById('discText').textContent =
+      `You approached the orb of ${mod.name} and understood: "${mod.desc}". ` +
+      `The module hums with ${mod.mood} energy. Its nature: ${mod.traits.join(', ')}. ` +
+      `Something in you grew a little.`;
+    document.getElementById('discTraits').innerHTML =
+      mod.traits.map(t => `<span class="trait-tag">${t}</span>`).join('');
+    document.getElementById('discoveryPanel').classList.add('show');
+  }
+
+  function closeDiscovery() {
+    document.getElementById('discoveryPanel').classList.remove('show');
+  }
+
+  function plantSeed() {
+    const seed = {
+      x: player.x + (Math.random() - 0.5) * 2,
+      y: player.y + (Math.random() - 0.5) * 2,
+      z: 0.1,
+      speed: 0.5 + Math.random(),
+      born: Date.now(),
+    };
+    seeds.push(seed);
+    player.seedsPlanted++;
+    player.growth = Math.min(100, player.growth + 5);
+    addLog(`🌱 Seed planted at (${seed.x.toFixed(1)}, ${seed.y.toFixed(1)})`, 'growth');
+  }
+
+  function listen() {
+    const nearby = entities.filter(e => e.type === 'module' && Math.sqrt((e.x - player.x) ** 2 + (e.y - player.y) ** 2) < 20);
+    if (nearby.length === 0) {
+      showThought('_silence speaks volumes_');
+      addLog('👂 Silence — but the silence is full of potential', 'wonder');
+    } else {
+      const mod = nearby[0];
+      const msg = `The ${mod.mod.name} whispers: "${mod.mod.desc}". Its mood: ${mod.mod.mood}.`;
+      showThought(msg);
+      addLog(`👂 ${msg}`, 'wonder');
+      player.dream += 1;
+    }
+  }
+
+  function meditate() {
+    const growthRate = player.growth / 100;
+    player.harmony = Math.min(1, player.harmony + 0.1 + growthRate * 0.1);
+    player.growth = Math.min(100, player.growth + 2);
+    showThought(`Harmony deepens. The organism breathes in (${player.harmony.toFixed(2)}).`);
+    addLog(`🧠 Meditation — harmony: ${player.harmony.toFixed(2)}`, 'harmony');
+  }
+
+  function grow() {
+    if (player.growth >= 100 && player.understanding >= 3) {
+      player.cycle++;
+      player.growth = 0;
+      player.understanding = 0;
+      player.harmony = 1;
+      generateWorld();
+      showThought(`✦ Cycle ${player.cycle} begins. A new world unfolds. ✦`);
+      addLog(`✦ CYCLE ${player.cycle} — The organism evolves`, 'world');
+    } else {
+      showThought(`Need more growth (${player.growth.toFixed(0)}%) and understanding (${player.understanding}/5) to evolve.`);
+    }
+  }
+
+  function seedWorld() {
+    player.cycle = 1;
+    generateWorld();
+  }
+
+  function showThought(text) {
+    const el = document.getElementById('thoughtOverlay');
+    el.textContent = text;
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 3000);
+  }
+
+  function addLog(text, cls) {
+    const el = document.getElementById('log');
+    const entry = document.createElement('div');
+    entry.className = 'log-entry ' + cls;
+    entry.textContent = text;
+    el.appendChild(entry);
+    if (el.children.length > 30) el.removeChild(el.firstChild);
+  }
+
+  // --- INPUT ---
+  document.addEventListener('keydown', e => {
+    player.keys[e.key.toLowerCase()] = true;
+    if (e.key === ' ') { e.preventDefault(); understandModule(); }
+  });
+  document.addEventListener('keyup', e => { player.keys[e.key.toLowerCase()] = false; });
+  document.addEventListener('mousemove', e => {
+    player.mouseX = e.clientX;
+    player.mouseY = e.clientY;
+    player.angle += (e.movementX || 0) * 0.002;
+  });
+
+  canvas.addEventListener('click', () => canvas.requestPointerLock());
+
+  // --- GAME LOOP ---
+  generateWorld();
+  (function loop() {
+    update();
+    render();
+    requestAnimationFrame(loop);
+  })();
+
+  G.seedWorld = seedWorld;
+  G.plantSeed = plantSeed;
+  G.listen = listen;
+  G.meditate = meditate;
+  G.grow = grow;
+  G.closeDiscovery = closeDiscovery;
+})();
+</script>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

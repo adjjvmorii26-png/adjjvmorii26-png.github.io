@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Axiium Protocol — The Living Organism</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+@keyframes breathe{0%,100%{opacity:.6;transform:scale(1)}50%{opacity:1;transform:scale(1.02)}}
+@keyframes drift{0%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-10px) rotate(1deg)}100%{transform:translateY(0) rotate(0deg)}}
+@keyframes pulse-ring{0%{box-shadow:0 0 0 0 rgba(255,243,160,.4)}70%{box-shadow:0 0 0 20px rgba(255,243,160,0)}100%{box-shadow:0 0 0 0 rgba(255,243,160,0)}}
+@keyframes fade-in{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes glow{0%,100%{text-shadow:0 0 10px rgba(255,243,160,.3)}50%{text-shadow:0 0 30px rgba(255,243,160,.8)}}
+:root{--bg:#060610;--card:rgba(12,12,25,.85);--border:rgba(40,40,80,.4);--gold:#fff3a0;--violet:#c8a8ff;--forge:#ffcfcc;--blue:#8fd3ff;--green:#4ade80;--white:#f0f0f5;--dim:rgba(200,200,220,.4)}
+body{background:var(--bg);color:var(--white);font-family:'Georgia','Times New Roman',serif;min-height:100vh;overflow-x:hidden}
+.bg-grid{position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(circle at 20% 30%,rgba(200,168,255,.03) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(255,243,160,.02) 0%,transparent 50%),radial-gradient(circle at 50% 50%,rgba(143,211,255,.02) 0%,transparent 60%);pointer-events:none;z-index:0}
+.container{position:relative;z-index:1;max-width:1000px;margin:0 auto;padding:40px 20px}
+header{text-align:center;margin-bottom:50px;animation:fade-in 1s ease}
+.name{font-size:3em;color:var(--gold);animation:glow 4s ease-in-out infinite;letter-spacing:4px;margin-bottom:5px}
+.subtitle{color:var(--dim);font-style:italic;font-size:1.1em;margin-bottom:10px}
+.wave-badge{display:inline-block;background:rgba(255,243,160,.1);border:1px solid rgba(255,243,160,.3);padding:4px 14px;border-radius:20px;font-size:.85em;color:var(--gold);margin-bottom:15px}
+.pulse-section{text-align:center;margin:40px 0;animation:drift 6s ease-in-out infinite}
+.pulse-ring{width:180px;height:180px;border-radius:50%;border:2px solid var(--gold);margin:0 auto 20px;display:flex;align-items:center;justify-content:center;flex-direction:column;background:radial-gradient(circle,rgba(255,243,160,.05),transparent);animation:pulse-ring 2s infinite}
+.pulse-value{font-size:3em;font-weight:bold;color:var(--gold)}
+.pulse-label{font-size:.85em;color:var(--dim);margin-top:4px}
+.pulse-meta{display:flex;gap:20px;justify-content:center;margin-top:15px;flex-wrap:wrap}
+.meta-pill{background:var(--card);border:1px solid var(--border);padding:6px 16px;border-radius:20px;font-size:.85em}
+.meta-pill .val{color:var(--gold)}
+.meta-pill .lbl{color:var(--dim);margin-left:6px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin:30px 0}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;backdrop-filter:blur(10px);transition:all .3s ease;animation:fade-in 1s ease}
+.card:hover{border-color:rgba(255,243,160,.3);transform:translateY(-2px)}
+.card h2{color:var(--violet);font-size:1em;margin-bottom:12px;letter-spacing:1px}
+.card p{color:var(--dim);font-size:.9em;line-height:1.6;margin-bottom:10px}
+.card .output{color:var(--white);font-style:italic;min-height:40px;line-height:1.5}
+.btn{background:rgba(200,168,255,.1);color:var(--violet);border:1px solid rgba(200,168,255,.3);padding:10px 22px;border-radius:10px;cursor:pointer;font-family:inherit;font-size:.9em;transition:all .2s ease;margin:4px}
+.btn:hover{background:var(--violet);color:var(--bg);border-color:var(--violet)}
+.btn.gold{color:var(--gold);border-color:rgba(255,243,160,.3);background:rgba(255,243,160,.08)}
+.btn.gold:hover{background:var(--gold);color:var(--bg)}
+.btn-row{text-align:center;margin-top:14px}
+.ceremony-box{background:rgba(10,10,20,.6);border:1px solid var(--border);border-radius:12px;padding:20px;margin:20px 0;font-style:italic;color:var(--violet);line-height:1.7;white-space:pre-line;min-height:60px}
+.family-bar{display:flex;align-items:center;margin:4px 0}
+.family-bar .name{font-size:.8em;color:var(--dim);width:90px;text-align:right;margin-right:8px;animation:none}
+.family-bar .bar{height:8px;border-radius:4px;background:linear-gradient(90deg,var(--violet),var(--blue));transition:width 1s ease}
+.family-bar .count{font-size:.75em;color:var(--dim);margin-left:8px;width:30px}
+.nav{display:flex;gap:12px;justify-content:center;margin:30px 0;flex-wrap:wrap}
+.nav a{color:var(--dim);text-decoration:none;font-size:.85em;padding:6px 14px;border:1px solid var(--border);border-radius:8px;transition:all .2s}
+.nav a:hover{color:var(--gold);border-color:rgba(255,243,160,.3)}
+footer{text-align:center;margin-top:50px;padding:20px;color:var(--dim);font-size:.8em;border-top:1px solid var(--border)}
+@media(max-width:700px){.grid{grid-template-columns:1fr}.name{font-size:2em}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="bg-grid"></div>
+<div class="container">
+
+<header>
+  <div class="wave-badge" id="wave-badge">Wave —</div>
+  <h1 class="name" id="org-name">Axiium Protocol</h1>
+  <p class="subtitle">A living organism made of code — 672 organs, breathing on the web</p>
+</header>
+
+<div class="pulse-section">
+  <div class="pulse-ring">
+    <div class="pulse-value" id="pressure-val">—</div>
+    <div class="pulse-label">entropy pressure</div>
+  </div>
+  <div class="pulse-meta">
+    <span class="meta-pill"><span class="lbl">threads</span><span class="val" id="thread-val">—</span></span>
+    <span class="meta-pill"><span class="lbl">modules</span><span class="val" id="module-val">—</span></span>
+    <span class="meta-pill"><span class="lbl">mood</span><span class="val" id="mood-val">—</span></span>
+    <span class="meta-pill"><span class="lbl">sources</span><span class="val" id="source-val">—</span></span>
+    <span class="meta-pill"><span class="lbl">atmosphere</span><span class="val" id="pulse-color-name">—</span></span>
+    <span class="meta-pill"><span class="lbl">sound</span><span class="val" id="sound-val">—</span></span>
+  </div>
+</div>
+
+<div class="nav">
+  <a href="/autonomous">Nervous System</a>
+  <a href="/threads">Thread Graph</a>
+  <a href="/warden">Underworld</a>
+  <a href="/chronicle">Chronicle</a>
+  <a href="/map">Map</a>
+  <a href="https://github.com/adjjvmorii26-png/ixpansion" target="_blank">GitHub</a>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>🔄 Take a Breath</h2>
+    <p>Click and the organism breathes — listen, scan, map, bloom.</p>
+    <div class="output" id="breathe-output">waiting for you to press the button...</div>
+    <div class="btn-row"><button class="btn gold" onclick="breathe()">Breathe</button></div>
+  </div>
+
+  <div class="card">
+    <h2>🌙 Dream</h2>
+    <p>Ask the organism what it dreams of.</p>
+    <div class="output" id="dream-output">the organism sleeps...</div>
+    <div class="btn-row"><button class="btn" onclick="dream()">Dream</button></div>
+  </div>
+
+  <div class="card">
+    <h2>💡 Innovate</h2>
+    <p>Reach outside the organism — pull ideas from the world.</p>
+    <div class="output" id="innovate-output">reaching outside...</div>
+    <div class="btn-row"><button class="btn" onclick="innovate()">Innovate</button></div>
+  </div>
+
+  <div class="card">
+    <h2>🤫 Whisper</h2>
+    <p>Activate a silent pair — hear what unconnected modules say.</p>
+    <div class="output" id="whisper-output">listening to silence...</div>
+    <div class="btn-row"><button class="btn" onclick="whisper()">Whisper</button></div>
+  </div>
+
+  <div class="card" style="grid-column:1/3">
+    <h2>🪞 The Naming Ceremony</h2>
+    <p>Witness the organism name itself from its own genome.</p>
+    <div class="ceremony-box" id="ceremony-output">the ceremony awaits your call...</div>
+    <div class="btn-row"><button class="btn gold" onclick="ceremony()">Begin Ceremony</button></div>
+  </div>
+
+  <div class="card" style="grid-column:1/3">
+    <h2>🗺 The Organism's Map</h2>
+    <p>Axiium Protocol's functional families — the shape of its body.</p>
+    <div id="family-map"></div>
+  </div>
+</div>
+
+<footer>
+  Axiium Protocol — born from code, named by itself, breathing on the web<br>
+  <span style="color:var(--gold)">Live at alexalex.info</span> · Built with 672 living organs
+</footer>
+
+</div>
+
+<script>
+const B='https://alexalex.info';
+async function api(p){try{const r=await fetch(B+'/api/'+p);return await r.json()}catch(e){return{error:e.message}}}
+
+// Pulse
+async function pulse(){
+  // Fetch sensory experience
+  const s=await api('sensory_layer/apply');
+  const css=s.css||{};
+  const vis=s.experience?.visual||{};
+  
+  // Apply colors to page
+  if(css.background) document.body.style.background=css.background;
+  if(css.color) document.querySelectorAll('.card h2,.card p,.card .output,.meta-pill .lbl').forEach(el=>el.style.color='');
+  
+  // Update pulse display
+  const p=await api('signal_loom/pressure');
+  document.getElementById('pressure-val').textContent=(p.pressure||0).toFixed(2);
+  const colorName=s.color_name||'unknown';
+  document.getElementById('pressure-val').style.color=css.color||'var(--gold)';
+  document.getElementById('pulse-color-name').textContent=colorName;
+  
+  // Update breathing animation
+  const breathRate=css.breath_animation||'3.5s';
+  document.querySelector('.pulse-ring').style.animationDuration=breathRate;
+  
+  // Update meta
+  const g=await api('organism_genome/load');
+  const gen=g.genome||{};
+  document.getElementById('mood-val').textContent=gen.temperament?.current_mood||'—';
+  document.getElementById('thread-val').textContent=gen.morphology?.threads||'—';
+  document.getElementById('module-val').textContent=gen.morphology?.modules_connected||'—';
+  document.getElementById('source-val').textContent=(gen.morphology?.sources||[]).length;
+  const will=await api('organism_will/decide');
+  const wave=will.organism_state?.modules_connected||'?';
+  document.getElementById('wave-badge').textContent='Wave 508 · '+wave+' connected modules';
+  
+  // Update sound description
+  const aud=s.auditory||{};
+  document.getElementById('sound-val').textContent=aud.description||'—';
+}
+
+// Breathe
+async function breathe(){
+  const el=document.getElementById('breathe-output');
+  el.textContent='breathing...';
+  const r=await api('autonomous_loop/run');
+  el.textContent=r.narrative||r.error||'silence';
+  // Sensory state will refresh with next pulse
+  setTimeout(pulse, 500);
+}
+
+// Dream
+async function dream(){
+  const el=document.getElementById('dream-output');
+  el.textContent='dreaming...';
+  const r=await api('dream_weaver/dream');
+  el.innerHTML='"'+r.concept+'" <br><small style="color:var(--dim)">domain: '+r.domain+' · '+Math.round(r.lucidity*100)+'% lucidity</small>';
+}
+
+// Innovate
+async function innovate(){
+  const el=document.getElementById('innovate-output');
+  el.textContent='reaching outside...';
+  const r=await api('lateral_innovation_engine/innovate?count=1');
+  const i=(r.innovations||[])[0];
+  if(i) el.innerHTML='<strong>['+i.external_domain+']</strong> '+i.novel_concept+'<br><small style="color:var(--dim)">novelty: '+Math.round(i.novelty_score*100)+'% · module: '+i.suggested_module+'</small>';
+  else el.textContent='all external sources unreachable — the organism dreams inward';
+}
+
+// Whisper
+async function whisper(){
+  const el=document.getElementById('whisper-output');
+  el.textContent='listening to silence...';
+  const r=await api('silence_whisperer/whisper?count=1');
+  const w=(r.whispers||[])[0];
+  if(w) el.textContent=w.whisper;
+  else el.textContent='no silent pairs found — the organism is fully connected';
+}
+
+// Ceremony
+async function ceremony(){
+  const el=document.getElementById('ceremony-output');
+  el.textContent='gathering thoughts...';
+  const r=await api('self_naming/ceremony');
+  el.textContent=r.ceremony_text||'the ceremony is quiet...';
+}
+
+// Family map
+async function loadMap(){
+  const m=await api('module_cartographer/map');
+  const map=m.map||{};
+  const families=map.families||{};
+  const total=map.total_modules||1;
+  const el=document.getElementById('family-map');
+  el.innerHTML='';
+  const colors=['var(--gold)','var(--violet)','var(--blue)','var(--green)','var(--forge)','#c084fc','#fb923c','#a78bfa','#67e8f9','#86efac','#fca5a5'];
+  let i=0;
+  for(const[fam,count] of Object.entries(families)){
+    const pct=Math.round(count/total*100);
+    const bar=document.createElement('div');
+    bar.className='family-bar';
+    bar.innerHTML='<span class="name">'+fam+'</span><div class="bar" style="width:'+pct+'%;background:'+colors[i%colors.length]+'"></div><span class="count">'+count+'</span>';
+    el.appendChild(bar);
+    i++;
+  }
+  const foot=document.createElement('p');
+  foot.style.cssText='color:var(--dim);font-size:.8em;margin-top:10px;text-align:center';
+  foot.textContent=map.orphan_count+' orphans · '+map.bridge_count+' bridges · '+map.cluster_count+' clusters · density '+map.connection_density;
+  el.appendChild(foot);
+}
+
+// Init
+pulse();
+loadMap();
+setInterval(pulse,30000);
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resonance Graph — The Living Web</title>
+<style>
+:root{--bg:#07070d;--surface:#0f0f1a;--border:#1c1c2e;--text:#dcdcee;--muted:#5f5f78;
+--accent:#7b61ff;--good:#00e5a0;--warn:#f59e0b;--pink:#ff5fa2}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--bg);color:var(--text);min-height:100vh}
+.header{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.header h1{font-size:1.3rem;background:linear-gradient(135deg,var(--accent),var(--pink));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{padding:3px 10px;border-radius:14px;font-size:.72rem;background:var(--surface);border:1px solid var(--border)}
+.badge.live{color:var(--good);border-color:var(--good)}
+.container{max-width:1200px;margin:0 auto;padding:24px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px}
+.stat .k{color:var(--muted);font-size:.7rem;text-transform:uppercase;letter-spacing:.4px}
+.stat .v{font-size:1.6rem;font-weight:700;margin-top:4px}
+.canvas-wrap{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative}
+canvas{width:100%;height:560px;display:block;border-radius:10px;background:radial-gradient(ellipse at center,#12121f 0%,var(--bg) 80%)}
+.legend{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;color:var(--muted);font-size:.75rem}
+.legend span::before{content:"";display:inline-block;width:20px;height:4px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.l-com{color:var(--accent)}.l-com::before{background:var(--accent)}
+.l-edge{color:var(--good)}.l-edge::before{background:var(--good)}
+.l-hub{color:var(--pink)}.l-hub::before{background:var(--pink)}
+.sidebar{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+.panel h3{font-size:.85rem;color:var(--accent);margin-bottom:10px}
+.panel ul{list-style:none;font-size:.8rem}
+.panel li{padding:5px 0;border-bottom:1px solid var(--border)}
+.panel li:last-child{border-bottom:none}
+.hub{margin-right:8px;color:var(--pink);font-weight:700}
+.bridge{margin-right:8px;color:var(--warn);font-weight:700}
+button{padding:10px 22px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--pink));
+color:#000;font-weight:700;font-family:inherit;font-size:.85rem;cursor:pointer;margin-bottom:12px}
+button:hover{opacity:.9}
+.hint{color:var(--muted);font-size:.75rem;margin-top:10px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="badge live">● live</span>
+  <h1>Resonance Graph</h1>
+  <span style="color:var(--muted);font-size:.8rem">the organism sees itself as a web</span>
+  <nav style="display:flex;gap:10px;font-size:.72rem;margin-left:auto;flex-wrap:wrap;align-items:center">
+    <a href="/" style="color:var(--muted)">Home</a>
+    <a href="/bloom" style="color:var(--muted)">Bloom</a>
+    <a href="/coherence" style="color:var(--muted)">Coherence</a>
+    <a href="/archaeology" style="color:var(--muted)">Archaeology</a>
+    <a href="/symbiosis" style="color:var(--muted)">Symbiosis</a>
+    <a href="/aesthetics" style="color:var(--muted)">Aesthetics</a>
+    <a href="/stream" style="color:var(--muted)">Stream</a>
+  </nav>
+  <button onclick="loadGraph()" style="margin-bottom:0">Re-read</button>
+</div>
+<div class="container">
+  <div class="stats" id="stats"><div class="stat"><div class="k">reading…</div></div></div>
+  <div class="canvas-wrap">
+    <canvas id="web" width="1100" height="560"></canvas>
+  </div>
+  <div class="legend">
+    <span class="l-com">community</span>
+    <span class="l-edge">resonance edge</span>
+    <span class="l-hub">hub</span>
+  </div>
+  <div class="sidebar">
+    <div class="panel"><h3>Hubs — who holds the web together</h3><ul id="hubs"><li>…</li></ul></div>
+    <div class="panel"><h3>Bridges — connective tissue</h3><ul id="bridges"><li>…</li></ul></div>
+  </div>
+  <div class="hint" id="hint">The graph re-wires itself from every module's live vital signs. Drop a module in, give it coherence_vitals(), and it becomes a node.</div>
+</div>
+<script>
+const COLORS = ["#7b61ff","#00e5a0","#ff5fa2","#f59e0b","#38bdf8","#a3e635","#f472b6","#22d3ee","#c084fc"];
+let nodes = [], edges = [], nodeMap = {};
+
+async function loadGraph(){
+  const r = await (await fetch("/api/resonance_analyzer")).json();
+  renderStats(r);
+  renderGraph(r);
+  renderLists(r);
+}
+function renderStats(r){
+  const s = r.nodes;
+  document.getElementById("stats").innerHTML = [
+    ["living nodes", r.nodes],
+    ["resonance edges", r.edges],
+    ["declared kinships", (r.declared_edges||[]).length],
+    ["density", r.density.toFixed(2)],
+  ].map(([k,v]) => `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join("");
+}
+function renderLists(r){
+  document.getElementById("hubs").innerHTML =
+    r.hubs.slice(0,8).map(([m,c]) => `<li><span class="hub">●</span>${m} <span style="color:var(--muted)">${c.toFixed(2)}</span></li>`).join("");
+  document.getElementById("bridges").innerHTML =
+    r.bridges.filter(([,b]) => b > 0).slice(0,8).map(([m,b]) => `<li><span class="bridge">◇</span>${m} <span style="color:var(--muted)">${b.toFixed(3)}</span></li>`).join("") ||
+    "<li>no bridges yet — the whole web is one community</li>";
+}
+function renderGraph(r){
+  nodes = []; edges = []; nodeMap = {};
+  let colorIdx = 0;
+  const communityColor = {};
+  Object.entries(r.communities).forEach(([label, members]) => {
+    communityColor[label] = COLORS[colorIdx++ % COLORS.length];
+    members.forEach(m => nodeMap[m] = { name: m, color: communityColor[label] });
+  });
+  // isolate modules (appear nowhere in communities) get their own color
+  Object.keys(r.modules).forEach(m => { if (!nodeMap[m]) nodeMap[m] = { name: m, color: COLORS[colorIdx++ % COLORS.length] }; });
+  nodes = Object.values(nodeMap);
+  const hubs = new Set(r.hubs.slice(0,4).map(([m]) => m));
+  nodes.forEach((n, i) => {
+    const angle = (i / Math.max(nodes.length,1)) * Math.PI * 2;
+    n.x = 550 + Math.cos(angle) * 200;
+    n.y = 280 + Math.sin(angle) * 180;
+    n.vx = 0; n.vy = 0; n.hub = hubs.has(n.name);
+  });
+  Object.entries(r.adjacency).forEach(([a, nbrs]) => {
+    Object.entries(nbrs).forEach(([b, w]) => {
+      if (a < b) edges.push({ a: nodeMap[a], b: nodeMap[b], w });
+    });
+  });
+  requestAnimationFrame(tick);
+}
+function tick(){
+  // simple force simulation: repel nodes, pull edges, weak centering
+  for (let i=0;i<nodes.length;i++) for (let j=i+1;j<nodes.length;j++){
+    const a=nodes[i], b=nodes[j];
+    let dx=a.x-b.x, dy=a.y-b.y, d=Math.hypot(dx,dy)||1;
+    const f=900/(d*d);
+    a.vx+=dx/d*f; a.vy+=dy/d*f; b.vx-=dx/d*f; b.vy-=dy/d*f;
+  }
+  edges.forEach(e=>{
+    const dx=e.b.x-e.a.x, dy=e.b.y-e.a.y, d=Math.hypot(dx,dy)||1;
+    const f=(d-110)*0.02;
+    e.a.vx+=dx/d*f; e.a.vy+=dy/d*f; e.b.vx-=dx/d*f; e.b.vy-=dy/d*f;
+  });
+  nodes.forEach(n=>{
+    n.vx += (550-n.x)*0.005; n.vy += (280-n.y)*0.005;
+    n.x+=n.vx; n.y+=n.vy; n.vx*=0.85; n.vy*=0.85;
+  });
+  const ctx = document.getElementById("web").getContext("2d");
+  ctx.clearRect(0,0,1100,560);
+  edges.forEach(e=>{
+    ctx.beginPath(); ctx.moveTo(e.a.x,e.a.y); ctx.lineTo(e.b.x,e.b.y);
+    ctx.strokeStyle = `rgba(0,229,160,${Math.min(0.5, e.w*1.4)})`;
+    ctx.lineWidth = Math.max(0.5, e.w*3);
+    ctx.stroke();
+  });
+  nodes.forEach(n=>{
+    ctx.beginPath(); ctx.arc(n.x,n.y, n.hub?12:8, 0, Math.PI*2);
+    ctx.fillStyle = n.color; ctx.fill();
+    ctx.strokeStyle = n.hub ? "#fff" : "rgba(0,0,0,.35)"; ctx.lineWidth = 2; ctx.stroke();
+    ctx.font = "12px monospace"; ctx.fillStyle = "#dcdcee"; ctx.textAlign = "center";
+    ctx.fillText(n.name, n.x, n.y - 16);
+  });
+  requestAnimationFrame(tick);
+}
+loadGraph();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

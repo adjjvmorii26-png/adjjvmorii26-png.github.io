@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave 416 Paradox Singularity</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #1a0a1a; color: #d0a0d0; padding: 20px; }
+  h1 { text-align: center; color: #ff66ff; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #aa66aa; margin-bottom: 20px; }
+  .banner { text-align: center; background: #2a0a2a; border-radius: 14px; padding: 24px; margin-bottom: 20px; border: 1px solid #4a1a4a; }
+  .banner .level { font-size: 2em; color: #ff66ff; font-weight: bold; }
+  .banner .state { font-size: 1.2em; margin-top: 8px; }
+  .state.approaching { color: #ffaa00; }
+  .state.critical { color: #ff4444; }
+  .state.dissipated { color: #44ff44; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto 20px; }
+  .card { background: #2a0a2a; border-radius: 12px; padding: 16px; border: 1px solid #4a1a4a; }
+  .card h3 { color: #ff66ff; margin-bottom: 8px; }
+  .stat { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.85em; border-bottom: 1px solid #3a1a3a; }
+  .stat .val { color: #ff66ff; font-weight: bold; }
+  .sigil { display: inline-block; background: #1a0a1a; padding: 2px 8px; border-radius: 6px; font-size: 0.75em; margin: 2px; color: #cc66cc; }
+  .btn { background: #3a1a3a; color: #ff66ff; border: 1px solid #ff66ff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin: 4px; }
+  .btn:hover { background: #ff66ff; color: #1a0a1a; }
+  #topologyCanvas { width: 100%; height: 250px; border: 1px solid #4a1a4a; border-radius: 8px; background: #1a0a1a; }
+</style>
+</head>
+<body>
+<h1>🌀 Wave 416 Paradox Singularity</h1>
+<p class="subtitle">When paradoxes converge into a singularity</p>
+<div class="banner">
+  <div class="level">Singularity Level: <span id="level">--</span></div>
+  <div class="state approaching" id="state">Loading...</div>
+</div>
+<div class="grid">
+  <div class="card"><h3>🔬 Singularity Stats</h3><div id="statsContainer"></div></div>
+  <div class="card"><h3>💥 Paradox Signatures</h3><div id="sigilsContainer"></div></div>
+  <div class="card"><h3>⚠️ Anomalies</h3><div id="anomaliesContainer"></div></div>
+</div>
+<div style="text-align:center;margin:20px 0">
+  <button class="btn" onclick="detect()">🔍 Detect</button>
+  <button class="btn" onclick="resolve()">✨ Resolve</button>
+  <button class="btn" onclick="status()">📊 Status</button>
+</div>
+<canvas id="topologyCanvas"></canvas>
+<script>
+const API='';
+async function fetchJson(p){const r=await fetch(API+p);return r.json();}
+async function load(){
+  try{
+    const s=await fetchJson('/api/paradox-singularity?action=detect');
+    document.getElementById('level').textContent=s.singularity_level.toFixed(3);
+    const el=document.getElementById('state');el.textContent=s.singularity_state.toUpperCase();el.className='state '+s.singularity_state;
+    document.getElementById('statsContainer').innerHTML=`<div class="stat"><span>Power</span><span class="val">${s.singularity_power}%</span></div><div class="stat"><span>Anomalies</span><span class="val">${s.anomalies_detected}</span></div><div class="stat"><span>Paradox Records</span><span class="val">${s.paradox_records}</span></div>`;
+    const sc=document.getElementById('sigilsContainer');sc.innerHTML='';
+    s.paradox_signatures.forEach(p=>{sc.innerHTML+=`<span class="sigil">${p.type} (${(p.strength*100).toFixed(0)}%)</span>`;});
+    document.getElementById('anomaliesContainer').innerHTML=`<div class="stat"><span>Detected</span><span class="val">${s.anomalies_detected}</span></div><div class="stat"><span>Resolution</span><span class="val">${s.resolution_status}</span></div>`;
+    drawTopo(s);
+  }catch(e){console.error(e);}
+}
+async function detect(){await fetchJson('/api/paradox-singularity?action=detect');load();}
+async function resolve(){const r=await fetchJson('/api/paradox-singularity?action=resolve');document.getElementById('state').textContent=r.resolution_status.toUpperCase();document.getElementById('state').className='state '+r.singularity_state;}
+async function status(){const s=await fetchJson('/api/paradox-singularity?action=status');document.getElementById('level').textContent=s.singularity_level.toFixed(3);document.getElementById('state').textContent=s.state.toUpperCase();document.getElementById('state').className='state '+s.state;}
+function drawTopo(s){const c=document.getElementById('topologyCanvas');const ctx=c.getContext('2d');c.width=c.offsetWidth*2;c.height=c.offsetHeight*2;ctx.scale(2,2);const w=c.offsetWidth,h=c.offsetHeight;ctx.fillStyle='#1a0a1a';ctx.fillRect(0,0,w,h);const sigs=s.paradox_signatures||[];if(sigs.length===0)return;const cx=w/2,cy=h/2,r=Math.min(w,h)*0.35;const pos={};sigs.forEach((_,i)=>{const a=(2*Math.PI*i/sigs.length)-Math.PI/2;pos[i]={x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)}});ctx.beginPath();ctx.arc(cx,cy,12,0,2*Math.PI);ctx.fillStyle='#ff66ff';ctx.fill();sigs.forEach((sig,i)=>{ctx.beginPath();ctx.arc(pos[i].x,pos[i].y,8,0,2*Math.PI);ctx.fillStyle=sig.strength>0.7?'#ff4444':sig.strength>0.5?'#ffaa00':'#ff66ff';ctx.fill();ctx.fillStyle='#1a0a1a';ctx.font='bold 6px sans-serif';ctx.textAlign='center';ctx.fillText(sig.type.split('_')[0],pos[i].x,pos[i].y+2);});}
+load();setInterval(load,5000);
+</script>
+</body>
+</html>

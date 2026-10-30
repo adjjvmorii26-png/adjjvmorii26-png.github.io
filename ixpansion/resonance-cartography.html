@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resonance Cartography — Organism Spectrum</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#02020a;color:#e0e0e0;font-family:'Courier New',monospace;overflow-x:hidden}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:rgba(58,134,255,0.06);z-index:9999;animation:scan 6s linear infinite;pointer-events:none}
+@keyframes scan{0%{top:-2px}100%{top:100vh}}
+.header{text-align:center;padding:30px 20px;border-bottom:1px solid rgba(58,134,255,0.15)}
+.header h1{font-size:1.8em;color:#3a86ff;text-shadow:0 0 30px rgba(58,134,255,0.4)}
+.header .sub{color:#ffd700;font-size:0.85em;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;padding:20px}
+.card{background:rgba(15,15,25,0.9);border:1px solid rgba(58,134,255,0.12);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#3a86ff,transparent)}
+.card h2{font-size:1em;color:#3a86ff;margin-bottom:12px;text-transform:uppercase;letter-spacing:2px}
+.stat{text-align:center;padding:10px}
+.stat .val{font-size:1.8em;font-weight:bold}
+.stat .label{font-size:0.7em;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.btn{background:rgba(58,134,255,0.15);border:1px solid rgba(58,134,255,0.3);color:#3a86ff;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:monospace;font-size:0.85em;transition:all 0.3s}
+.btn:hover{background:rgba(58,134,255,0.3)}
+canvas{width:100%;border-radius:8px;background:rgba(5,5,15,0.9)}
+#spectrum-canvas{height:280px}
+.harmonic-list{max-height:250px;overflow-y:auto;font-size:0.82em}
+.harmonic-item{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(58,134,255,0.08)}
+.cluster-chips{display:flex;flex-wrap:wrap;gap:6px}
+.cluster-chip{padding:4px 10px;border-radius:12px;font-size:0.75em;background:rgba(58,134,255,0.12);border:1px solid rgba(58,134,255,0.2)}
+.module-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.module-chip{padding:6px;border-radius:6px;text-align:center;font-size:0.7em;background:rgba(58,134,255,0.06);border:1px solid rgba(58,134,255,0.1)}
+.module-chip .freq{color:#ffd700;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="header">
+<h1>♪ RESONANCE CARTOGRAPHY</h1>
+<div class="sub">Organism Spectrum — Hearing the System</div>
+</div>
+<div class="grid">
+<div class="card" style="grid-column:span 2">
+<h2>Frequency Spectrum</h2>
+<canvas id="spectrum-canvas"></canvas>
+<div style="text-align:center;margin-top:10px"><button class="btn" onclick="scanSpectrum()">SCAN SPECTRUM</button></div>
+</div>
+<div class="card">
+<h2>Spectrum Stats</h2>
+<div class="stat"><div class="val" id="modules-mapped" style="color:#3a86ff">0</div><div class="label">modules mapped</div></div>
+<div class="stat"><div class="val" id="total-energy" style="color:#ffd700;font-size:1.4em">0</div><div class="label">total energy</div></div>
+</div>
+<div class="card">
+<h2>Harmonics</h2>
+<div class="harmonic-list" id="harmonics"></div>
+</div>
+<div class="card">
+<h2>Frequency Clusters</h2>
+<div class="cluster-chips" id="clusters"></div>
+</div>
+<div class="card">
+<h2>Module Map</h2>
+<div class="module-map" id="module-map"></div>
+</div>
+<div class="card">
+<h2>Silences</h2>
+<div id="silences" style="font-size:0.85em"></div>
+</div>
+</div>
+<a class="back-btn" href="index.html" style="position:fixed;bottom:20px;right:20px;background:rgba(58,134,255,0.15);color:#3a86ff;padding:8px 16px;border-radius:8px;text-decoration:none;font-family:monospace;font-size:13px;border:1px solid rgba(58,134,255,0.3);z-index:9999;backdrop-filter:blur(8px)">← Organism</a>
+<script>
+const MODS=['consciousness_aurora','self_reference_engine','paradox_gravity_well','ancestral_echo_library','entropy_cartographer','dream_synthesis_protocol','temporal_fracture_engine','coherence_regulator_v2','pattern_analyzer','cross_realm_diagnostics','experimental_subsystems','wave400_expansion','realm_nervous_system','axis_unlock_engine','pentaxis_age','narrative_weaver','timeline_weaver','causality_weaver','constellation_mapper','emotional_weather'];
+let modules={};let harmonics=[];
+
+function scanSpectrum(){
+  modules={};harmonics=[];
+  MODS.forEach(m=>{
+    const h=[...crypto.getRandomValues(new Uint8Array(16))].map(b=>b.toString(16).padStart(2,'0')).join('');
+    const freq=100+parseInt(h.slice(0,4),16)%900;
+    const amp=Math.round((0.1+parseInt(h.slice(4,8),16)%900/1000)*1000)/1000;
+    modules[m]={freq,amp,phase:parseInt(h.slice(8,12),16)%628/100,energy:Math.round(freq*amp*100)/100};
+  });
+  // find harmonics
+  const names=Object.keys(modules);
+  for(let i=0;i<names.length;i++){
+    for(let j=i+1;j<names.length;j++){
+      const ratio=modules[names[i]].freq/modules[names[j]].freq;
+      if(Math.abs(ratio-2)<0.1||Math.abs(ratio-1.5)<0.08||Math.abs(ratio-1)<0.08){
+        harmonics.push({a:names[i],b:names[j],ratio:ratio.toFixed(3),harmony:Math.round((1-Math.abs(1-ratio))*1000)/1000});
+      }
+    }
+  }
+  harmonics.sort((a,b)=>b.harmony-a.harmony);
+  const totalE=Object.values(modules).reduce((s,m)=>s+m.energy,0);
+  document.getElementById('modules-mapped').textContent=Object.keys(modules).length;
+  document.getElementById('total-energy').textContent=totalE.toFixed(0);
+  drawSpectrum();renderHarmonics();renderClusters();renderModuleMap();renderSilences();
+}
+
+function drawSpectrum(){
+  const c=document.getElementById('spectrum-canvas');c.width=c.offsetWidth;c.height=280;
+  const ctx=c.getContext('2d');
+  ctx.fillStyle='#05050f';ctx.fillRect(0,0,c.width,c.height);
+  // frequency axis
+  ctx.strokeStyle='rgba(58,134,255,0.1)';ctx.lineWidth=0.5;
+  for(let f=100;f<=1000;f+=100){const x=(f-100)/900*(c.width-40)+20;ctx.beginPath();ctx.moveTo(x,20);ctx.lineTo(x,c.height-30);ctx.stroke();ctx.fillStyle='#444';ctx.font='9px monospace';ctx.textAlign='center';ctx.fillText(f+'Hz',x,c.height-10);}
+  Object.entries(modules).forEach(([name,m])=>{
+    const x=(m.freq-100)/900*(c.width-40)+20;
+    const h=m.amp*200;
+    const hue=(m.freq/1000)*240;
+    ctx.fillStyle=`hsla(${hue},80%,60%,0.6)`;
+    ctx.fillRect(x-3,c.height-30-h,6,h);
+    ctx.fillStyle=`hsla(${hue},80%,60%,0.15)`;
+    ctx.beginPath();ctx.arc(x,c.height-30-h,8+m.amp*12,0,Math.PI*2);ctx.fill();
+    ctx.save();ctx.translate(x,c.height-32-h);ctx.rotate(-Math.PI/4);ctx.fillStyle='#888';ctx.font='8px monospace';ctx.textAlign='left';ctx.fillText(name.substring(0,10),0,0);ctx.restore();
+  });
+}
+
+function renderHarmonics(){
+  const el=document.getElementById('harmonics');
+  el.innerHTML=harmonics.slice(0,15).map(h=>`<div class="harmonic-item"><span style="color:#3a86ff">${h.a.substring(0,8)} ↔ ${h.b.substring(0,8)}</span><span style="color:#ffd700">${h.harmony} ${h.ratio}</span></div>`).join('')||'<div style="color:#666">No harmonics found</div>';
+}
+
+function renderClusters(){
+  const el=document.getElementById('clusters');
+  const freqBands={};
+  Object.entries(modules).forEach(([n,m])=>{
+    const band=m.freq<300?'low':m.freq<600?'mid':'high';
+    if(!freqBands[band])freqBands[band]=[];
+    freqBands[band].push(n);
+  });
+  el.innerHTML=Object.entries(freqBands).map(([b,ms])=>`<div class="cluster-chip"><strong>${b}</strong>: ${ms.map(m=>m.substring(0,6)).join(', ')}</div>`).join('');
+}
+
+function renderModuleMap(){
+  const el=document.getElementById('module-map');
+  el.innerHTML=Object.entries(modules).map(([n,m])=>`<div class="module-chip"><div class="freq">${m.freq}Hz</div><div>${n.substring(0,12)}</div><div style="color:#666">${m.amp.toFixed(2)}</div></div>`).join('');
+}
+
+function renderSilences(){
+  const el=document.getElementById('silences');
+  const quiet=Object.entries(modules).filter(([,m])=>m.amp<0.2);
+  el.innerHTML=quiet.length?quiet.map(([n,m])=>`<div style="padding:4px 0;color:#ffd700">◎ ${n} — ${m.amp.toFixed(3)} amplitude</div>`).join(''):'<div style="color:#666">No silences detected</div>';
+}
+
+scanSpectrum();
+</script>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

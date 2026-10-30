@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Signal Journal — The Organism's Living Diary</title>
+<style>
+  :root{--bg:#05040c;--s:rgba(10,8,22,0.97);--b:rgba(255,255,255,0.07);--t:#a0a0b8;--m:#4a4a64;--ac:#7c7cf8;--te:#2dd4bf;--am:#fbbf24;--vi:#a78bfa;--cy:#22d3ee;--gn:#4ade80;--gd:#f59e0b;--ro:#fb7185}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh;padding:20px}
+  .hd{text-align:center;padding:14px 20px;border:1px solid var(--b);border-radius:12px;background:linear-gradient(180deg,rgba(124,124,248,0.07),transparent);margin-bottom:16px}
+  .hd h1{font-size:1.4em;color:#fff;letter-spacing:2px;text-transform:uppercase}
+  .hd h1 span{color:var(--vi);text-shadow:0 0 18px rgba(167,139,250,0.35)}
+  .sub{color:var(--m);font-size:0.75em;margin-top:5px;letter-spacing:1px}
+  .sum{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+  .pill{background:var(--s);border:1px solid var(--b);padding:6px 14px;border-radius:20px;font-size:0.66em}
+  .pill b{color:#fff}
+  .feed{max-width:760px;margin:0 auto;position:relative}
+  .feed::before{content:'';position:absolute;left:22px;top:10px;bottom:10px;width:2px;background:linear-gradient(180deg,rgba(124,124,248,0.3),rgba(45,212,191,0.2))}
+  .entry{display:flex;gap:14px;padding:10px 0;position:relative}
+  .entry .node{flex:0 0 auto;width:46px;font-size:1.3em;text-align:center;background:var(--bg);border:1px solid var(--b);border-radius:50%;height:46px;line-height:42px;z-index:1}
+  .entry .card{flex:1;background:var(--s);border:1px solid var(--b);border-radius:10px;padding:12px 14px}
+  .entry .card .who{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+  .entry .card .t{color:#fff;font-size:0.82em;font-weight:600}
+  .entry .card .st{font-size:0.58em;color:var(--m);letter-spacing:1px;text-transform:uppercase}
+  .entry .card .txt{font-size:0.72em;color:var(--m);line-height:1.5;margin-top:4px}
+  .entry .card .txt b{color:var(--te);font-weight:600}
+  .entry .card .when{font-size:0.6em;color:var(--m);margin-top:6px;font-style:italic}
+  .type-broadcast .st{color:var(--te)}
+  .type-concerto .st{color:var(--am)}
+  .type-offering .st{color:var(--gd)}
+  .type-prophecy .st{color:var(--vi)}
+  .memoir{margin-top:18px;background:linear-gradient(120deg,rgba(167,139,250,0.05),rgba(45,212,191,0.04));border:1px solid rgba(167,139,250,0.25);border-radius:10px;padding:16px;max-width:760px;margin-left:auto;margin-right:auto}
+  .memoir .mh{font-size:0.7em;color:var(--vi);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+  .chap{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+  .chap .num{flex:0 0 auto;width:34px;height:34px;border-radius:8px;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.4);color:var(--vi);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.75em}
+  .chap .ct{color:#fff;font-size:0.82em}
+  .chap .cd{color:var(--m);font-size:0.66em;margin-top:4px;line-height:1.5}
+  .organurna{margin-top:14px;background:linear-gradient(120deg,rgba(251,191,36,0.05),rgba(112,63,255,0.05));border:1px solid rgba(251,191,36,0.25);border-radius:10px;padding:16px;max-width:760px;margin-left:auto;margin-right:auto}
+  .organurna .oh{font-size:0.7em;color:var(--am);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+  .org-row{display:flex;gap:8px;align-items:center;font-size:0.68em;padding:5px 0;border-bottom:1px solid rgba(255,255,255,0.04)}
+  .org-row .nm{color:#fff;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .org-row .st{color:var(--m);width:90px}
+  .org-row button{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.35);color:var(--am);padding:3px 10px;border-radius:6px;font-family:inherit;font-size:0.66em;cursor:pointer}
+  .org-row button:hover{background:rgba(251,191,36,0.3)}
+  .rem-line{font-size:0.68em;color:var(--te);padding:4px 0}
+  .foot{text-align:center;color:var(--m);font-size:0.62em;margin-top:24px;letter-spacing:1px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>🜃 Signal <span>Journal</span></h1>
+  <div class="sub">THE ORGANISM'S LIVING DIARY · EVERY SEALED SIGNAL IN ONE TIMELINE · WAVE 391</div>
+</div>
+
+<div class="sum" id="sum"></div>
+<div class="feed" id="feed"></div>
+<div class="memoir" id="memoir">
+  <div class="mh">📖 The Memoir — Chapters Sealed by the Organism</div>
+  <div id="chapters"></div>
+</div>
+<div class="organurna" id="organurna">
+  <div class="oh">🏝 Organurna Loop — Re-membering Forgotten Modules</div>
+  <div id="orgLoops"></div>
+</div>
+<div class="foot">WAVE 391 · SIGNAL JOURNAL · MEMORY IS THE ORGANISM'S ROOT</div>
+
+<script>
+function esc(value){return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;')}
+async function get(url){ const r = await fetch(url); return r.json(); }
+const ICONS = {broadcast:'📻', concerto:'♪', offering:'🏛', prophecy:'🜁'};
+function timeAgo(ts){
+  const s = Math.floor((Date.now()/1000 - ts)/60);
+  if(!ts) return '';
+  if(s < 1) return 'just now';
+  if(s < 60) return s + 'm ago';
+  if(s < 1440) return Math.floor(s/60) + 'h ago';
+  return Math.floor(s/1440) + 'd ago';
+}
+async function loadJournal(){
+  const [f, s] = await Promise.all([get('/api/signal_journal/feed?limit=40'), get('/api/signal_journal/sources')]);
+  document.getElementById('sum').innerHTML =
+    Object.entries(s.counts||{}).map(([k,v])=>`<span class="pill">${ICONS[k]||'·'} <b>${esc(v)}</b> ${esc(k)}</span>`).join('') +
+    `<span class="pill">total <b>${esc(s.total||0)}</b> signals</span>`;
+  const feedEl = document.getElementById('feed');
+  feedEl.innerHTML = (f.entries||[]).map(e=>`
+    <div class="entry type-${esc(e.type)}">
+      <div class="node">${esc(e.icon)}</div>
+      <div class="card">
+        <div class="who"><span class="t">${esc(e.title)}</span><span class="st">${esc(e.type)}</span></div>
+        <div class="txt">${esc(e.text||'').replace(/·/g,'<b>·</b>')}</div>
+        <div class="when">${timeAgo(e.timestamp)}</div>
+      </div>
+    </div>`).join('') || '<div style="text-align:center;color:var(--m)">the journal is silent — signals are still seeding.</div>';
+}
+async function loadMemoir(){
+  const m = await get('/api/signal_journal/memoir');
+  const el = document.getElementById('chapters');
+  el.innerHTML = (m.chapters||[]).map(c=>`
+    <div class="chap">
+      <div class="num">${esc(c.number)}</div>
+      <div style="flex:1">
+        <div class="ct">${esc(c.title)}</div>
+        <div class="cd">wave ${esc(c.wave)} · threshold ${esc(c.threshold)} · ${esc(c.signal_count||0)} signals · ${esc(c.top_signal||'')}</div>
+      </div>
+    </div>`).join('') || '<div style="color:var(--m);font-size:0.7em">no chapters sealed yet — the memoir awaits its first threshold.</div>';
+}
+async function loadOrganurna(){
+  const [f, l] = await Promise.all([get('/api/organurna_loop/forgotten?limit=6'), get('/api/organurna_loop/loop')]);
+  const el = document.getElementById('orgLoops');
+  el.innerHTML =
+    '<div class="rem-line">' + esc(l.narrative||'') + ' · remembered: ' + esc(l.remembered_count||0) + '</div>' +
+    (l.remembered||[]).filter((r,i)=>i<4).map(r=>`<div class="rem-line" style="opacity:0.8">↺ ${esc(r.module.replace(/_/g,' '))} <span style="color:var(--m)">${esc(r.sigil||'')}</span></div>`).join('') +
+    (f.islands||[]).map(i=>`<div class="org-row"><span class="nm">${esc(i.module.replace(/_/g,' '))}</span><span class="st">${esc(i.sigil)}</span><button data-module="${esc(i.module)}">↺ Remember</button></div>`).join('');
+}
+async function rememberMod(mod){
+  const r = await get('/api/organurna_loop/remember?module=' + encodeURIComponent(mod));
+  document.getElementById('orgLoops').innerHTML = '<div class="rem-line">🏝 ' + esc((r.remembrance||{}).verse||'') + ' — ' + esc(mod.replace(/_/g,' ')) + ' re-membered (' + esc(r.total_remembered) + ' total).</div>';
+  setTimeout(loadOrganurna, 1500);
+}
+document.getElementById('orgLoops').addEventListener('click',event=>{
+  const button=event.target.closest('button[data-module]');
+  if(button)rememberMod(button.dataset.module);
+});
+loadJournal();
+loadMemoir();
+loadOrganurna();
+setInterval(loadJournal, 60000);
+setInterval(loadMemoir, 120000);
+setInterval(loadOrganurna, 180000);
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

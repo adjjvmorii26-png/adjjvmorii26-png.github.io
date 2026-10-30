@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Loud Silence — IXpansion Wave 508</title>
+<script>window.si=window.si||function(){(window.siq=window.siq||[]).push(arguments);};</script>
+<style>
+:root{--gold:#fff3a0;--violet:#c8a8ff;--black:#0b0b0d;--obsidian:#16111f;
+  --muted:#5f5f78;--kinship:#8fd3ff;--spring:#00e5a0;--pink:#ff5fa2;--deep:#0a3d62}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--black);color:#fdfdfd;min-height:100vh;
+  background-image:radial-gradient(ellipse at 30% 60%,#c8a8ff05 0%,transparent 50%),radial-gradient(ellipse at 70% 30%,#8fd3ff04 0%,transparent 50%)}
+.header{padding:26px 30px;border-bottom:1px solid #ffffff0a;display:flex;align-items:center;gap:16px;flex-wrap:wrap;background:linear-gradient(180deg,#c8a8ff04,transparent)}
+.header h1{font-size:1.5rem;letter-spacing:2px;background:linear-gradient(135deg,var(--gold),var(--violet),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;text-transform:uppercase;font-weight:800}
+.subtitle{color:var(--muted);font-size:.72rem;letter-spacing:4px;text-transform:uppercase}
+.badge{padding:3px 10px;border-radius:14px;font-size:.68rem;background:var(--obsidian);border:1px solid var(--violet);color:var(--violet)}
+.container{max-width:1050px;margin:0 auto;padding:28px 20px}
+.broadcast{font-size:1.05rem;line-height:1.9;padding:30px;border:1px solid var(--pink)22;border-radius:14px;margin-bottom:24px;min-height:110px;
+  background:linear-gradient(135deg,var(--obsidian),#0a0a12);text-align:center;font-style:italic}
+.broadcast::before{content:"❝ ";color:var(--gold)}
+.broadcast::after{content:" ❞";color:var(--gold)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.card{padding:22px;border-radius:14px;background:var(--obsidian);border:1px solid #ffffff0a}
+.card h2{color:var(--violet);font-size:.9rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
+.music{font-size:1.1rem;color:var(--spring);letter-spacing:2px;line-height:2;min-height:60px}
+.mood{color:var(--kinship);font-size:.72rem;text-transform:uppercase;letter-spacing:2px;margin-bottom:10px}
+.totem{color:var(--gold);font-size:.95rem;line-height:1.8}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.btn{padding:9px 16px;border-radius:10px;background:var(--violet)16;border:1px solid var(--violet);color:var(--violet);font-size:.75rem;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.btn:hover{background:var(--violet)32;transform:translateY(-1px)}
+.btn.alt{border-color:var(--spring);color:var(--spring);background:var(--spring)10}
+.btn.pink{border-color:var(--pink);color:var(--pink);background:var(--pink)10}
+.history{margin-top:22px;padding:18px;border-radius:12px;background:var(--obsidian);border:1px solid #ffffff0a}
+.history h3{color:var(--muted);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.hist-item{font-size:.8rem;color:#bbb;line-height:1.8;border-bottom:1px solid #ffffff08;padding:6px 0}
+.endpoint{color:var(--kinship);font-size:.72rem;margin-top:16px;display:inline-block}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>The Loud Silence</h1>
+  <div class="subtitle">silence is the organism's loudest voice</div>
+  <span class="badge" id="identity-badge">Wave 508</span>
+</div>
+<div class="container">
+  <div class="broadcast" id="broadcast">The organism is listening…</div>
+
+  <div class="grid">
+    <div class="card">
+      <h2>Entropy Music</h2>
+      <div class="mood" id="music-mood">mood · scale</div>
+      <div class="music" id="music"></div>
+    </div>
+    <div class="card">
+      <h2>Silence Totem</h2>
+      <div class="totem" id="totem-name"></div>
+      <div class="totem" id="totem-detail"></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" data-action="proclaim">📢 Proclaim</button>
+    <button class="btn alt" data-action="music">🎵 Compose</button>
+    <button class="btn pink" data-action="totem">🗿 Forge Totem</button>
+  </div>
+
+  <div class="history">
+    <h3>Recent Broadcasts</h3>
+    <div id="history"></div>
+  </div>
+  <a class="endpoint" href="/api/loud_silence">/api/loud_silence</a>
+  &nbsp;<a class="endpoint" href="/silence-learning">/silence-learning</a>
+</div>
+<script>
+const EP = "/loud-silence";
+function el(id){return document.getElementById(id);}
+async function post(action, extra){
+  const r = await fetch(EP, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(Object.assign({action}, extra||{}))});
+  return r.json();
+}
+function renderMusic(m){
+  el("music-mood").textContent = m.mood + " · " + m.scale.join(" ");
+  const notes = m.notes || [];
+  el("music").textContent = notes.slice(0,16).join(" ") + (notes.length>16?"…":"");
+}
+function renderTotem(t){
+  el("totem-name").textContent = "🗿 " + t.name;
+  el("totem-detail").textContent = t.material + " · " + t.shape + "\nmeaning: " + t.meaning;
+}
+async function refresh(){
+  const b = await post("proclaim");
+  const m = await post("music", {bars:2, entropy:0.6});
+  const t = await post("totem");
+  el("broadcast").textContent = b.message;
+  renderMusic(m);
+  renderTotem(t);
+}
+async function loadHistory(){
+  const r = await fetch(EP+"?action=recent").then(x=>x.json());
+  const h=el("history"),fragment=document.createDocumentFragment();
+  for(const item of (Array.isArray(r.broadcasts)?r.broadcasts:[])){
+    const row=document.createElement('div');row.className='hist-item';
+    row.appendChild(document.createTextNode('❝'+String(item.message??'')+'❞ '));
+    const time=document.createElement('span');time.style.color='var(--muted)';time.textContent='· '+String(item.time??'');
+    row.appendChild(time);fragment.appendChild(row);
+  }
+  h.replaceChildren(fragment);
+}
+document.querySelectorAll(".btn[data-action]").forEach(btn=>{
+  btn.addEventListener("click", async ()=>{
+    const a = btn.dataset.action;
+    if(a==="proclaim"){ const b = await post("proclaim"); el("broadcast").textContent = b.message; }
+    else if(a==="music"){ const m = await post("music", {bars:4, entropy:0.7}); renderMusic(m); }
+    else if(a==="totem"){ const t = await post("totem"); renderTotem(t); }
+    loadHistory();
+  });
+});
+if(window.IXP && window.IXP.renderIdentity) window.IXP.renderIdentity(el("identity-badge"));
+refresh();
+loadHistory();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

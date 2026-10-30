@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave 414 Meta-Coordination Organ</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0e0e1e; color: #d0d0e8; padding: 20px; }
+  h1 { text-align: center; color: #8888ff; margin-bottom: 4px; font-size: 1.6em; }
+  .subtitle { text-align: center; color: #6666aa; margin-bottom: 24px; }
+  .organism-banner { text-align: center; background: #12123a; border-radius: 14px; padding: 24px; margin-bottom: 20px; border: 1px solid #2a2a5a; }
+  .organism-banner .name { font-size: 2em; color: #8888ff; font-weight: bold; }
+  .organism-banner .coherence { font-size: 1.2em; color: #66ffaa; margin-top: 8px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto 24px; }
+  .card { background: #16163a; border-radius: 12px; padding: 16px; border: 1px solid #2a2a5a; }
+  .card h3 { color: #8888ff; font-size: 1em; margin-bottom: 8px; }
+  .stat { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.85em; border-bottom: 1px solid #1a1a3a; }
+  .stat .val { color: #66ffaa; font-weight: bold; }
+  .wave-card { background: #16163a; border-radius: 12px; padding: 14px; border: 1px solid #2a2a5a; margin-bottom: 10px; }
+  .wave-card h4 { color: #aa88ff; font-size: 0.95em; margin-bottom: 4px; }
+  .bar { width: 100%; height: 6px; background: #1a1a3a; border-radius: 3px; margin-top: 4px; overflow: hidden; }
+  .bar .fill { height: 100%; background: linear-gradient(90deg, #66ffaa, #8888ff); border-radius: 3px; transition: width 0.5s; }
+  .btn { background: #1a2a5a; color: #8888ff; border: 1px solid #8888ff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin: 4px; }
+  .btn:hover { background: #8888ff; color: #0e0e1e; }
+  .coordination { background: #12123a; border-radius: 14px; padding: 20px; margin-top: 20px; border: 1px solid #2a2a5a; }
+  .coordination h2 { color: #8888ff; margin-bottom: 12px; }
+  #topologyCanvas { width: 100%; height: 300px; border: 1px solid #2a2a5a; border-radius: 8px; background: #0e0e1e; }
+</style>
+</head>
+<body>
+<h1>⚡ Wave 414 Meta-Coordination</h1>
+<p class="subtitle">The organism that unifies all waves into a single living body</p>
+<div class="organism-banner">
+  <div class="name" id="orgName">Loading...</div>
+  <div class="coherence">Coherence: <span id="coherenceVal">--</span> | Health: <span id="healthVal">--</span>%</div>
+</div>
+<div class="grid">
+  <div class="card"><h3>📊 Organism Stats</h3><div id="statsContainer"></div></div>
+  <div class="card"><h3>🌊 Wave States</h3><div id="wavesContainer"></div></div>
+  <div class="card"><h3>🔬 Diagnostics</h3><div id="diagContainer"></div></div>
+  <div class="card"><h3>🔗 Cross-Wave</h3><div id="crossContainer"></div></div>
+</div>
+<div class="coordination">
+  <h2>🧬 Unification Engine</h2>
+  <button class="btn" onclick="dashboard()">📋 Refresh Dashboard</button>
+  <button class="btn" onclick="crossPollinate()">🌸 Cross-Pollinate</button>
+  <button class="btn" onclick="summon()">⚡ Summon Organism</button>
+  <button class="btn" onclick="coherence()">🎯 Coherence Check</button>
+  <div id="actionResult" style="margin-top:12px"></div>
+  <canvas id="topologyCanvas"></canvas>
+</div>
+<script>
+const API='';
+async function fetchJson(p){const r=await fetch(API+p);return r.json();}
+function finite(value,fallback=0){const n=Number(value);return Number.isFinite(n)?n:fallback}
+function addStat(parent,label,value){
+  const stat=document.createElement('div');stat.className='stat';
+  const name=document.createElement('span');name.textContent=String(label);
+  const val=document.createElement('span');val.className='val';val.textContent=String(value??'—');
+  stat.append(name,val);parent.appendChild(stat);
+}
+async function dashboard(){
+  try{
+    const d=await fetchJson('/api/meta_coordination?action=dashboard');
+    document.getElementById('orgName').textContent=String(d.organism??'—');
+    document.getElementById('coherenceVal').textContent=(finite(d.coherence)*100).toFixed(1)+'%';
+    document.getElementById('healthVal').textContent=String(d.health??'—');
+    const sc=document.getElementById('statsContainer');sc.replaceChildren();
+    for(const [key,value] of Object.entries(d.stats||{}))addStat(sc,key,value);
+    const wc=document.getElementById('wavesContainer'),fragment=document.createDocumentFragment();
+    for(const [wave,info] of Object.entries(d.waves||{})){
+      const card=document.createElement('div');card.className='wave-card';
+      const heading=document.createElement('h4');heading.textContent=String(info.name??wave);card.appendChild(heading);
+      const coherence=finite(info.coherence),pct=Math.min(100,Math.max(0,coherence*100));
+      addStat(card,'Coherence',pct.toFixed(0)+'%');
+      const bar=document.createElement('div');bar.className='bar';
+      const fill=document.createElement('div');fill.className='fill';fill.style.width=pct+'%';bar.appendChild(fill);
+      card.appendChild(bar);fragment.appendChild(card);
+    }
+    wc.replaceChildren(fragment);
+    const dc=document.getElementById('diagContainer');dc.replaceChildren();
+    const diagnostics=d.diagnostics||{};
+    addStat(dc,'Health',diagnostics.health_score==null?'—':String(diagnostics.health_score)+'%');
+    addStat(dc,'Files',diagnostics.total_files);addStat(dc,'Anomalies',diagnostics.anomalies);
+    const cc=document.getElementById('crossContainer');cc.replaceChildren();
+    addStat(cc,'Edges',d.cross_wave_edges);addStat(cc,'Mode',d.coordination);
+    drawTopo(d);
+  }catch(e){console.error(e);}
+}
+async function crossPollinate(){
+  const r=await fetchJson('/api/meta_coordination?action=cross_pollinate'),result=r.cross_pollination||{};
+  document.getElementById('actionResult').textContent='Cross-pollination: '+(Array.isArray(result.waves_affected)?result.waves_affected.join(', '):'—')+' | shift: '+String(result.coherence_shift??'—')+' | new modules: '+String(result.new_modules??'—');
+}
+async function summon(){
+  const r=await fetchJson('/api/meta_coordination?action=summon');
+  document.getElementById('actionResult').textContent='⚡ '+String(r.organism??'—')+' summoned — pulse: '+String(r.pulse??'—')+' | coherence: '+(finite(r.coherence)*100).toFixed(1)+'% | waves: '+String(r.waves_active??'—');
+}
+async function coherence(){
+  const r=await fetchJson('/api/meta_coordination?action=coherence');
+  document.getElementById('actionResult').textContent='🎯 '+String(r.organism??'—')+' | Coherence: '+(finite(r.coherence)*100).toFixed(1)+'%';
+}
+function drawTopo(d){
+  const c=document.getElementById('topologyCanvas');const ctx=c.getContext('2d');
+  c.width=c.offsetWidth*2;c.height=c.offsetHeight*2;ctx.scale(2,2);
+  const w=c.offsetWidth,h=c.offsetHeight;ctx.fillStyle='#0e0e1e';ctx.fillRect(0,0,w,h);
+  const waves=Object.keys(d.waves);if(waves.length===0)return;
+  const cx=w/2,cy=h/2,r=Math.min(w,h)*0.35;
+  const pos={};waves.forEach((_,i)=>{const a=(2*Math.PI*i/waves.length)-Math.PI/2;pos[i]={x:cx+r*Math.cos(a),y:cy+r*Math.sin(a)}});
+  // center
+  ctx.beginPath();ctx.arc(cx,cy,12,0,2*Math.PI);ctx.fillStyle='#8888ff';ctx.fill();
+  // edges
+  ctx.strokeStyle='#2a2a5a';
+  for(let i=0;i<waves.length;i++){
+    ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(pos[i].x,pos[i].y);ctx.stroke();
+  }
+  for(let i=0;i<waves.length;i++){
+    for(let j=i+1;j<waves.length;j++){
+      ctx.beginPath();ctx.moveTo(pos[i].x,pos[i].y);ctx.lineTo(pos[j].x,pos[j].y);ctx.stroke();
+    }
+  }
+  // nodes
+  const colors=['#66ffaa','#aa88ff','#ffaa66','#66aaff'];
+  waves.forEach((w,i)=>{
+    ctx.beginPath();ctx.arc(pos[i].x,pos[i].y,10,0,2*Math.PI);ctx.fillStyle=colors[i%colors.length];ctx.fill();
+    ctx.fillStyle='#0e0e1e';ctx.font='bold 8px sans-serif';ctx.textAlign='center';ctx.fillText(w.split('_')[0]||w,pos[i].x,pos[i].y+3);
+  });
+}
+dashboard();setInterval(dashboard,5000);
+</script>
+</body>
+</html>

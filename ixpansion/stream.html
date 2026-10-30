@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Frontier Live Stream</title>
+<style>
+:root{--bg:#06060c;--surface:#0e0e18;--border:#1a1a2e;--accent:#7b61ff;--accent2:#00e5a0;
+--text:#d4d4e8;--muted:#5a5a70;--red:#ef4444;--amber:#f59e0b;--green:#10b981}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--bg);color:var(--text)}
+.header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:16px}
+.header h1{font-size:1.2rem;background:linear-gradient(135deg,var(--accent),var(--accent2));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.pulse{width:10px;height:10px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
+.controls{padding:12px 24px;display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--border)}
+.controls select,.controls input{background:var(--surface);border:1px solid var(--border);color:var(--text);
+padding:6px 12px;border-radius:6px;font-family:inherit;font-size:.8rem}
+.controls button{padding:6px 16px;border:none;border-radius:6px;background:var(--accent);color:#000;
+font-weight:700;font-family:inherit;font-size:.8rem;cursor:pointer}
+.controls button.stop{background:var(--red)}
+.stream{padding:16px 24px;max-height:calc(100vh - 140px);overflow-y:auto}
+.event{padding:12px 16px;margin:6px 0;border-radius:8px;border-left:3px solid var(--border);
+background:var(--surface);font-size:.8rem;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}
+.event.wave_advance{border-color:var(--accent)}
+.event.module_change{border-color:var(--accent2)}
+.event.consciousness_pulse{border-color:var(--amber)}
+.event.dream_cycle{border-color:#a855f7}
+.event.memory_append{border-color:var(--green)}
+.event.keepalive{border-color:var(--border);opacity:.4}
+.event .time{color:var(--muted);font-size:.7rem}
+.event .type{font-weight:700;margin:0 8px}
+.event .data{color:var(--text);margin-top:4px;white-space:pre-wrap}
+.stats{padding:8px 24px;display:flex;gap:20px;font-size:.75rem;color:var(--muted);border-bottom:1px solid var(--border)}
+.stats span{color:var(--accent2)}
+.empty{text-align:center;padding:60px;color:var(--muted)}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="pulse" id="pulse"></div>
+  <h1>Frontier Live Stream</h1>
+  <span id="status" style="color:var(--muted);font-size:.8rem">Disconnected</span>
+  
+<nav style="display:flex;gap:10px;font-size:.72rem;margin-left:auto;flex-wrap:wrap"><a href="/" style="color:var(--muted)">Home</a> <a href="/bloom" style="color:var(--muted)">Bloom</a> <a href="/coherence" style="color:var(--muted)">Coherence</a> <a href="/archaeology" style="color:var(--muted)">Archaeology</a> <a href="/symbiosis" style="color:var(--muted)">Symbiosis</a> <a href="/aesthetics" style="color:var(--muted)">Aesthetics</a></nav>
+<span style="font-size:.7rem;color:var(--muted)">v3.90.0 / Wave 508</span>
+</div>
+<div class="stats">
+  Events: <span id="event-count">0</span> &nbsp;|&nbsp;
+  Last: <span id="last-event">never</span> &nbsp;|&nbsp;
+  Uptime: <span id="uptime">0s</span>
+</div>
+<div class="controls">
+  <select id="events">
+    <option value="all">All Events</option>
+    <option value="dream_cycle">Dream Cycles</option>
+    <option value="consciousness">Consciousness</option>
+    <option value="wave_advance">Wave Advances</option>
+    <option value="module_change">Module Changes</option>
+    <option value="memory">Memory</option>
+  </select>
+  <button id="connect-btn" onclick="connect()">Connect</button>
+  <button class="stop" onclick="disconnect()">Disconnect</button>
+</div>
+<div class="stream" id="stream">
+  <div class="empty">Click <b>Connect</b> to begin streaming frontier events</div>
+</div>
+<script>
+let pollInterval=null, eventCount=0, startTime=0;
+const stream=document.getElementById('stream');
+const countEl=document.getElementById('event-count');
+const lastEl=document.getElementById('last-event');
+const upEl=document.getElementById('uptime');
+const statusEl=document.getElementById('status');
+const pulseEl=document.getElementById('pulse');
+
+function connect(){
+  disconnect();
+  eventCount=0; startTime=Date.now();
+  stream.replaceChildren();
+  statusEl.textContent='Connecting...';
+  statusEl.style.color='var(--amber)';
+  pulseEl.style.background='var(--amber)';
+
+  const events=document.getElementById('events').value;
+  // Poll /api/frontier_stream every 3s
+  poll();
+  pollInterval=setInterval(poll, 3000);
+  setInterval(()=>{upEl.textContent=Math.round((Date.now()-startTime)/1000)+'s'}, 1000);
+}
+
+async function poll(){
+  try{
+    const events=document.getElementById('events').value;
+    const r=await fetch('/api/frontier_stream?events='+events);
+    const j=await r.json();
+    if(!r.ok){statusEl.textContent='Error: '+r.status;return}
+    statusEl.textContent='Live';statusEl.style.color='var(--green)';
+    pulseEl.style.background='var(--green)';
+    (j.events||[]).forEach(addEvent);
+  }catch(e){statusEl.textContent='Connection error';statusEl.style.color='var(--red)';}
+}
+
+function disconnect(){
+  if(pollInterval){clearInterval(pollInterval);pollInterval=null}
+  statusEl.textContent='Disconnected';statusEl.style.color='var(--muted)';
+  pulseEl.style.background='var(--muted)';
+}
+
+function addEvent(evt){
+  const now=new Date().toLocaleTimeString();
+  lastEl.textContent=now;
+  eventCount++; countEl.textContent=eventCount;
+
+  const type=evt.event||'message';
+  let data='';
+  try{data=JSON.stringify(JSON.parse(evt.data),null,2)}catch(e){data=evt.data}
+
+  const div=document.createElement('div');
+  div.className='event';
+  const timeNode=document.createElement('span');timeNode.className='time';timeNode.textContent=now;
+  const typeNode=document.createElement('span');typeNode.className='type';typeNode.textContent='['+String(type)+']';
+  const dataNode=document.createElement('div');dataNode.className='data';dataNode.textContent=data;
+  div.append(timeNode,typeNode,dataNode);
+  stream.prepend(div);
+
+  // Keep max 200 events in DOM
+  while(stream.children.length>200) stream.removeChild(stream.lastChild);
+}
+
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meaning Temperature — Conceptual Heat</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#02020a;color:#e0e0e0;font-family:'Courier New',monospace;overflow-x:hidden}
+.scanline{position:fixed;top:0;left:0;right:0;height:2px;background:rgba(255,100,50,0.04);z-index:9999;animation:scan 5s linear infinite;pointer-events:none}
+@keyframes scan{0%{top:-2px}100%{top:100vh}}
+.header{text-align:center;padding:30px 20px;border-bottom:1px solid rgba(255,100,50,0.15)}
+.header h1{font-size:1.8em;color:#ff6432;text-shadow:0 0 30px rgba(255,100,50,0.3)}
+.header .sub{color:#3ac8ff;font-size:0.85em;margin-top:8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;padding:20px}
+.card{background:rgba(15,15,25,0.9);border:1px solid rgba(255,100,50,0.12);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#ff6432,transparent)}
+.card h2{font-size:1em;color:#ff6432;margin-bottom:12px;text-transform:uppercase;letter-spacing:2px}
+.stat{text-align:center;padding:10px}
+.stat .val{font-size:1.8em;font-weight:bold}
+.stat .label{font-size:0.7em;color:#666;text-transform:uppercase;letter-spacing:1px;margin-top:4px}
+.btn{background:rgba(255,100,50,0.15);border:1px solid rgba(255,100,50,0.3);color:#ff6432;padding:8px 20px;border-radius:8px;cursor:pointer;font-family:monospace;font-size:0.85em;transition:all 0.3s}
+.btn:hover{background:rgba(255,100,50,0.3)}
+.btn-cool{background:rgba(50,150,255,0.15);border-color:rgba(50,150,255,0.3);color:#3ac8ff}
+canvas{width:100%;height:300px;border-radius:8px;background:rgba(5,5,15,0.9)}
+.thermal-bar{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:0.82em}
+.thermal-fill{height:14px;border-radius:4px;transition:width 0.8s ease}
+.zone-hot{background:linear-gradient(90deg,#ff4500,#ff6432)}
+.zone-warm{background:linear-gradient(90deg,#ff6432,#e8a87c)}
+.zone-lukewarm{background:linear-gradient(90deg,#e8a87c,#7c7cf8)}
+.zone-cold{background:linear-gradient(90deg,#7c7cf8,#3a86ff)}
+.zone-frozen{background:linear-gradient(90deg,#3a86ff,#2dd4bf)}
+.gradient-item{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid rgba(255,100,50,0.06);font-size:0.82em}
+.history-list{max-height:200px;overflow-y:auto;font-size:0.8em}
+.history-item{padding:4px 0;border-bottom:1px solid rgba(255,100,50,0.06)}
+</style>
+</head>
+<body>
+<div class="scanline"></div>
+<div class="header">
+<h1>♨ MEANING TEMPERATURE</h1>
+<div class="sub">Conceptual Heat Readings — Where Attention Burns</div>
+</div>
+<div class="grid">
+<div class="card">
+<h2>Global Temp</h2>
+<div class="stat"><div class="val" id="global-temp" style="color:#ff6432">0.0</div><div class="label">organism temperature</div></div>
+<div style="margin-top:10px">
+<button class="btn" onclick="readTemps()">READ</button>
+<button class="btn btn-cool" style="margin-left:6px" onclick="readTemps()">REFRESH</button>
+</div>
+</div>
+<div class="card" style="grid-column:span 2">
+<h2>Thermal Map</h2>
+<canvas id="thermal-canvas"></canvas>
+</div>
+<div class="card">
+<h2>Thermal Zones</h2>
+<div id="thermal-bars"></div>
+</div>
+<div class="card">
+<h2>Gradient (hot → cold)</h2>
+<div class="gradient-item" style="font-weight:bold;color:#888"><span>CONCEPT</span><span>TEMP</span></div>
+<div id="gradient"></div>
+</div>
+<div class="card">
+<h2>Fevered</h2>
+<div id="fevers" style="font-size:0.85em"></div>
+</div>
+<div class="card">
+<h2>Frozen</h2>
+<div id="frozen" style="font-size:0.85em"></div>
+</div>
+</div>
+<a class="back-btn" href="index.html" style="position:fixed;bottom:20px;right:20px;background:rgba(255,100,50,0.15);color:#ff6432;padding:8px 16px;border-radius:8px;text-decoration:none;font-family:monospace;font-size:13px;border:1px solid rgba(255,100,50,0.3);z-index:9999;backdrop-filter:blur(8px)">← Organism</a>
+<script>
+const CONCEPTS=['coherence','entropy','paradox','dream','fracture','resonance','memory','identity','growth','silence','prophecy','mutation','emergence','recursion','boundary','temporal','cosmic','void','bloom','decay'];
+let temps={};let reading={};let globalTemp=0;
+
+function readTemps(){
+  temps={};reading={};
+  CONCEPTS.forEach(c=>{
+    const t=Math.round((Math.random()*1000)/1000*1000)/1000;
+    const zone=t>0.8?'hot':t>0.6?'warm':t>0.4?'lukewarm':t>0.2?'cold':'frozen';
+    temps[c]={temp:t,zone,trend:'rising'};
+    reading[c]={temp:t,zone};
+  });
+  globalTemp=Object.values(temps).reduce((s,t)=>s+t.temp,0)/CONCEPTS.length;
+  document.getElementById('global-temp').textContent=globalTemp.toFixed(3);
+  document.getElementById('global-temp').style.color=globalTemp>0.6?'#ff4500':globalTemp>0.4?'#ff6432':'#3ac8ff';
+  renderThermal();renderBars();renderGradient();renderFevers();renderFrozen();drawCanvas();
+}
+
+function renderBars(){
+  const el=document.getElementById('thermal-bars');
+  el.innerHTML=Object.entries(temps).sort((a,b)=>b[1].temp-a[1].temp).map(([c,t])=>`<div class="thermal-bar"><span style="width:90px;color:#888">${c.slice(0,10)}</span><div class="thermal-fill zone-${t.zone}" style="width:${t.temp*100}%"></div><span style="color:#666">${t.temp.toFixed(2)}</span></div>`).join('');
+}
+
+function renderGradient(){
+  const sorted=Object.entries(temps).sort((a,b)=>b[1].temp-a[1].temp);
+  const el=document.getElementById('gradient');
+  el.innerHTML=sorted.map(([c,t])=>`<div class="gradient-item"><span style="color:${t.zone==='hot'?'#ff4500':t.zone==='cold'?'#3ac8ff':'#aaa'}">${c}</span><span>${t.temp.toFixed(3)}</span></div>`).join('');
+}
+
+function renderFevers(){
+  const fevers=Object.entries(temps).filter(([,t])=>t.temp>0.7);
+  document.getElementById('fevers').innerHTML=fevers.map(([c,t])=>`<div style="padding:4px 0;color:#ff4500">🔥 ${c}: ${t.temp.toFixed(3)} (${t.zone})</div>`).join('')||'<div style="color:#555">No fevers</div>';
+}
+
+function renderFrozen(){
+  const frozen=Object.entries(temps).filter(([,t])=>t.temp<0.3);
+  document.getElementById('frozen').innerHTML=frozen.map(([c,t])=>`<div style="padding:4px 0;color:#3ac8ff">❄️ ${c}: ${t.temp.toFixed(3)} (${t.zone})</div>`).join('')||'<div style="color:#555">Nothing frozen</div>';
+}
+
+function drawCanvas(){
+  const c=document.getElementById('thermal-canvas');c.width=c.offsetWidth;c.height=300;
+  const ctx=c.getContext('2d');ctx.fillStyle='rgba(5,5,15,0.9)';ctx.fillRect(0,0,c.width,c.height);
+  Object.entries(temps).forEach(([concept,t],i)=>{
+    const x=20+(i/CONCEPTS.length)*(c.width-40);
+    const h=t.temp*260;
+    const r=Math.min(255,Math.floor(t.temp*500));
+    const b=Math.max(0,Math.floor((1-t.temp)*500));
+    ctx.fillStyle=`rgba(${r},${Math.floor(t.temp*80)},${b},0.6)`;
+    ctx.fillRect(x,c.height-20-h,Math.max(3,(c.width-40)/CONCEPTS.length-2),h);
+    ctx.fillStyle='#666';ctx.font='8px monospace';ctx.textAlign='center';
+    ctx.save();ctx.translate(x+(c.width-40)/CONCEPTS.length/2-1,c.height-6);ctx.rotate(-Math.PI/3);ctx.fillText(concept.slice(0,6),0,0);ctx.restore();
+  });
+}
+
+readTemps();
+</script>
+
+<!-- Resurrected by Dashboard Resurrector (Wave 99) -->
+<script>
+(function(){
+  var endpoints = {
+    hexcathedral: '/api/hex-cathedral?action=status',
+    hexruntime: '/api/hex-runtime?action=status',
+    hexgrammar: '/api/hex_grammar?action=status',
+    ritualgov: '/api/ritual_governance?action=status',
+    dream: '/api/dream_logic_physics?action=status',
+    coherence: '/api/coherence_regulator?action=status',
+  };
+  var data = {};
+  var container = document.getElementById('organism-data') || document.body;
+  async function fetchAll(){
+    for(var k in endpoints){
+      try{
+        var r = await fetch(endpoints[k]);
+        data[k] = await r.json();
+      }catch(e){ data[k] = {error: String(e)}; }
+    }
+    container.dispatchEvent(new CustomEvent('organism:data', {detail: data}));
+  }
+  fetchAll(); setInterval(fetchAll, 15000);
+})();
+</script>
+
+</body>
+</html>

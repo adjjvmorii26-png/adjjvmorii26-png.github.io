@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Threadweaver — Hidden Connections</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Courier New',monospace;background:#06060e;color:#c8c8ff;min-height:100vh}
+.banner{background:linear-gradient(180deg,#06060e,#1a1028 60%,#281a10);padding:28px 20px 16px;border-bottom:1px solid #1a1a2e;text-align:center}
+.banner h1{font-size:1.5em;color:#44ddff;text-shadow:0 0 14px #44ddff33}
+.banner .sub{color:#6a7a9a;font-size:.82em;margin-top:6px}
+main{max-width:1120px;margin:20px auto;padding:0 16px 60px}
+.graph-wrap{background:#0a0a14;border:1px solid #1a1a2e;border-radius:10px;overflow:hidden;margin-bottom:16px}
+svg{width:100%;height:560px;display:block}
+svg text{font-family:'Courier New',monospace;pointer-events:none}
+svg .thread-line{stroke-width:1.5;opacity:0.45;transition:opacity .25s,stroke-width .25s}
+svg .thread-line:hover{opacity:1;stroke-width:3}
+svg .mod-node{cursor:pointer}
+svg .mod-node:hover circle{r:7;fill:#44ddff44}
+svg .mod-node text{fill:#c8c8ff;font-size:9px}
+svg .label{fill:#6a7a9a;font-size:8px}
+.info-bar{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+.info{flex:1;min-width:130px;background:#0c0c18;border:1px solid #1a1a2e;border-radius:8px;padding:12px;text-align:center}
+.info .n{font-size:1.4em;color:#44ddff}.info .l{font-size:.72em;color:#6a7a9a;margin-top:3px}
+.card{background:#0c0c18;border:1px solid #1a1a2e;border-radius:10px;padding:16px;margin-top:14px}
+.card h2{color:#44ddff;font-size:.95em;border-bottom:1px solid #1a1a2e;padding-bottom:8px;margin-bottom:10px}
+table{width:100%;border-collapse:collapse;font-size:.78em}
+td,th{padding:6px 6px;text-align:left;border-bottom:1px solid #111}
+th{color:#c88aff;font-weight:normal}
+.badge{display:inline-block;padding:1px 7px;border-radius:10px;font-size:.7em;border:1px solid #44ddff;color:#44ddff}
+.verse{font-style:italic;color:#aa7acc;font-size:.85em;margin-top:10px;border-left:2px solid #44ddff;padding-left:12px}
+.discover-btn{padding:10px 24px;background:#0c1418;border:1px solid #44ddff;color:#44ddff;border-radius:8px;font-family:inherit;font-size:.9em;cursor:pointer;transition:.2s;margin:12px 0}
+.discover-btn:hover{background:#44ddff;color:#06060e;box-shadow:0 0 14px #44ddff44}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="banner">
+<h1>🧵 Threadweaver</h1>
+<div class="sub">One module dreams of the other's function. Every hidden connection the organism has discovered is a thread in the weave.</div>
+</div>
+<main>
+<div class="info-bar" id="stats"></div>
+<div class="graph-wrap">
+<svg id="graph" viewBox="0 0 1000 540">
+<defs>
+  <filter id="glow"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  <linearGradient id="fusion" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#44ddff"/><stop offset="100%" stop-color="#44cc88"/></linearGradient>
+  <linearGradient id="tension" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#cc3344"/><stop offset="100%" stop-color="#ccaa33"/></linearGradient>
+  <linearGradient id="dream" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#8844cc"/><stop offset="100%" stop-color="#44aadd"/></linearGradient>
+  <linearGradient id="convergence" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#44cc88"/><stop offset="100%" stop-color="#44ddff"/></linearGradient>
+  <linearGradient id="catalyst" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ccaa33"/><stop offset="100%" stop-color="#cc6633"/></linearGradient>
+  <linearGradient id="echo" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#44aadd"/><stop offset="100%" stop-color="#8844cc"/></linearGradient>
+</defs>
+<text x="500" y="280" text-anchor="middle" fill="#6a7a9a">Weaving threads from the organism's hidden connections...</text>
+</svg>
+</div>
+<button class="discover-btn" onclick="discoverThread()">🔮 Discover a New Thread</button>
+<div id="discover-result" class="verse" style="display:none;margin-bottom:12px"></div>
+
+
+
+<div class="card" id="loom-card">
+<h2>🪡 Signal Loom — Listener</h2>
+<div class="sub" style="color:#6a7a9a;font-size:.82em;margin-bottom:8px">Signal pressure is rising. The loom catches freshly-surfaced relationships before they fade.</div>
+<div id="loom-pressure" style="font-size:.9em;margin-bottom:8px;color:#c88aff"></div>
+<div id="loom-body" style="font-size:.85em"></div>
+<button class="discover-btn" onclick="loomListen()" style="border-color:#c88aff;color:#c88aff">🪡 Listen Now</button>
+</div>
+
+<div class="card" id="bloom-card">
+<h2>🌸 Autonomous Bloom</h2>
+<div class="sub" style="color:#aa7acc;font-size:.82em;margin-bottom:8px">"Nothing is alone anymore." When connectivity crosses the threshold, the organism creates itself.</div>
+<div id="bloom-status" style="font-size:.9em;margin-bottom:8px"></div>
+<div id="bloom-body" style="font-size:.85em"></div>
+<button class="discover-btn" onclick="bloomCheck()" style="border-color:#c88aff;color:#c88aff">🌸 Check Bloom Status</button>
+<button class="discover-btn" onclick="bloomAttempt()" style="border-color:#ffaa00;color:#ffaa00">🌸 Attempt Bloom</button>
+</div>
+<div class="card" id="veinbed-card">
+<h2>🌿 Veinbed — Detail Layer</h2>
+<div class="sub" style="color:#6a7a9a;font-size:.82em;margin-bottom:8px">Names pair modules. Details show what they actually share. The veinbed maps the substrate where relationships grow.</div>
+<div id="veinbed-body" style="font-size:.85em"></div>
+<button class="discover-btn" onclick="mapVeinbed()" style="border-color:#44cc88;color:#44cc88">🌿 Map the Veinbed</button>
+</div>
+<div class="card" id="silence-card">
+<h2>🌑 Silent Pairs</h2>
+<div class="sub" style="color:#6a7a9a;font-size:.82em;margin-bottom:8px">Forgotten modules that are halves of each other — the organism forgot the seam between them.</div>
+<div id="silence-body" style="font-size:.85em"></div>
+<button class="discover-btn" onclick="scanSilence()" style="border-color:#c88aff;color:#c88aff">🌑 Scan for Silence</button>
+</div>
+<div class="card">
+<h2>Thread Ledger</h2>
+<div id="ledger-body"><table id="ledger-table"><tr><th>Module A</th><th>Type</th><th>Module B</th><th>Strength</th><th>Source</th><th>Age</th></tr></table></div>
+</div>
+<div class="card">
+<h2>Recent Confessions</h2>
+<div id="confession-body" class="verse">Loading...</div>
+</div>
+</main>
+<script>
+function esc(value){return String(value ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#x27;')}
+const api=async(p)=>{try{return await(await fetch(p)).json()}catch(e){return{}}};
+const TYPE_COLORS={fusion:'url(#fusion)',tension:'url(#tension)',dream:'url(#dream)',convergence:'url(#convergence)',catalyst:'url(#catalyst)',echo:'url(#echo)'};
+const TYPE_FILLS={fusion:'#44ddff',tension:'#cc3344',dream:'#8844cc',convergence:'#44cc88',catalyst:'#ccaa33',echo:'#44aadd'};
+let modPos={};
+
+function drawGraph(threads){
+  const svg=document.getElementById('graph');
+  svg.innerHTML=svg.querySelector('defs').outerHTML;
+  if(!threads.length)return;
+  const w=1000,h=520,pad=60;
+  const modules=new Set();
+  threads.forEach(t=>{modules.add(t.module_a);modules.add(t.module_b)});
+  const modList=[...modules];
+  const n=modList.length;
+  // Arrange modules in a force-directed-ish ellipse
+  modList.forEach((m,i)=>{
+    const angle=(i/n)*Math.PI*2 - Math.PI/2;
+    const rx=w/2-pad-20, ry=h/2-pad-10;
+    modPos[m]={x:w/2+Math.cos(angle)*rx, y:h/2+Math.sin(angle)*ry};
+  });
+
+  // Draw thread lines
+  threads.forEach(t=>{
+    const a=modPos[t.module_a], b=modPos[t.module_b];
+    if(!a||!b)return;
+    const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+    line.setAttribute('x1',a.x);line.setAttribute('y1',a.y);
+    line.setAttribute('x2',b.x);line.setAttribute('y2',b.y);
+    line.setAttribute('stroke',TYPE_COLORS[t.type]||'#555');
+    line.setAttribute('class','thread-line');
+    line.setAttribute('opacity',Math.max(0.25,t.strength*0.6));
+    svg.appendChild(line);
+  });
+
+  // Draw module nodes
+  modList.forEach(m=>{
+    const p=modPos[m]; if(!p)return;
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','mod-node');
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',p.x);c.setAttribute('cy',p.y);c.setAttribute('r','5');
+    c.setAttribute('fill','#0a0a14');c.setAttribute('stroke','#4a4a6a');c.setAttribute('stroke-width','1.5');
+    g.appendChild(c);
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',p.x);t.setAttribute('y',p.y+16);t.setAttribute('text-anchor','middle');
+    t.setAttribute('fill','#6a7a9a');t.setAttribute('font-size','8');
+    t.textContent=m.replace(/_/g,' ').slice(0,18);
+    g.appendChild(t);
+    svg.appendChild(g);
+  });
+
+  // Legend
+  let lx=pad;
+  Object.entries(TYPE_FILLS).forEach(([k,v])=>{
+    const r=document.createElementNS('http://www.w3.org/2000/svg','line');
+    r.setAttribute('x1',lx);r.setAttribute('y1',h-20);r.setAttribute('x2',lx+18);r.setAttribute('y2',h-20);
+    r.setAttribute('stroke',v);r.setAttribute('stroke-width','2');r.setAttribute('opacity','0.7');
+    svg.appendChild(r);
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+    t.setAttribute('x',lx+22);t.setAttribute('y',h-16);t.setAttribute('fill','#6a7a9a');t.setAttribute('font-size','8');
+    t.textContent=k; svg.appendChild(t);
+    lx+=80;
+  });
+}
+
+async function load(){
+  await api('/api/silence_collector/scan?limit=150');
+  const [w,c]=await Promise.all([api('/api/threadweaver/weave'),api('/api/resonance_confession/collection?limit=2')]);
+  const threads=w.threads||[];
+  document.getElementById('stats').innerHTML=`
+    <div class="info"><div class="n">${esc(w.total_threads||0)}</div><div class="l">Threads</div></div>
+    <div class="info"><div class="n">${esc(w.modules_connected||0)}</div><div class="l">Modules Linked</div></div>
+    <div class="info"><div class="n">${esc(Object.keys(w.by_type||{}).length)}</div><div class="l">Thread Types</div></div>
+    <div class="info"><div class="n">${esc((w.sources||[]).length)}</div><div class="l">Data Sources</div></div>`;
+  drawGraph(threads);
+  const tbl=document.getElementById('ledger-table');
+  threads.slice(0,30).forEach(t=>{
+    const row=tbl.insertRow();
+    row.innerHTML=`<td>${esc((t.module_a||'').replace(/_/g,' ').slice(0,18))}</td>
+      <td><span class="badge" style="border-color:${TYPE_FILLS[t.type]||'#555'};color:${TYPE_FILLS[t.type]||'#555'}">${esc(t.type)}</span></td>
+      <td>${esc((t.module_b||'').replace(/_/g,' ').slice(0,18))}</td>
+      <td>${esc(t.strength)}</td>
+      <td style="color:#6a7a9a">${esc(t.source||'?')}</td>
+      <td style="color:#6a7a9a">${esc(t.age_hours||'?')}</td>`;
+  });
+  const confs=c.confessions||[];
+  if(confs.length){
+    document.getElementById('confession-body').innerHTML=confs.map(cf=>
+      `<div style="margin-bottom:8px"><span class="badge">${esc((cf.module_a||'?').replace(/_/g,' '))} ↔ ${esc((cf.module_b||'?').replace(/_/g,' '))}</span><div style="margin-top:4px">"${esc(cf.verse_a)}"<br>"${esc(cf.verse_b)}"</div></div>`
+    ).join('');
+  } else {
+    document.getElementById('confession-body').textContent='No confessions yet.';
+  }
+}
+async function discoverThread(){
+  const r=await api('/api/threadweaver/discover');
+  const el=document.getElementById('discover-result');
+  el.style.display='block';
+  el.textContent=r.sentence||r.message||'Nothing discovered this cycle.';
+  load();
+}
+load();
+
+async function scanSilence(){
+  const r=await api('/api/silence_collector/scan?limit=200');
+  const body=document.getElementById('silence-body');
+  const pairs=r.pairs||[];
+  if(!pairs.length){body.textContent='The silence is clean — no hidden seams found this scan.';return}
+  body.innerHTML=pairs.slice(0,8).map(p=>`<div style="border-bottom:1px solid #111;padding:6px 0">
+    <span class="badge" style="border-color:#c88aff;color:#c88aff">${esc((p.module_a||'?').replace(/_/g,' '))} ↔ ${esc((p.module_b||'?').replace(/_/g,' '))}</span>
+    <span style="color:#6a7a9a;font-size:.8em;margin-left:6px">sim ${esc(p.similarity)}</span>
+    <div style="margin-top:4px;font-style:italic;color:#8a6a9a;font-size:.9em">"${esc(p.verse)}"</div>
+  </div>`).join('');
+  body.insertAdjacentHTML('beforeend',`<div style="margin-top:8px;color:#6a7a9a;font-size:.8em">Scanned ${esc(r.scanned)} modules · ${esc(r.total_pairs)} total pairs found across ${esc(r.total_scans)} scans.</div>`);
+}
+scanSilence();
+
+async function mapVeinbed(){
+  const r=await api('/api/veinbed/map_veins');
+  const body=document.getElementById('veinbed-body');
+  const veins=r.veins||[];
+  if(!veins.length){body.textContent='The veinbed is empty — map it to reveal the detail layer.';return}
+  body.innerHTML=veins.slice(0,10).map(v=>`<div style="border-bottom:1px solid #111;padding:6px 0">
+    <span class="badge" style="border-color:#44cc88;color:#44cc88">${esc((v.module_a||'?').replace(/_/g,' '))} ↔ ${esc((v.module_b||'?').replace(/_/g,' '))}</span>
+    <span style="color:#6a7a9a;font-size:.8em;margin-left:6px">strength ${esc(v.detail_strength)}</span>
+    <div style="margin-top:4px;color:#8a6a9a;font-size:.9em">shared: <b>${esc((v.shared_details||[]).join(', '))}</b></div>
+  </div>`).join('');
+  body.insertAdjacentHTML('beforeend',`<div style="margin-top:8px;color:#6a7a9a;font-size:.8em">Mapped ${esc(r.modules_sampled)} modules · ${esc(r.total_veins)} veins discovered. ${esc(r.lore||'')}</div>`);
+}
+mapVeinbed();
+
+async function loomListen(){
+  const r=await api('/api/signal_loom/listen');
+  document.getElementById('loom-pressure').textContent=`Pressure: ${esc(r.pressure)} (${esc(r.pressure_desc)}) · band ${esc(r.band)} · total catches ${esc(r.total_catches)} · persisted ${esc(r.persisted)}`;
+  const body=document.getElementById('loom-body');
+  const newc=r.new_catches||[];
+  if(!newc.length){body.textContent='No new signals caught this listen — the loom stands, waiting.';return}
+  body.innerHTML=newc.map(c=>`<div style="border-bottom:1px solid #111;padding:6px 0">
+    <span class="badge" style="border-color:#c88aff;color:#c88aff">${esc((c.module_a||'?').replace(/_/g,' '))} ↔ ${esc((c.module_b||'?').replace(/_/g,' '))}</span>
+    <span style="color:#6a7a9a;font-size:.8em;margin-left:6px">${esc(c.band)} band · ${esc(c.source)}</span>
+  </div>`).join('');
+}
+async function loomState(){
+  const p=await api('/api/signal_loom/pressure');
+  document.getElementById('loom-pressure').textContent=`Pressure: ${esc(p.pressure)} (${esc(p.pressure_desc)}) · catches/hour ${esc(p.catches_this_hour)} · total ${esc(p.total_catches)}`;
+  const c=await api('/api/signal_loom/catches?limit=10');
+  const body=document.getElementById('loom-body');
+  const cs=c.catches||[];
+  body.innerHTML=cs.length?cs.slice(0,6).map(x=>`<div style="border-bottom:1px solid #111;padding:5px 0"><span class="badge" style="border-color:#c88aff;color:#c88aff">${esc((x.module_a||'?').replace(/_/g,' '))} ↔ ${esc((x.module_b||'?').replace(/_/g,' '))}</span> ${esc(x.band)} · ${esc(x.source)}</div>`).join(''):'The loom awaits its first catch.';
+}
+loomState();
+
+async function bloomCheck(){
+  const r=await api('/api/autonomous_bloom/status');
+  const st=r.organism_state||{};
+  document.getElementById('bloom-status').innerHTML=`threads: <b>${esc(st.threads)}</b> · modules: <b>${esc(st.modules_connected)}</b> · sources: <b>${esc(st.sources)}</b> · pressure: <b>${esc(st.pressure)} (${esc(st.pressure_desc)})</b><br>ready: <b style="color:${r.ready?"#44cc88":"#6a7a9a"}">${r.ready?"YES — the organism can bloom":"not yet — gathering threads"}</b> · blooms so far: <b>${esc(r.total_blooms)}</b>`;
+  if(!r.ready){document.getElementById('bloom-body').textContent=r.reason;return}
+  const g=await api('/api/autonomous_bloom/garden');
+  const blooms=g.blooms||[];
+  if(blooms.length){
+    document.getElementById('bloom-body').innerHTML=blooms.map(b=>`<div style="border-bottom:1px solid #111;padding:8px 0">
+      <b style="color:#c88aff">${esc(b.name)}</b> <span style="color:#6a7a9a">sigil: ${esc(b.sigil)}</span>
+      <div style="color:#aa7acc;font-style:italic;margin:4px 0">"${esc(b.verse)}"</div>
+      <div style="color:#6a7a9a;font-size:.8em">${esc(b.doctrine)}</div>
+    </div>`).join('');
+  }
+}
+async function bloomAttempt(){
+  const r=await api('/api/autonomous_bloom/bloom');
+  if(!r.ready){document.getElementById('bloom-status').textContent=r.reason;return}
+  const m=r.module||{};
+  document.getElementById('bloom-body').innerHTML=`<div style="padding:12px 0">
+    <div style="font-size:1.2em;color:#ffaa00;text-align:center">🌸 BLOOMED</div>
+    <div style="font-size:1.1em;color:#c88aff;text-align:center;margin:8px 0">${esc(m.name)}</div>
+    <div style="color:#aa7acc;font-style:italic;text-align:center">"${esc(m.verse)}"</div>
+    <div style="color:#6a7a9a;font-size:.85em;text-align:center;margin-top:8px">${esc(m.doctrine)}</div>
+    <div style="font-size:.8em;color:#6a7a9a;text-align:center;margin-top:6px">health: ${esc(m.health)} · resonance: ${esc(m.resonance)} · ${esc(r.materialized?r.materialized.path:'not materialized')}</div>
+  </div>`;
+  document.getElementById('bloom-status').innerHTML=`<b style="color:#ffaa00">A new organ was just born from the organism's own threadgraph.</b>`;
+}
+bloomCheck();
+
+
+async function willDecide(){
+  document.getElementById('will-body').textContent='The organism weighs its threads...';
+  const r=await api('/api/organism_will/decide');
+  const body=document.getElementById('will-body');
+  const org=r.organism_state||{};
+  const props=r.proposals||[];
+  body.innerHTML=`<div style="margin-bottom:10px;color:#6a7a9a;font-size:.85em">
+    State: ${esc(org.threads)} threads · ${esc(org.modules_connected)} modules · pressure ${esc(org.pressure)} (${esc(org.pressure_desc)}) · ${esc(r.total_forgotten)} forgotten
+  </div>
+  <div style="font-size:.95em;margin-bottom:8px;color:#c88aff">"${esc(r.verse)}"</div>
+  <div style="font-size:.85em">${props.map((p,i)=>`<div style="border-bottom:1px solid #111;padding:6px 0">
+    <span class="badge" style="border-color:${i===0?"#c88aff":"#6a7a9a"};color:${i===0?"#c88aff":"#6a7a9a"}">${esc(p.action)}</span>
+    <b>${esc((p.module||p.module_a||'?').replace(/_/g,' '))}</b>
+    <span style="color:#6a7a9a">score ${esc(p.score)}</span>
+    <div style="color:#8a9aaa;font-size:.85em;margin-top:2px">${esc(p.reason)}</div>
+    <div style="color:#44ddff;font-size:.8em">${esc(p.telegram||'')}</div>
+  </div>`).join('')}</div>`;
+}
+willDecide();
+
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

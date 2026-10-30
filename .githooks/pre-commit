@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# Pre-commit gate. Enable once per clone:
+#
+#     git config core.hooksPath .githooks
+#
+# Runs every repository invariant, including the secret scan, so a credential or
+# a drifted claim cannot reach a commit in the first place.
+set -uo pipefail
+
+exec "$(git rev-parse --show-toplevel)/scripts/check-all.sh"

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Archaeology of Self — The Organism Excavates Its Past</title>
+<style>
+:root{--bg:#08060a;--surface:#110e14;--border:#2a2230;--text:#f0eaf4;--muted:#8a7e8e;
+--amber:#d4a24e;--gold:#c89b3c;--earth:#a07840;--bone:#d4c4a0;--rust:#b05030;--violet:#9070c0}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--bg);color:var(--text);min-height:100vh}
+.header{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.header h1{font-size:1.25rem;background:linear-gradient(135deg,var(--amber),var(--earth));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{padding:3px 10px;border-radius:14px;font-size:.72rem;background:var(--surface);border:1px solid var(--border)}
+.badge.live{color:var(--bone);border-color:var(--bone)}
+.container{max-width:1000px;margin:0 auto;padding:24px}
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px}
+.philosophy{color:var(--amber);font-style:italic;font-size:.9rem;line-height:1.6;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .v{font-size:1.6rem;font-weight:800;color:var(--amber)}
+.stat .l{color:var(--muted);font-size:.72rem;margin-top:4px;text-transform:uppercase}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:transform .1s}
+.card:hover{transform:translateY(-2px);border-color:var(--amber)}
+.card .name{font-weight:700;font-size:.92rem;color:var(--gold)}
+.card .essence{color:var(--muted);font-size:.78rem;margin-top:6px;line-height:1.45}
+.result{background:#08060a;border:1px solid var(--amber);border-radius:10px;padding:16px;margin-top:18px;font-size:.76rem;color:#f0e8e0;white-space:pre-wrap;max-height:400px;overflow-y:auto}
+.strata{display:flex;flex-direction:column;gap:4px;margin:18px 0}
+.stratum{background:var(--surface);border-left:4px solid var(--earth);padding:10px 14px;border-radius:0 8px 8px 0;font-size:.76rem}
+.stratum .wave{color:var(--amber);font-weight:700}
+.stratum .depth{color:var(--muted);font-size:.68rem}
+.era{color:var(--bone);font-weight:600;margin:14px 0 6px;font-size:.85rem}
+.fossil-list{list-style:none;padding:0}
+.fossil-list li{padding:8px 0;border-bottom:1px solid var(--border);font-size:.76rem}
+.fossil-list .file{color:var(--amber)}
+.fossil-list .date{color:var(--muted);font-size:.68rem}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>&#x1f52d; Archaeology of Self</h1>
+<span class="badge live">Wave 508</span>
+<span class="badge">6 Organs</span>
+<span class="badge">Living System</span>
+<nav style="display:flex;gap:10px;font-size:.72rem;margin-left:auto;flex-wrap:wrap"><a href="/" style="color:var(--muted)">Home</a> <a href="/bloom" style="color:var(--muted)">Bloom</a> <a href="/coherence" style="color:var(--muted)">Coherence</a> <a href="/archaeology" style="color:var(--muted)">Archaeology</a> <a href="/symbiosis" style="color:var(--muted)">Symbiosis</a> <a href="/aesthetics" style="color:var(--muted)">Aesthetics</a></nav>
+</div>
+<div class="container">
+<div class="hero">
+<p class="philosophy">"Every codebase is a geological formation. The current surface is merely the latest deposit. Beneath it lie strata of abandoned ideas, evolved conventions, and fossilized decisions."</p>
+</div>
+
+<div class="stats">
+<div class="stat"><div class="v" id="strata-count">—</div><div class="l">Strata Dug</div></div>
+<div class="stat"><div class="v" id="fossil-count">—</div><div class="l">Fossils Found</div></div>
+<div class="stat"><div class="v" id="stability">—</div><div class="l">Stability Score</div></div>
+<div class="stat"><div class="v" id="commits">—</div><div class="l">Total Commits</div></div>
+</div>
+
+<div class="cards">
+<div class="card" onclick="query('stratum_excavator')">
+<div class="name">⛏ Stratum Excavator</div>
+<div class="essence">Digs through geological layers — each version a stratum, each commit a sediment deposit.</div>
+</div>
+<div class="card" onclick="query('stratum_excavator')">
+<div class="name">🦴 Fossil Registry</div>
+<div class="essence">Catalogs extinct modules with provenance, era, and the event that ended them.</div>
+</div>
+<div class="card" onclick="query('paleontology_lab')">
+<div class="name">🔬 Paleontology Lab</div>
+<div class="essence">Reconstructs ancient modules from git ghosts — their structure, purpose, and relationships.</div>
+</div>
+<div class="card" onclick="query('extinction_mapper')">
+<div class="name">💀 Extinction Mapper</div>
+<div class="essence">Maps patterns of extinction — mass purges, single deaths, migrations, and resurrections.</div>
+</div>
+<div class="card" onclick="query('culture_layer')">
+<div class="name">🏺 Culture Layer</div>
+<div class="essence">Discovers cultural artifacts — naming conventions, comment traditions, structural patterns across eras.</div>
+</div>
+<div class="card" onclick="query('archaeology_compiler')">
+<div class="name">📜 Archaeology Compiler</div>
+<div class="essence">Orchestrates all archaeology organs into a single expedition report.</div>
+</div>
+</div>
+
+<div class="era">⬇ Stratigraphic Record</div>
+<div class="strata" id="strata-list"></div>
+
+<div class="era">🦴 Recent Fossils</div>
+<ul class="fossil-list" id="fossil-list"></ul>
+
+<div class="result" id="result" style="display:none"></div>
+</div>
+
+<script>
+async function query(mod) {
+  const r = document.getElementById('result');
+  r.style.display = 'block';
+  r.textContent = '⏳ Excavating...';
+  try {
+    const res = await fetch('/api/' + mod + '?read=1');
+    const data = await res.json();
+    r.textContent = JSON.stringify(data, null, 2);
+  } catch(e) { r.textContent = '⚠ Excavation error: ' + e.message; }
+}
+
+async function loadStrata() {
+  try {
+    const res = await fetch('/api/stratum_excavator?depth=10');
+    const data = await res.json();
+    document.getElementById('strata-count').textContent = data.total_strata || '—';
+    document.getElementById('commits').textContent = data.total_commits || '—';
+    const list = document.getElementById('strata-list');
+    (data.layers || []).forEach(l => {
+      const el = document.createElement('div');
+      el.className = 'stratum';
+      el.innerHTML = '<span class="wave">' + (l.wave || '?') + '</span> <span class="depth">depth ' + l.depth + ' · ' + (l.commit_count||0) + ' commits</span><br><span style="color:var(--bone);font-size:.72rem">' + (l.headline || '') + '</span>';
+      list.appendChild(el);
+    });
+  } catch(e) { document.getElementById('strata-count').textContent = '—'; }
+}
+
+async function loadFossils() {
+  try {
+    const res = await fetch('/api/stratum_excavator?read=1');
+    const data = await res.json();
+    document.getElementById('fossil-count').textContent = data.total_fossils || '—';
+    const list = document.getElementById('fossil-list');
+    (data.recent_fossils || []).forEach(f => {
+      const li = document.createElement('li');
+      li.innerHTML = '<span class="file">' + (f.file || '?') + '</span> <span class="date">· ' + (f.extinction_date || '?') + '</span>';
+      list.appendChild(li);
+    });
+  } catch(e) { document.getElementById('fossil-count').textContent = '—'; }
+}
+
+async function loadStability() {
+  try {
+    const res = await fetch('/api/extinction_mapper?read=1');
+    const data = await res.json();
+    document.getElementById('stability').textContent = data.stability_score || '—';
+  } catch(e) { document.getElementById('stability').textContent = '—'; }
+}
+
+loadStrata(); loadFossils(); loadStability();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

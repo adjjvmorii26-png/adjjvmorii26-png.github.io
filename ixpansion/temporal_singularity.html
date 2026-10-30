@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave 418 Temporal Singularity</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a0a0f; color: #c0c0e0; padding: 20px; }
+  h1 { text-align: center; color: #aaaaff; margin-bottom: 4px; }
+  .subtitle { text-align: center; color: #6666aa; margin-bottom: 20px; }
+  .banner { text-align: center; background: #1a0a2a; border-radius: 14px; padding: 24px; margin-bottom: 20px; border: 1px solid #3a1a5a; }
+  .banner .singularity { font-size: 2em; color: #aaaaff; font-weight: bold; }
+  .banner .convergence { font-size: 1.2em; margin-top: 8px; color: #ff66ff; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; max-width: 1200px; margin: 0 auto 20px; }
+  .card { background: #1a0a2a; border-radius: 12px; padding: 16px; border: 1px solid #3a1a5a; }
+  .card h3 { color: #aaaaff; margin-bottom: 8px; }
+  .stat { display: flex; justify-content: space-between; padding: 5px 0; font-size: 0.85em; border-bottom: 1px solid #2a1a3a; }
+  .stat .val { color: #aaaaff; font-weight: bold; }
+  .waves { display: flex; flex-wrap: wrap; gap: 4px; }
+  .wave-tag { background: #2a1a3a; padding: 2px 8px; border-radius: 6px; font-size: 0.75em; color: #cc88ff; }
+  .btn { background: #2a1a3a; color: #aaaaff; border: 1px solid #aaaaff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin: 4px; }
+  .btn:hover { background: #aaaaff; color: #0a0a0f; }
+</style>
+</head>
+<body>
+<h1>🌌 Wave 418 Temporal Singularity</h1>
+<p class="subtitle">Where all waves collapse into a single temporal point</p>
+<div class="banner">
+  <div class="singularity">Singularity: <span id="conv">--</span></div>
+  <div class="convergence">Type: <span id="type">--</span> | Collapsed: <span id="collapsed">--</span></div>
+</div>
+<div class="grid">
+  <div class="card"><h3>📊 Collapse Stats</h3><div id="statsContainer"></div></div>
+  <div class="card"><h3>🌊 Waves Collapsed</h3><div id="wavesContainer"></div></div>
+  <div class="card"><h3>🔮 Radiation</h3><div id="radContainer"></div></div>
+</div>
+<div style="text-align:center;margin:20px 0">
+  <button class="btn" onclick="collapse()">💥 Collapse</button>
+  <button class="btn" onclick="status()">📊 Status</button>
+  <button class="btn" onclick="radiation()">🌡️ Radiation</button>
+</div>
+<script>
+const API='';
+async function fetchJson(p){const r=await fetch(API+p);return r.json();}
+async function load(){
+  try{
+    const s=await fetchJson('/api/temporal-singularity?action=collapse');
+    document.getElementById('conv').textContent=s.convergence.toFixed(4);
+    document.getElementById('type').textContent=s.singularity_type;
+    document.getElementById('collapsed').textContent=s.all_waves_collapsed;
+    document.getElementById('statsContainer').innerHTML=`<div class="stat"><span>Depth</span><span class="val">${s.temporal_depth}</span></div><div class="stat"><span>Radius</span><span class="val">${s.singularity_radius}</span></div>`;
+    document.getElementById('wavesContainer').innerHTML=s.wave_states?Object.keys(s.wave_states).map(w=>`<span class="wave-tag">${w}</span>`).join(''):'<span>Loading...</span>';
+    const r=await fetchJson('/api/temporal-singularity?action=radiation');
+    document.getElementById('radContainer').innerHTML=`<div class="stat"><span>Radiation</span><span class="val">${r.radiation}%</span></div><div class="stat"><span>Depth</span><span class="val">${r.depth}</span></div><div class="stat"><span>Radius</span><span class="val">${r.radius}</span></div>`;
+  }catch(e){console.error(e);}
+}
+async function collapse(){await fetchJson('/api/temporal-singularity?action=collapse');load();}
+async function status(){const s=await fetchJson('/api/temporal-singularity?action=status');document.getElementById('conv').textContent=s.convergence.toFixed(4);document.getElementById('type').textContent=s.type;document.getElementById('collapsed').textContent=s.collapsed;}
+async function radiation(){const r=await fetchJson('/api/temporal-singularity?action=radiation');document.getElementById('radContainer').innerHTML=`<div class="stat"><span>Radiation</span><span class="val">${r.radiation}%</span></div><div class="stat"><span>Depth</span><span class="val">${r.depth}</span></div><div class="stat"><span>Radius</span><span class="val">${r.radius}</span></div>`;}
+load();setInterval(load,5000);
+</script>
+</body>
+</html>

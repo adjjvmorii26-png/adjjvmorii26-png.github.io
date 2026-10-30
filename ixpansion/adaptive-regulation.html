@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Adaptive Regulation — IXPANSION</title>
+<style>
+:root{--bg:#0a0a14;--fg:#e0e0e8;--muted:#6b6b80;--cyan:#41b3a3;--magenta:#c063e8;--card:#14142a;--border:#2a2a44;--green:#41d3a3;--amber:#ffcc66;--red:#e05a5a;--purple:#a366ff}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--fg);padding:20px}
+.header{text-align:center;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:16px}
+h1{font-size:2em;background:linear-gradient(135deg,var(--green),var(--amber));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--muted);margin-top:6px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1400px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card h2{color:var(--amber);font-size:1.1em;margin-bottom:12px}
+.mode-card{text-align:center;padding:16px;border-radius:12px;margin:8px 0;transition:all 0.3s}
+.mode-card.active{border:2px solid var(--green);box-shadow:0 0 20px rgba(65,211,163,0.3)}
+.mode-card.inactive{opacity:0.5;border:2px solid transparent}
+.mode-name{font-size:1.2em;font-weight:bold;margin-bottom:4px}
+.mode-desc{font-size:0.85em;color:var(--muted)}
+.btn{background:var(--green);border:none;color:#0a0a14;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;margin:4px}
+.btn:hover{opacity:0.9}
+.log-entry{padding:6px 0;border-bottom:1px solid #222;font-size:0.85em}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>⚖ Adaptive Regulation</h1>
+  <p class="sub">Contextual behavioral modes — exploration, healing, mutation</p>
+  <span class="badge" id="mode" style="background:#2a2a44;color:var(--green);padding:4px 12px;border-radius:12px">mode: healing</span>
+  <span class="badge" id="cycles" style="background:#2a2a44;color:var(--amber);padding:4px 12px;border-radius:12px">cycles: 0</span>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>🎯 Mode Matrix</h2>
+    <div id="modes">Loading...</div>
+  </div>
+
+  <div class="card">
+    <h2>🔄 Control</h2>
+    <button class="btn" onclick="assess('explore')">🌤 Explore (high coh)</button>
+    <button class="btn" onclick="assess('heal')">🩹 Heal (low coh)</button>
+    <button class="btn" onclick="assess('mutate')">⚡ Mutate (diverge)</button>
+    <div id="assess-result" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>📜 Mode History</h2>
+    <div id="history">No transitions yet</div>
+  </div>
+
+  <div class="card">
+    <h2>🛡 Policy Check</h2>
+    <select id="check-action" style="background:#2a2a44;color:var(--fg);border:1px solid #444;padding:6px;border-radius:6px;margin-right:8px">
+      <option value="create_module">Create Module</option>
+      <option value="mutate_module">Mutate Module</option>
+      <option value="remove_module">Remove Module</option>
+    </select>
+    <button class="btn" onclick="policyCheck()">Check</button>
+    <div id="policy-result" style="margin-top:12px"></div>
+  </div>
+</div>
+
+<script>
+const HOST='';
+async function api(action){
+  const r = await fetch(HOST+'/api/regulation_engine?action='+action);
+  return r.json();
+}
+async function refresh(){
+  const s = await api('status');
+  document.getElementById('mode').textContent = 'mode: '+s.current_mode;
+  document.getElementById('cycles').textContent = 'cycles: '+s.cycles;
+
+  const m = await api('modes');
+  const modes = m.modes;
+  const cur = m.current;
+  document.getElementById('modes').innerHTML = Object.entries(modes).map(([k,v]) => {
+    const isActive = k === cur;
+    return `<div class="mode-card ${isActive?'active':'inactive'}">
+      <div class="mode-name">${isActive?'▸ ':''}${k}</div>
+      <div class="mode-desc">${v.desc}</div>
+      <div style="margin-top:6px;font-size:0.8em;color:var(--amber)">
+        mutations:${v.mutation_allowed?'✓':'✗'} connections:${v.new_connections?'✓':'✗'}
+      </div>
+    </div>`;
+  }).join('');
+
+  if(s.recent_transitions && s.recent_transitions.length){
+    document.getElementById('history').innerHTML = s.recent_transitions.slice().reverse().map(t =>
+      `<div class="log-entry">Cycle ${t.cycle}: ${t.from} → ${t.to} <span style="color:var(--muted)">(coh:${t.avg_coherence}, var:${t.variance})</span></div>`).join('');
+  }
+}
+async function assess(type){
+  const configs = {
+    explore: {avg_coherence:0.9,variance:0.05},
+    heal: {avg_coherence:0.2,variance:0.01},
+    mutate: {avg_coherence:0.6,variance:0.5}
+  };
+  const c = configs[type];
+  const r = await fetch(HOST+`/api/regulation_engine?action=assess&coherence=${JSON.stringify(c)}`);
+  const d = await r.json();
+  document.getElementById('assess-result').innerHTML =
+    `<div class="metric"><span class="label">New Mode</span><span class="value" style="color:${d.mode==='exploration'?'var(--green)':d.mode==='mutation'?'var(--amber)':'var(--magenta)'}">${d.mode}</span></div>
+     <div class="metric"><span class="label">Changed</span><span class="value">${d.mode_changed?'Yes':'No'}</span></div>`;
+  await refresh();
+}
+async function policyCheck(){
+  const action = document.getElementById('check-action').value;
+  const s = await api('status');
+  const r = await fetch(HOST+`/api/regulation_engine?action=policy_check&mode=${s.current_mode}&action_name=${action}`);
+  const d = await r.json();
+  document.getElementById('policy-result').innerHTML =
+    `<div class="metric"><span class="label">${action}</span><span class="value" style="color:${d.allowed?'var(--green)':'var(--red)'}">
+      ${d.allowed?'✓ Allowed':'✗ Blocked — '+d.reason}</span></div>`;
+}
+refresh();
+setInterval(refresh, 10000);
+</script>
+</body>
+</html>

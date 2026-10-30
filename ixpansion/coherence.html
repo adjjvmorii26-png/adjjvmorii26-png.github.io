@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coherence Chamber — The Living System</title>
+<style>
+:root{--bg:#07070d;--surface:#0f0f1a;--border:#1c1c2e;--text:#dcdcee;--muted:#5f5f78;
+--accent:#7b61ff;--good:#00e5a0;--warn:#f59e0b;--bad:#ef4444}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--bg);color:var(--text);min-height:100vh}
+.header{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}
+.header h1{font-size:1.3rem;background:linear-gradient(135deg,var(--accent),var(--good));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{padding:3px 10px;border-radius:14px;font-size:.72rem;background:var(--surface);border:1px solid var(--border)}
+.badge.live{color:var(--good);border-color:var(--good)}
+.container{max-width:1000px;margin:0 auto;padding:24px}
+.coherence-hero{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:26px;text-align:center;margin-bottom:22px}
+.coherence-hero .score{font-size:4rem;font-weight:800;line-height:1}
+.coherence-hero .label{color:var(--muted);font-size:.85rem;margin-top:8px}
+.coherence-hero .status{display:inline-block;margin-top:12px;padding:5px 16px;border-radius:20px;font-size:.85rem}
+.status.resonant{background:#063b2a;color:var(--good)}
+.status.coherent{background:#063b2a;color:var(--good)}
+.status.drifting{background:#3d2f08;color:var(--warn)}
+.status.fracturing{background:#3d0f0f;color:var(--bad)}
+.components{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px}
+.comp{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px}
+.comp .name{color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.4px}
+.comp .value{font-size:1.7rem;font-weight:700;margin-top:4px}
+.comp .bar{height:6px;background:var(--border);border-radius:4px;margin-top:10px;overflow:hidden}
+.comp .bar-fill{height:100%;border-radius:4px;background:var(--accent)}
+.section-title{font-size:1rem;margin:24px 0 12px;color:var(--accent)}
+.modules{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+.module{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px;font-size:.8rem}
+.module .m-name{font-weight:700}
+.module .m-health{color:var(--good);font-size:.72rem;margin-top:4px}
+.advisories{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px}
+.advisory{padding:10px 14px;border-left:3px solid var(--warn);background:#131320;border-radius:6px;margin:8px 0;font-size:.82rem}
+.advisory.good{border-color:var(--good)}
+.history-dots{display:flex;gap:4px;align-items:flex-end;height:60px;margin-top:12px}
+.dot{width:16px;border-radius:3px;background:var(--accent);opacity:.7}
+button{padding:10px 22px;border:none;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--good));
+color:#000;font-weight:700;font-family:inherit;font-size:.85rem;cursor:pointer;margin-bottom:12px}
+button:hover{opacity:.9}
+.hint{color:var(--muted);font-size:.75rem;margin-top:10px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="badge live">● live</span>
+  <h1>Coherence Chamber</h1>
+  <span style="color:var(--muted);font-size:.8rem">the frontier's living system</span>
+  <nav style="display:flex;gap:10px;font-size:.72rem;margin-left:auto;flex-wrap:wrap;align-items:center">
+    <a href="/" style="color:var(--muted)">Home</a>
+    <a href="/bloom" style="color:var(--muted)">Bloom</a>
+    <a href="/resonance" style="color:var(--muted)">Resonance</a>
+    <a href="/archaeology" style="color:var(--muted)">Archaeology</a>
+    <a href="/symbiosis" style="color:var(--muted)">Symbiosis</a>
+    <a href="/aesthetics" style="color:var(--muted)">Aesthetics</a>
+    <a href="/stream" style="color:var(--muted)">Stream</a>
+  </nav>
+  <button onclick="pulse()" style="margin-bottom:0">Pulse</button>
+</div>
+<div class="container">
+  <div class="coherence-hero" id="hero">
+    <div class="score">—</div>
+    <div class="label">system coherence</div>
+    <div class="status" id="status">reading…</div>
+  </div>
+  <div class="components" id="components"></div>
+  <div class="section-title">Living Modules</div>
+  <div class="modules" id="modules"></div>
+  <div class="section-title">Coherence History</div>
+  <div class="history-dots" id="history"></div>
+  <div class="section-title">Advisories</div>
+  <div class="advisories" id="advisories"></div>
+  <div class="hint" id="protocol"></div>
+</div>
+<script>
+async function pulse(){
+  try{
+    const r=await fetch('/api/coherence_regulator',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({pulse:1})});
+    const j=await r.json();
+    render(j);
+  }catch(e){console.error(e)}
+}
+async function load(){
+  try{
+    const r=await fetch('/api/coherence_regulator?read=1');
+    const j=await r.json();
+    render(j);
+    const h=await (await fetch('/api/coherence_regulator?history=12')).json();
+    drawHistory(h.entries||[]);
+  }catch(e){console.error(e)}
+}
+function render(j){
+  const scoreEl=document.querySelector('.score');
+  scoreEl.textContent=(j.coherence!==undefined)?(j.coherence*100).toFixed(0):'—';
+  const st=document.getElementById('status');
+  st.textContent=j.status||'dormant';
+  st.className='status '+(j.status||'dormant');
+  const comps=document.getElementById('components');
+  comps.replaceChildren();
+  const compsData=j.components||{};
+  Object.entries(compsData).forEach(([k,v])=>{
+    const div=document.createElement('div');div.className='comp';
+    const numeric=Number(v);
+    const pct=Number.isFinite(numeric)?Math.min(100,Math.max(0,Math.round(numeric*100))):0;
+    const name=document.createElement('div');name.className='name';name.textContent=String(k);
+    const value=document.createElement('div');value.className='value';value.textContent=pct+'%';
+    const bar=document.createElement('div');bar.className='bar';
+    const fill=document.createElement('div');fill.className='bar-fill';fill.style.width=pct+'%';
+    bar.appendChild(fill);div.append(name,value,bar);comps.appendChild(div);
+  });
+  const mods=document.getElementById('modules');
+  if(j.living_modules!==undefined){
+    mods.replaceChildren();
+    // no dossiers in read; show count
+    const card=document.createElement('div');card.className='module';
+    const name=document.createElement('div');name.className='m-name';name.textContent=String(j.living_modules)+' living';
+    const health=document.createElement('div');health.className='m-health';health.textContent='of '+String(j.total_candidates)+' candidates';
+    card.append(name,health);mods.replaceChildren(card);
+  }
+  const adv=document.getElementById('advisories');
+  adv.replaceChildren();
+  (j.advisories||[]).forEach(a=>{
+    const div=document.createElement('div');div.className='advisory'+(a.includes('No regulation')?' good':'');
+    div.textContent='✦ '+a;adv.appendChild(div);
+  });
+  if(!j.advisories||!j.advisories.length){
+    const empty=document.createElement('div');empty.className='advisory good';empty.textContent='✦ No advisories — the frontier is in resonance.';adv.replaceChildren(empty);
+  }
+  const proto=document.getElementById('protocol');
+  if(j.plug_in_protocol) proto.textContent='PROTOCOL: '+j.plug_in_protocol;
+}
+function drawHistory(entries){
+  const hist=document.getElementById('history');
+  hist.replaceChildren();
+  const max=Math.max(...entries.map(e=>e.coherence),0.1);
+  entries.forEach(e=>{
+    const h=Math.round((e.coherence/max)*50);
+    const dot=document.createElement('div');dot.className='dot';dot.style.height=h+'px';
+    dot.title='coherence '+e.coherence.toFixed(3);
+    hist.appendChild(dot);
+  });
+  const m=awaitModules();
+}
+async function awaitModules(){
+  try{
+    const r=await fetch('/api/coherence_regulator?modules=1');
+    const j=await r.json();
+    const mods=document.getElementById('modules');
+    if(j.living_modules){mods.replaceChildren();j.living_modules.forEach(n=>{
+      const d=document.createElement('div');d.className='module';
+      const info=(j.dossiers||{})[n]||{};
+      const name=document.createElement('div');name.className='m-name';name.textContent=String(n);
+      const health=document.createElement('div');health.className='m-health';
+      const rawHealth=Number(info.health||0);const healthPct=Number.isFinite(rawHealth)?Math.min(100,Math.max(0,Math.round(rawHealth*100))):0;
+      health.textContent='health '+healthPct+'%';d.append(name,health);
+      mods.appendChild(d);
+    });}
+  }catch(e){}
+}
+load();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

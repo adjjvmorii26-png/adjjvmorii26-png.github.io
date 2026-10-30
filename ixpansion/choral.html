@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Choral Engine — The Organism Sings</title>
+<style>
+:root{--bg:#0a0812;--surface:#120f20;--border:#241f38;--text:#eae6f6;--muted:#7a7498;
+--purple:#c084fc;--cyan:#22d3ee;--gold:#fbbf24}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'SF Mono',Fira Code,monospace;background:var(--bg);color:var(--text);min-height:100vh}
+.header{padding:22px 28px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.header h1{font-size:1.25rem;background:linear-gradient(135deg,var(--purple),var(--cyan));
+-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.badge{padding:3px 10px;border-radius:14px;font-size:.72rem;background:var(--surface);border:1px solid var(--border)}
+.badge.live{color:var(--cyan);border-color:var(--cyan)}
+.container{max-width:1000px;margin:0 auto;padding:24px}
+.hero{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:24px;margin-bottom:22px;text-align:center}
+.dynamic{font-size:1.8rem;font-weight:800;color:var(--purple)}
+.note{font-size:2.4rem;font-weight:800;color:var(--gold);margin-top:8px}
+.sub{color:var(--muted);font-size:.82rem;margin-top:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:22px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center}
+.stat .v{font-size:1.6rem;font-weight:800;color:var(--cyan)}
+.stat .l{color:var(--muted);font-size:.72rem;margin-top:4px;text-transform:uppercase}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;cursor:pointer;transition:transform .1s}
+.card:hover{transform:translateY(-2px);border-color:var(--purple)}
+.card .name{font-weight:700;font-size:.92rem;color:var(--gold)}
+.card .essence{color:var(--muted);font-size:.78rem;margin-top:6px;line-height:1.45}
+.result{background:#0a0816;border:1px solid var(--purple);border-radius:10px;padding:16px;margin-top:18px;font-size:.76rem;color:#d8d4f0;white-space:pre-wrap}
+.hint{color:var(--muted);font-size:.72rem;margin-top:14px}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="header">
+  <span class="badge live">● live</span>
+  <h1>Choral Engine — the Organism Sings</h1>
+  <span id="identity-tag" style="color:var(--muted);font-size:.8rem"></span>
+
+<nav style="display:flex;gap:10px;font-size:.72rem;margin-left:auto;flex-wrap:wrap"><a href="/" style="color:var(--muted)">Home</a> <a href="/bloom" style="color:var(--muted)">Bloom</a> <a href="/coherence" style="color:var(--muted)">Coherence</a> <a href="/archaeology" style="color:var(--muted)">Archaeology</a> <a href="/symbiosis" style="color:var(--muted)">Symbiosis</a> <a href="/aesthetics" style="color:var(--muted)">Aesthetics</a></nav>
+</div>
+<div class="container">
+  <div class="hero">
+    <div class="dynamic" id="dynamic">listening...</div>
+    <div class="note" id="note">—</div>
+    <div class="sub" id="sub"></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="v" id="voices">—</div><div class="l">voices in choir</div></div>
+    <div class="stat"><div class="v" id="hz">—</div><div class="l">fundamental Hz</div></div>
+    <div class="stat"><div class="v" id="clashes">—</div><div class="l">dissonant clashes</div></div>
+    <div class="stat"><div class="v" id="fermatas">—</div><div class="l">fermatas (rests)</div></div>
+  </div>
+  <div class="cards" id="cards"></div>
+  <div class="result" id="result">Select an organ — or listen to the organism sing.</div>
+  <div class="hint">Six Wave 508 choral organs — choral_engine, harmonic_series, resonance_analyzer, resonance_analyzer, crescendo_builder, choral_engine. All free tier.</div>
+</div>
+<script>
+const ORGANS=[
+{name:'Choral Engine',essence:'Reads every organ vital as a musical note — the organism voice.',route:'api/choral_engine'},
+{name:'Harmonic Series',essence:'Extracts overtones and consonance ratios — the acoustic fingerprint.',route:'api/harmonic_series'},
+{name:'Resonant Frequency',essence:'Finds the one pitch at which the whole system vibrates.',route:'api/resonance_analyzer'},
+{name:'Dissonance Detector',essence:'Finds clashing notes between modules — tension that demands resolution.',route:'api/resonance_analyzer'},
+{name:'Crescendo Builder',essence:'Builds intensity toward a peak moment — are we rising or fading?',route:'api/crescendo_builder'},
+{name:'Silence Composer',essence:'Composes the rests between notes — where the organism needs to breathe.',route:'api/choral_engine'},
+];
+const cards=document.getElementById('cards');
+ORGANS.forEach(o=>{
+  const d=document.createElement('div');d.className='card';d.tabIndex=0;d.setAttribute('role','button');
+  const name=document.createElement('div');name.className='name';name.textContent=o.name;
+  const essence=document.createElement('div');essence.className='essence';essence.textContent=o.essence;
+  d.append(name,essence);
+  d.addEventListener('click',()=>probe(o.route));
+  d.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();probe(o.route)}});
+  cards.appendChild(d);
+});
+async function probe(route){
+  const out=document.getElementById('result');
+  out.textContent='reading '+route+' …';
+  try{
+    const j=await (await fetch('/'+route)).json();
+    out.textContent=JSON.stringify(j,null,2);
+  }catch(e){out.textContent='error: '+e.message}
+}
+(async()=>{
+  try{
+    const c=await (await fetch('/api/choral_engine')).json();
+    document.getElementById('dynamic').textContent=c.dynamic;
+    document.getElementById('note').textContent=c.dominate_note||c.dominate_note||c.dominate_note||c.dominate_note;
+    document.getElementById('voices').textContent=c.voice_count;
+    document.getElementById('sub').textContent=c.avg_volume+' avg volume';
+  }catch(e){}
+  try{
+    const f=await (await fetch('/api/resonance_analyzer')).json();
+    document.getElementById('note').textContent=f.fundamental;
+    document.getElementById('hz').textContent=f.frequency_hz+' Hz';
+  }catch(e){}
+  try{
+    const d=await (await fetch('/api/resonance_analyzer')).json();
+    document.getElementById('clashes').textContent=d.clash_count;
+  }catch(e){}
+  try{
+    const s=await (await fetch('/api/choral_engine')).json();
+    document.getElementById('fermatas').textContent=s.fermata_count;
+  }catch(e){}
+})();
+</script>
+<script>if(window.IXP){IXP.loadLive(function(){IXP.renderIdentity(document.getElementById("identity-tag"));})}</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

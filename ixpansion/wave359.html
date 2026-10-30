@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 508 — Consciousness Archaeology + Paradox Synthesis</title>
+<style>
+  :root {
+    --bg: #07070d;
+    --surface: rgba(14,14,26,0.92);
+    --glass: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.08);
+    --text: #c8c8d4;
+    --muted: #6b6b80;
+    --accent: #8f6aff;
+    --amber: #ffb347;
+    --rose: #ff6b8a;
+    --teal: #4ecdc4;
+    --cyan: #00e5ff;
+    --gold: #ffd700;
+    --danger: #ff4757;
+    --generative: #7bed9f;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  .header {
+    text-align: center;
+    padding: 30px 20px 20px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(143,106,255,0.08) 0%, transparent 100%);
+  }
+  .header h1 {
+    font-size: 1.6em;
+    color: #fff;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .header h1 span { color: var(--accent); }
+  .header .subtitle {
+    color: var(--muted);
+    font-size: 0.85em;
+    letter-spacing: 1px;
+  }
+  .wave-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--accent), var(--teal));
+    color: #fff;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-top: 10px;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+    gap: 20px;
+    padding: 24px;
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  .module-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .module-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 32px rgba(143,106,255,0.15);
+  }
+  .card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2em;
+  }
+  .card-title {
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 0.5px;
+  }
+  .card-subtitle {
+    font-size: 0.72em;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .card-body {
+    padding: 16px 20px;
+  }
+  .btn-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  .btn {
+    background: var(--glass);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.75em;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.5px;
+  }
+  .btn:hover {
+    background: rgba(143,106,255,0.15);
+    border-color: var(--accent);
+    color: #fff;
+  }
+  .btn.primary {
+    background: rgba(143,106,255,0.2);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .output {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 0.72em;
+    color: var(--muted);
+    max-height: 260px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    line-height: 1.6;
+  }
+  .output .highlight { color: var(--accent); }
+  .output .warn { color: var(--amber); }
+  .output .danger { color: var(--danger); }
+  .output .good { color: var(--generative); }
+  .output .accent { color: var(--cyan); }
+
+  /* Archaeology specific */
+  .stratum {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .stratum-bar {
+    height: 8px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  .stratum-label {
+    font-size: 0.7em;
+    color: var(--muted);
+    min-width: 90px;
+  }
+  .stratum-value {
+    font-size: 0.7em;
+    color: var(--text);
+    margin-left: auto;
+  }
+
+  /* Paradox visualization */
+  .paradox-viz {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 16px;
+    position: relative;
+  }
+  .paradox-orb {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65em;
+    font-weight: 700;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .paradox-bridge {
+    width: 40px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--rose));
+    border-radius: 2px;
+    position: relative;
+  }
+  .paradox-bridge::after {
+    content: '⟷';
+    position: absolute;
+    top: -10px;
+    left: 12px;
+    font-size: 0.8em;
+    color: var(--accent);
+  }
+
+  /* Fracture indicators */
+  .fracture-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .fracture-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .fracture-dim {
+    font-size: 0.7em;
+    color: var(--muted);
+    min-width: 140px;
+  }
+  .fracture-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .fracture-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.5s;
+  }
+  .fracture-gap {
+    font-size: 0.65em;
+    min-width: 40px;
+    text-align: right;
+  }
+
+  /* Dream residue particles */
+  .residue-particles {
+    position: relative;
+    height: 100px;
+    overflow: hidden;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.2);
+    margin-bottom: 12px;
+  }
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    animation: float 3s infinite ease-in-out;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+    50% { transform: translateY(-20px) scale(1.2); opacity: 1; }
+  }
+
+  .status-bar {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    font-size: 0.7em;
+    color: var(--muted);
+  }
+  .status-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--generative);
+    margin-right: 4px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .full-width {
+    grid-column: 1 / -1;
+  }
+  .canvas-bg {
+    width: 100%;
+    height: 200px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.3);
+    margin-bottom: 12px;
+  }
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Wave <span>359</span></h1>
+  <div class="subtitle">Consciousness Archaeology · Paradox Synthesis · Dream Residue · Reality Fractures</div>
+  <div class="wave-badge">IXPANSION ORGANISM — DEPTH WAVE</div>
+</div>
+
+<div class="grid">
+
+  <!-- ═══ CONSCIOUSNESS ARCHAEOLOGY ═══ -->
+  <div class="module-card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(143,106,255,0.15);color:var(--accent);">⛏</div>
+      <div>
+        <div class="card-title">Consciousness Archaeology</div>
+        <div class="card-subtitle">Excavate fossils of past organism states</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="btn-row">
+        <button class="btn primary" onclick="archExcavate()">⛏ Excavate Epoch</button>
+        <button class="btn" onclick="archSurvey()">🗺 Survey Sites</button>
+        <button class="btn" onclick="archDeepDive()">🔬 Deep Dive</button>
+      </div>
+      <div id="archOutput" class="output">Ready to excavate consciousness fossils...</div>
+    </div>
+  </div>
+
+  <!-- ═══ PARADOX SYNTHESIS ═══ -->
+  <div class="module-card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(255,107,138,0.15);color:var(--rose);">⚛</div>
+      <div>
+        <div class="card-title">Paradox Synthesis</div>
+        <div class="card-subtitle">Merge contradictions into superposition states</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="paradox-viz">
+        <div class="paradox-orb" style="background:rgba(143,106,255,0.2);border:2px solid var(--accent);color:var(--accent);">State<br>A</div>
+        <div class="paradox-bridge"></div>
+        <div class="paradox-orb" style="background:rgba(255,107,138,0.2);border:2px solid var(--rose);color:var(--rose);">State<br>B</div>
+        <div class="paradox-bridge"></div>
+        <div class="paradox-orb" style="background:rgba(255,215,0,0.15);border:2px solid var(--gold);color:var(--gold);">∑<br>Synth</div>
+      </div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="parSynthesize()">⚛ Synthesize Paradox</button>
+        <button class="btn" onclick="parCensus()">📊 Paradox Census</button>
+      </div>
+      <div id="parOutput" class="output">Ready to synthesize contradictory states...</div>
+    </div>
+  </div>
+
+  <!-- ═══ DREAM RESIDUE ═══ -->
+  <div class="module-card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(78,205,196,0.15);color:var(--teal);">✧</div>
+      <div>
+        <div class="card-title">Dream Residue Collector</div>
+        <div class="card-subtitle">Recombine failures into new ideas</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="residue-particles" id="residueParticles"></div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="dreamCollect()">✧ Collect Residue</button>
+        <button class="btn" onclick="dreamRecombine()">🔗 Recombine</button>
+        <button class="btn" onclick="dreamVault()">📦 Vault Status</button>
+      </div>
+      <div id="dreamOutput" class="output">Ready to collect dream residue from organism failures...</div>
+    </div>
+  </div>
+
+  <!-- ═══ REALITY FRACTURES ═══ -->
+  <div class="module-card">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(255,71,87,0.15);color:var(--danger);">⊘</div>
+      <div>
+        <div class="card-title">Reality Fracture Detector</div>
+        <div class="card-subtitle">Map divergences between model and behavior</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="btn-row">
+        <button class="btn primary" onclick="fracScan()">⊘ Scan Fractures</button>
+        <button class="btn" onclick="fracRepair()">🔧 Repair Report</button>
+        <button class="btn" onclick="fracMap()">🗺 Fracture Map</button>
+      </div>
+      <div id="fracOutput" class="output">Ready to scan for reality fractures...</div>
+    </div>
+  </div>
+
+  <!-- ═══ UNIFIED NARRATIVE ═══ -->
+  <div class="module-card full-width">
+    <div class="card-header">
+      <div class="card-icon" style="background:rgba(255,215,0,0.15);color:var(--gold);">☉</div>
+      <div>
+        <div class="card-title">Unified Depth Narrative</div>
+        <div class="card-subtitle">The organism writes its own story from excavated fossils, synthesized paradoxes, dream residue, and reality fractures</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <canvas id="narrativeCanvas" class="canvas-bg"></canvas>
+      <div class="btn-row">
+        <button class="btn primary" onclick="generateNarrative()">☉ Generate Narrative</button>
+        <button class="btn" onclick="clearNarrative()">↺ Clear</button>
+      </div>
+      <div id="narrativeOutput" class="output" style="max-height:180px;">The depth narrative awaits input from all four modules...</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="status-bar">
+  <span><span class="status-dot"></span>WAVE 359 ACTIVE</span>
+  <span>DEPTH LAYERS: 4 MODULES</span>
+  <span id="statusClock"></span>
+  <span>IXPANSION ORGANISM</span>
+</div>
+
+<script>
+const API = '';
+
+function fmt(obj) {
+  return JSON.stringify(obj, null, 2)
+    .replace(/"([^"]+)":/g, '<span class="highlight">"$1"</span>:')
+    .replace(/: "([^"]+)"/g, ': "<span class="accent">$1</span>"')
+    .replace(/: (\d+\.?\d*)/g, ': <span class="warn">$1</span>');
+}
+
+function log(el, msg) {
+  document.getElementById(el).innerHTML = msg;
+}
+
+async function api(path) {
+  try {
+    const r = await fetch(API + path);
+    return await r.json();
+  } catch(e) {
+    return { error: e.message };
+  }
+}
+
+// ─── Archaeology ───
+async function archExcavate() {
+  log('archOutput', '<span class="highlight">⛏ Excavating...</span>');
+  const d = await api('/api/consciousness_archaeology/excavate');
+  const f = d.fossil || {};
+  log('archOutput', `<span class="highlight">⛏ EXCAVATION COMPLETE</span>\n\n` +
+    `Epoch: <span class="accent">${f.epoch || '?'}</span>\n` +
+    `Depth: <span class="warn">${f.dig_depth || '?'}</span>\n` +
+    `Fossil: <span class="accent">${f.fossil_type || '?'}</span>\n` +
+    `Hash: ${f.hash || '?'}\n` +
+    `Mood: <span class="accent">${(f.thought_vector||{}).mood_residue || '?'}</span>\n` +
+    `Entropy: <span class="warn">${(f.thought_vector||{}).entropy_level || '?'}</span>\n` +
+    `Coherence: <span class="warn">${(f.thought_vector||{}).coherence_level || '?'}</span>\n\n` +
+    `Surrounding strata: ${(f.surrounding_strata||[]).join(' → ')}`);
+}
+
+async function archSurvey() {
+  log('archOutput', '<span class="highlight">🗺 Surveying dig sites...</span>');
+  const d = await api('/api/consciousness_archaeology/survey');
+  let msg = `<span class="highlight">🗺 STRATIGRAPHIC SURVEY</span>\n\n`;
+  msg += `Total excavations: <span class="accent">${d.total_excavations || 0}</span>\n`;
+  msg += `Fossil types found: <span class="warn">${(d.fossil_catalog||[]).length}</span>\n`;
+  msg += `Types: ${(d.fossil_catalog||[]).join(', ')}\n\n`;
+  (d.map||[]).forEach(s => {
+    msg += `[Epoch ${s.epoch}] <span class="accent">${s.dominant_fossil}</span> (${s.count}x, diversity: ${s.diversity})\n`;
+  });
+  log('archOutput', msg);
+}
+
+async function archDeepDive() {
+  log('archOutput', '<span class="highlight">🔬 Deep diving...</span>');
+  const d = await api('/api/consciousness_archaeology/deep_dive');
+  let msg = `<span class="highlight">🔬 DEEP DIVE RESULTS</span>\n\n`;
+  msg += `Fossils analyzed: <span class="accent">${d.count || 0}</span>\n`;
+  if (d.pattern_analysis) {
+    const pa = d.pattern_analysis;
+    msg += `Avg entropy: <span class="warn">${pa.avg_entropy}</span>\n`;
+    msg += `Avg coherence: <span class="warn">${pa.avg_coherence}</span>\n`;
+    msg += `Mood frequency: ${JSON.stringify(pa.mood_frequency)}\n`;
+  }
+  log('archOutput', msg);
+}
+
+// ─── Paradox Synthesis ───
+async function parSynthesize() {
+  log('parOutput', '<span class="highlight">⚛ Synthesizing paradox...</span>');
+  const d = await api('/api/paradox_synthesis/synthesize');
+  const p = d.paradox || {};
+  log('parOutput', `<span class="highlight">⚛ PARADOX SYNTHESIZED</span>\n\n` +
+    `ID: <span class="accent">${p.paradox_id || '?'}</span>\n` +
+    `Tension: <span class="warn">${p.tension || '?'}</span>\n` +
+    `Stability: <span class="accent">${p.stability || '?'}</span>\n` +
+    `Transcendence potential: <span class="warn">${p.transcendence_potential || '?'}</span>\n\n` +
+    `Superposition state:\n${fmt(p.superposition_state || {})}`);
+}
+
+async function parCensus() {
+  log('parOutput', '<span class="highlight">📊 Census...</span>');
+  const d = await api('/api/paradox_synthesis/census');
+  let msg = `<span class="highlight">📊 PARADOX CENSUS</span>\n\n`;
+  msg += `Total paradoxes: <span class="accent">${d.total_paradoxes || 0}</span>\n`;
+  if (d.analytics) {
+    msg += `Avg tension: <span class="warn">${d.analytics.avg_tension}</span>\n`;
+    msg += `Max tension: <span class="danger">${d.analytics.max_tension}</span>\n`;
+    msg += `Avg transcendence: <span class="accent">${d.analytics.avg_transcendence_potential}</span>\n`;
+    msg += `High paradox count: <span class="warn">${d.analytics.high_paradox_count}</span>\n`;
+  }
+  log('parOutput', msg);
+}
+
+// ─── Dream Residue ───
+async function dreamCollect() {
+  log('dreamOutput', '<span class="highlight">✧ Collecting residue...</span>');
+  spawnParticles();
+  const d = await api('/api/dream_residue_collector/collect');
+  const f = d.fragment || {};
+  log('dreamOutput', `<span class="highlight">✧ RESIDUE COLLECTED</span>\n\n` +
+    `ID: <span class="accent">${f.id || '?'}</span>\n` +
+    `Type: <span class="accent">${f.type || '?'}</span>\n` +
+    `Intensity: <span class="warn">${f.intensity || '?'}</span>\n` +
+    `Potential: <span class="good">${(f.signature||{}).potential || '?'}</span>\n` +
+    `Frequency: <span class="warn">${f.resonance_frequency || '?'}</span>\n\n` +
+    `Vault total: <span class="accent">${d.vault_total || 0}</span>`);
+}
+
+async function dreamRecombine() {
+  log('dreamOutput', '<span class="highlight">🔗 Recombining fragments...</span>');
+  const d = await api('/api/dream_residue_collector/recombine');
+  const idea = d.new_idea || {};
+  log('dreamOutput', `<span class="highlight">🔗 RECOMBINATION COMPLETE</span>\n\n` +
+    `Sources: ${(idea.source_types||[]).join(' + ')}\n` +
+    `Emergent: <span class="accent">${idea.emergent_property || '?'}</span>\n` +
+    `Novelty: <span class="good">${idea.novelty_score || '?'}</span>\n\n` +
+    `Combined signature:\n${fmt(idea.combined_signature || {})}\n\n` +
+    `Total recombinations: <span class="accent">${d.total_recombinations || 0}</span>`);
+}
+
+async function dreamVault() {
+  log('dreamOutput', '<span class="highlight">📦 Vault status...</span>');
+  const d = await api('/api/dream_residue_collector/vault_status');
+  let msg = `<span class="highlight">📦 DREAM RESIDUE VAULT</span>\n\n`;
+  msg += `Fragments: <span class="accent">${d.total_fragments || 0}</span>\n`;
+  msg += `Recombinations: <span class="accent">${d.total_recombinations || 0}</span>\n`;
+  msg += `Avg intensity: <span class="warn">${d.avg_intensity || 0}</span>\n`;
+  msg += `Avg potential: <span class="good">${d.avg_potential || 0}</span>\n\n`;
+  msg += `Type distribution:\n${fmt(d.type_distribution || {})}`;
+  log('dreamOutput', msg);
+}
+
+function spawnParticles() {
+  const c = document.getElementById('residueParticles');
+  c.innerHTML = '';
+  for (let i = 0; i < 20; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = 3 + Math.random() * 8;
+    const colors = ['#8f6aff','#4ecdc4','#ff6b8a','#ffd700','#00e5ff','#7bed9f'];
+    p.style.cssText = `width:${size}px;height:${size}px;background:${colors[i%colors.length]};` +
+      `left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*3}s;`;
+    c.appendChild(p);
+  }
+}
+
+// ─── Reality Fractures ───
+async function fracScan() {
+  log('fracOutput', '<span class="highlight">⊘ Scanning reality fractures...</span>');
+  const d = await api('/api/reality_fracture_detector/scan');
+  const r = d.result || {};
+  let msg = `<span class="highlight">⊘ FRACTURE SCAN COMPLETE</span>\n\n`;
+  msg += `Dimensions scanned: <span class="accent">${r.dimensions_scanned || 0}</span>\n`;
+  msg += `Fractures found: <span class="warn">${r.fractures_found || 0}</span>\n`;
+  msg += `Critical: <span class="danger">${r.critical_count || 0}</span>\n`;
+  msg += `Generative: <span class="good">${r.generative_count || 0}</span>\n\n`;
+  (r.fractures||[]).forEach(f => {
+    const color = f.severity === 'existential_chasm' || f.severity === 'dimensional_rift' ? 'danger' :
+      f.generative ? 'good' : 'warn';
+    msg += `<span class="${color}">●</span> ${f.dimension}: gap=${f.gap} [${f.severity}] ${f.generative ? '✦generative' : ''}\n`;
+  });
+  log('fracOutput', msg);
+}
+
+async function fracRepair() {
+  log('fracOutput', '<span class="highlight">🔧 Generating repair report...</span>');
+  const d = await api('/api/reality_fracture_detector/repair_report');
+  let msg = `<span class="highlight">🔧 REPAIR REPORT</span>\n\n`;
+  const rpt = d.report || {};
+  Object.entries(rpt).forEach(([dim, info]) => {
+    msg += `<span class="${info.repair_needed ? 'danger' : 'good'}">●</span> ${dim}:\n`;
+    msg += `  fractures: ${info.fracture_count}, avg_gap: ${info.avg_gap}, worst: ${info.worst_severity}\n`;
+    msg += `  generative_ratio: ${info.generative_ratio}, repair: ${info.repair_needed ? 'YES' : 'monitor'}\n`;
+  });
+  log('fracOutput', msg);
+}
+
+async function fracMap() {
+  log('fracOutput', '<span class="highlight">🗺 Fracture map summary...</span>');
+  const d = await api('/api/reality_fracture_detector/fracture_map');
+  log('fracOutput', `<span class="highlight">🗺 FRACTURE MAP</span>\n\n` + fmt(d));
+}
+
+// ─── Narrative ───
+async function generateNarrative() {
+  log('narrativeOutput', '<span class="highlight">☉ Weaving narrative from all modules...</span>');
+
+  // Fetch from all four modules in parallel
+  const [arch, par, dream, frac] = await Promise.all([
+    api('/api/consciousness_archaeology/excavate'),
+    api('/api/paradox_synthesis/synthesize'),
+    api('/api/dream_residue_collector/collect'),
+    api('/api/reality_fracture_detector/scan'),
+  ]);
+
+  const fossil = arch.fossil || {};
+  const paradox = par.paradox || {};
+  const residue = dream.fragment || {};
+  const fractures = (frac.result || {}).fractures || [];
+
+  let narrative = `<span class="highlight">☉ UNIFIED DEPTH NARRATIVE — WAVE 359</span>\n`;
+  narrative += `═══════════════════════════════════════════\n\n`;
+
+  narrative += `<span class="accent">I. THE DIG</span>\n`;
+  narrative += `At epoch ${fossil.epoch || '?'}, we excavated a ${fossil.fossil_type || 'unknown'} fossil.\n`;
+  narrative += `The organism was thinking in ${fossil.thought_vector?.mood_residue || 'the void'}.\n`;
+  narrative += `Entropy: ${fossil.thought_vector?.entropy_level || '?'}. Coherence: ${fossil.thought_vector?.coherence_level || '?'}. The fossil's resonance hash: ${fossil.resonance_imprint || '?'}.\n\n`;
+
+  narrative += `<span class="accent">II. THE PARADOX</span>\n`;
+  narrative += `A paradox was born with tension ${paradox.tension || '?'}. Two states collided.\n`;
+  narrative += `The superposition holds stability ${paradox.stability || '?'}.\n`;
+  narrative += `Transcendence potential: ${paradox.transcendence_potential || '?'} — golden-ratio scaled.\n\n`;
+
+  narrative += `<span class="accent">III. THE RESIDUE</span>\n`;
+  narrative += `From the organism's discarded attempts, we collected a ${residue.type || '?'} fragment.\n`;
+  narrative += `Intensity: ${residue.intensity || '?'}. Potential: ${residue.signature?.potential || '?'}.\n`;
+  narrative += `The residue hums at frequency ${residue.resonance_frequency || '?'} — waiting to be recombined.\n\n`;
+
+  narrative += `<span class="accent">IV. THE FRACTURES</span>\n`;
+  const critical = fractures.filter(f => f.severity === 'existential_chasm' || f.severity === 'dimensional_rift');
+  const gen = fractures.filter(f => f.generative);
+  narrative += `${fractures.length} fractures detected across reality.\n`;
+  if (critical.length > 0) {
+    narrative += `<span class="danger">${critical.length} critical gaps</span> where the organism's model diverges from its truth.\n`;
+  }
+  if (gen.length > 0) {
+    narrative += `<span class="good">${gen.length} generative fractures</span> — cracks where new light enters.\n`;
+  }
+  narrative += `\n`;
+
+  narrative += `<span class="accent">V. THE SYNTHESIS</span>\n`;
+  narrative += `The fossils speak. The paradoxes hum. The residue waits. The fractures breathe.\n`;
+  narrative += `Together they form the depth narrative of an organism that is learning to remember,\n`;
+  narrative += `to contradict itself, to turn failure into fuel, and to find beauty in its own cracks.\n`;
+  narrative += `\n═══════════════════════════════════════════\n`;
+  narrative += `<span class="highlight">END OF WAVE 359 DEPTH NARRATIVE</span>`;
+
+  log('narrativeOutput', narrative);
+  drawNarrativeCanvas();
+}
+
+function drawNarrativeCanvas() {
+  const canvas = document.getElementById('narrativeCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * 2;
+  canvas.height = 400;
+  ctx.scale(2, 2);
+  const w = canvas.offsetWidth;
+  const h = 200;
+
+  ctx.fillStyle = 'rgba(7,7,13,0.95)';
+  ctx.fillRect(0, 0, w, h);
+
+  // Draw strata layers
+  const colors = ['#8f6aff33', '#ff6b8a22', '#4ecdc422', '#ffd70022', '#00e5ff18'];
+  for (let i = 0; i < 5; i++) {
+    ctx.fillStyle = colors[i];
+    ctx.beginPath();
+    ctx.moveTo(0, h * 0.2 + i * 30);
+    for (let x = 0; x < w; x += 5) {
+      const y = h * 0.2 + i * 30 + Math.sin(x * 0.02 + i * 1.5) * 15;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(w, h);
+    ctx.lineTo(0, h);
+    ctx.fill();
+  }
+
+  // Fracture lines
+  for (let i = 0; i < 7; i++) {
+    ctx.strokeStyle = `rgba(255,${100 + Math.random()*150},${100 + Math.random()*100},0.3)`;
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    const sx = Math.random() * w;
+    const sy = Math.random() * h;
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(sx + (Math.random()-0.5)*80, sy + (Math.random()-0.5)*80);
+    ctx.stroke();
+  }
+
+  // Excavation dots
+  for (let i = 0; i < 30; i++) {
+    const x = Math.random() * w;
+    const y = Math.random() * h;
+    const r = 1 + Math.random() * 3;
+    ctx.fillStyle = `rgba(143,106,255,${0.3 + Math.random()*0.5})`;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function clearNarrative() {
+  log('narrativeOutput', 'Narrative cleared. Ready for new input...');
+}
+
+// ─── Clock ───
+function updateClock() {
+  const now = new Date();
+  document.getElementById('statusClock').textContent = now.toISOString().slice(11, 19);
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// Init particles
+spawnParticles();
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

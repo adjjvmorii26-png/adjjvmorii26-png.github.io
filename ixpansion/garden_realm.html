@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Wave 412 Garden Realm</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a1a0a; color: #c8e6c0; padding: 20px; }
+  h1 { text-align: center; color: #66ff88; margin-bottom: 8px; }
+  .subtitle { text-align: center; color: #88aa88; margin-bottom: 24px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; max-width: 1200px; margin: 0 auto; }
+  .garden-card { background: #0f2f0f; border-radius: 14px; padding: 20px; border: 1px solid #1a3a1a; position: relative; overflow: hidden; }
+  .garden-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg, #66ff88, #41b3a3, #88aaff); }
+  .garden-card h3 { color: #66ff88; font-size: 1.1em; margin-bottom: 8px; }
+  .badge { display: inline-block; background: #1a3a1a; padding: 2px 10px; border-radius: 10px; font-size: 0.8em; color: #88aa88; margin: 2px; }
+  .stat { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #1a3a1a; font-size: 0.9em; }
+  .stat .val { color: #66ff88; font-weight: bold; }
+  .keeper { background: #0a1a0a; padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 0.85em; }
+  .keeper .dialogue { color: #88aa88; font-style: italic; }
+  .btn { background: #1a3a1a; color: #66ff88; border: 1px solid #66ff88; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.9em; margin: 4px; }
+  .btn:hover { background: #66ff88; color: #0a1a0a; }
+  .season-bar { text-align: center; padding: 12px; background: #0f2f0f; border-radius: 10px; margin-bottom: 20px; border: 1px solid #1a3a1a; }
+  .season-bar .season-name { font-size: 1.4em; color: #66ff88; }
+  #topologyCanvas { width: 100%; height: 300px; border: 1px solid #1a3a1a; border-radius: 8px; background: #0a1a0a; }
+  .room-list { list-style: none; font-size: 0.85em; }
+  .room-list li { padding: 3px 0; color: #88aa88; }
+  .room-list li .type { color: #41b3a3; }
+</style>
+</head>
+<body>
+<h1>🌿 Wave 412 Garden Realm</h1>
+<p class="subtitle">The organism grows a living garden of modules</p>
+<div class="season-bar">
+  <div class="season-name" id="seasonName">Growing...</div>
+  <button class="btn" onclick="cycle()">🌀 Change Season</button>
+  <button class="btn" onclick="bloom()">🌸 Bloom</button>
+  <button class="btn" onclick="grow()">🌱 Grow</button>
+</div>
+<div class="grid" id="gardenGrid"></div>
+<div style="max-width:1200px; margin: 20px auto;">
+  <h2 style="color:#66ff88">Pollination Topology</h2>
+  <canvas id="topologyCanvas"></canvas>
+</div>
+<script>
+const API = '';
+async function fetchJson(path) { const r = await fetch(API + path); return r.json(); }
+function esc(s) { return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function loadGarden() {
+  try {
+    const g = await fetchJson('/api/garden_realm?action=status');
+    if (!g.gardens) { document.getElementById('seasonName').textContent = 'Not grown yet'; return; }
+    document.getElementById('seasonName').textContent = g.season + ' | ' + g.bloom_state;
+    const grid = document.getElementById('gardenGrid');
+    grid.innerHTML = '';
+    g.gardens.forEach(gr => {
+      const card = document.createElement('div');
+      card.className = 'garden-card';
+      card.innerHTML = `
+        <h3>${esc(gr.name)} <span class="badge">${gr.biome}</span></h3>
+        <div class="stat"><span>Difficulty</span><span class="val">${gr.difficulty}</span></div>
+        <div class="stat"><span>Rooms</span><span class="val">${gr.rooms.length}</span></div>
+        <div class="stat"><span>Est. Waves</span><span class="val">${gr.estimated_waves}</span></div>
+        <div class="stat"><span>Color</span><span class="val" style="color:${gr.color}">${gr.color}</span></div>
+        <div class="keeper"><div class="dialogue">${esc(gr.keeper.dialogue)}</div><span class="badge">${gr.keeper.species} Lv.${gr.keeper.level}</span></div>
+        <ul class="room-list">${gr.rooms.map(r => `<li><span class="type">${r.type}</span>: loot=${esc(r.loot||'-')}</li>`).join('')}</ul>
+      `;
+      grid.appendChild(card);
+    });
+    drawTopology(g);
+  } catch(e) { console.error(e); }
+}
+
+function drawTopology(g) {
+  const canvas = document.getElementById('topologyCanvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth * 2;
+  canvas.height = canvas.offsetHeight * 2;
+  ctx.scale(2, 2);
+  const w = canvas.offsetWidth, h = canvas.offsetHeight;
+  ctx.fillStyle = '#0a1a0a';
+  ctx.fillRect(0, 0, w, h);
+  const gardens = g.gardens || [];
+  if (gardens.length === 0) return;
+  const cx = w/2, cy = h/2;
+  const r = Math.min(w,h)*0.35;
+  const positions = {};
+  gardens.forEach((gr, i) => {
+    const angle = (2*Math.PI*i)/gardens.length - Math.PI/2;
+    positions[i] = {x: cx+r*Math.cos(angle), y: cy+r*Math.sin(angle)};
+  });
+  // edges
+  ctx.strokeStyle = '#1a3a1a';
+  (g.edges || []).forEach(e => {
+    const from = gardens.findIndex(g => g.name === e.from);
+    const to = gardens.findIndex(g => g.name === e.to);
+    if (from < 0 || to < 0) return;
+    ctx.beginPath();
+    ctx.moveTo(positions[from].x, positions[from].y);
+    ctx.lineTo(positions[to].x, positions[to].y);
+    ctx.stroke();
+  });
+  // nodes
+  gardens.forEach((gr, i) => {
+    const p = positions[i];
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, 10, 0, 2*Math.PI);
+    ctx.fillStyle = gr.color;
+    ctx.fill();
+    ctx.fillStyle = '#0a1a0a';
+    ctx.font = 'bold 8px sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(gr.name.split(' ')[0], p.x, p.y+3);
+  });
+}
+
+async function grow() { const r = await fetchJson('/api/garden_realm?action=grow'); loadGarden(); }
+async function bloom() { const r = await fetchJson('/api/garden_realm?action=bloom'); loadGarden(); }
+async function cycle() { const r = await fetchJson('/api/garden_realm?action=cycle'); loadGarden(); }
+loadGarden(); setInterval(loadGarden, 5000);
+</script>
+</body>
+</html>

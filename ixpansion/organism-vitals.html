@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Organism Vitals — Live</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#080810;color:#e0e0e0;font-family:'Courier New',monospace}
+.header{text-align:center;padding:16px;background:linear-gradient(180deg,#0a0a20,#080810);border-bottom:2px solid #c38d9e}
+.header h1{font-size:1.6em;color:#c38d9e;margin-bottom:4px}
+.header .sub{color:#666;font-size:.85em}
+.stats-bar{display:flex;justify-content:center;gap:32px;padding:12px;background:#0d0d18;border-bottom:1px solid #222;flex-wrap:wrap}
+.stat{text-align:center}
+.stat .label{color:#888;font-size:.75em;text-transform:uppercase;letter-spacing:1px}
+.stat .val{color:#e8a87c;font-size:1.4em;font-weight:bold}
+.stat .val.green{color:#41b3a3}
+.stat .val.red{color:#c38d9e}
+.controls{text-align:center;padding:10px;background:#0d0d18;border-bottom:1px solid #222}
+.controls button{background:#2a2a3a;color:#e8a87c;border:1px solid #444;padding:8px 16px;border-radius:4px;cursor:pointer;margin:2px;font-family:inherit;font-size:.85em}
+.controls button:hover{background:#3a3a4a}
+.controls button.active{background:#41b3a3;color:#0a0a12;border-color:#41b3a3}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;padding:16px;max-width:2000px;margin:0 auto}
+.module-card{background:#13132a;border:1px solid #1a1a3a;border-radius:6px;padding:10px;transition:all .3s;cursor:pointer;position:relative;overflow:hidden}
+.module-card:hover{border-color:#c38d9e;transform:translateY(-2px);box-shadow:0 4px 12px rgba(195,141,158,.15)}
+.module-card .name{font-size:.8em;color:#e8a87c;font-weight:bold;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.module-card .wave{font-size:.7em;color:#666;margin-top:2px}
+.module-card .coherence{font-size:.7em;margin-top:4px}
+.bar{height:4px;border-radius:2px;background:#1a1a2a;margin-top:6px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width .5s}
+.status-online{color:#41b3a3}.status-error{color:#c38d9e}.status-loading{color:#888}
+.progress{display:flex;align-items:center;justify-content:center;padding:8px;gap:8px}
+.progress-bar{width:300px;height:8px;background:#1a1a2a;border-radius:4px;overflow:hidden}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,#41b3a3,#c38d9e);transition:width .3s}
+.log{position:fixed;bottom:0;left:0;right:0;max-height:80px;background:#0a0a18;border-top:1px solid #222;padding:6px 12px;font-size:.7em;color:#666;overflow-y:auto;z-index:100}
+.log .entry{padding:1px 0}
+.log .time{color:#41b3a3}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>⚛ Organism Vitals Monitor</h1>
+  <div class="sub">Live coherence_vitals() from all wave modules — auto-refresh</div>
+</div>
+<div class="stats-bar">
+  <div class="stat"><div class="label">Modules</div><div class="val" id="s-mod">0</div></div>
+  <div class="stat"><div class="label">Online</div><div class="val green" id="s-online">0</div></div>
+  <div class="stat"><div class="label">Errors</div><div class="val red" id="s-error">0</div></div>
+  <div class="stat"><div class="label">Organism Health</div><div class="val" id="s-health">0%</div></div>
+  <div class="stat"><div class="label">Last Scan</div><div class="val" id="s-time">—</div></div>
+</div>
+<div class="controls">
+  <button id="btn-start" onclick="startScan()">▶ Start Scan</button>
+  <button id="btn-stop" onclick="stopScan()">■ Stop</button>
+  <button onclick="toggleLog()">📋 Log</button>
+  <button onclick="location.reload()">↻ Refresh</button>
+  <span id="auto-label" style="color:#666;font-size:.8em;margin-left:12px">Auto-refresh: OFF</span>
+</div>
+<div class="progress">
+  <div class="progress-bar"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
+  <span id="prog-text" style="font-size:.8em;color:#888">Ready</span>
+</div>
+<div class="grid" id="grid"></div>
+<div class="log" id="log" style="display:none"></div>
+
+<script>
+const MODULES = ["adaptation-learner","agent-rental","aesthetic-evaluator","aesthetic-manifesto","affiliate-engine","agent-communication","agents","ai-gateway","aleph-bot","alert-service","analytics-engine","anomaly-detector","api-bridge","app-orchestrator","artifact-generator","autonomous-agent","axiom-forge","bloom-engine","brain-core","buffer-manager","calibration-engine","causal-weaver","certainty-quantum","chronicle-writer","circuit-breaker","citizenship-protocol","cloud-gateway","cognition-engine","coherence-validator","colony-brain","communication-hub","compatibility-layer","compiler-core","context-buffer","context-engine","convergence-agent","cosmic-anchor","council-oracle","create-bot","cross-realm-bridge","cryo-storage","data-catalog","data-fabric","data-pipeline","decision-engine","deep-memory","defragmenter","delta-compiler","density-estimator","derivative-engine","desire-engine","detector-core","diagnostic-engine","diffusion-engine","dimension-key","dimension-registry","dimension-resonator","dream-compiler","dream-engine","dream-synthesizer","dreamlogic-engine","drift-corrector","durability-engine","dynamic-router","dynamic-skill-synthesis","echo-validator","economy-unifier","ecosystem-governor","edgeline-sensor","efficiency-engine","eigenvector","emergence-detector","emotion-cipher","empathy-engine","entity-recognizer","entropy-engine","entropy-guardian","entropy-oracle","entropy-weaver","epoch-forge","ephemeral-buffer","ephemeral-cache","equilibrium-engine","essence-extractor","essence-return","essence-weaver","event-aggregator","evolution-bridge","evolution-core","evolution-index","executive-decision","executive-summarizer","existential-curator","expansion-protocol","expectation-encoder","expert-system","explicit-faith","expressions-engine","extension-manager","external-memory","extraordinary-witness","facial-recognition","faith-evaluator","family-tree","field-gradient","field-resonance","filter-engine","finalizer","fingerprint-engine","fractal-compiler","fractal-generator","fractal-garden","gateway-decoder","gateway-engine","gene-expression","gene-registry","generalist-engine","generative-optimizer","genesis-engine","geomantic-engine","governance-core","gradient-engine","grammar-compiler","grammar-evolution","graphene-engine","graph-core","graph-engine","graph-topology","gravity-well","growth-engine","habitat-engine","harmonic-resonance","harmony-resonator","heartbeat-engine","hex-core","hex-language","hex-runtime","hexadecimal","homestead","hull-guardian","hyper-engine","hyper-symbiosis","hyperbolic-paradox","idea-canvas","idea-generator","identity-anchor","identity-engine","identity-forge","idempotency-guard","illumination-engine","image-compiler","image-resonator","imagine-engine","impulse-engine","incarnation-engine","influence-agent","infrastructure-core","innovation-hub","insight-capturer","insight-engine","intelligence-core","intention-engine","interference-engine","interpreter-engine","introspection-engine","intuition-engine","invariant-guard","inversion-engine","invention-engine","inventory-engine","invocation-engine","iridescence-engine","journey-engine","jupyter-connector","justification-engine","keystone-engine","knowledge-aggregate","knowledge-builder","knowledge-compiler","knowledge-core","knowledge-database","knowledge-extractor","knowledge-index","knowledge-parser","knowledge-retrieval","knowledge-store","knowledge-weaver","labyrinth-engine","language-evolution","language-forge","language-generator","linguistic-bloom","linguistic-engine","linguistic-evolution","linguistic-pattern","linguistic-resonance","lineage-crystal","lineage-mirror"];
+
+let scanning = false;
+let stopFlag = false;
+let currentIdx = 0;
+let results = {};
+let totalModules = MODULES.length;
+let scanned = 0;
+let errors = 0;
+let online = 0;
+let autoRefresh = false;
+let autoTimer = null;
+
+async function apiCall(module, action) {
+  try {
+    const r = await fetch(`/api/${module}?action=${action}`);
+    const d = await r.json();
+    return d;
+  } catch(e) {
+    return null;
+  }
+}
+
+function colorFor(score) {
+  if (score >= 0.7) return '#41b3a3';
+  if (score >= 0.4) return '#e8a87c';
+  return '#c38d9e';
+}
+
+function statusColor(status) {
+  if (!status) return '#c38d9e';
+  if (status === 'ok' || status === 'active') return '#41b3a3';
+  if (status === 'error') return '#c38d9e';
+  return '#e8a87c';
+}
+
+function addLog(msg) {
+  const el = document.getElementById('log');
+  const time = new Date().toISOString().slice(11,19);
+  el.innerHTML += `<div class="entry"><span class="time">[${time}]</span> ${msg}</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+async function scanModule(module) {
+  const d = await apiCall(module, 'status');
+  if (d && d.status === 'active' && d.ok) {
+    results[module] = {wave: d.wave, ok: true, coherence: d.coherence_score || 0, ...d};
+    online++;
+  } else if (d && d.status === 'error') {
+    results[module] = {ok: false, error: d.message || 'unknown'};
+    errors++;
+  } else {
+    results[module] = {ok: false, error: 'no response'};
+    errors++;
+  }
+  scanned++;
+  updateProgress();
+  renderCard(module);
+  updateStats();
+  return d;
+}
+
+function updateProgress() {
+  const pct = Math.round((scanned / totalModules) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = `${scanned}/${totalModules} modules scanned`;
+}
+
+function updateStats() {
+  document.getElementById('s-mod').textContent = totalModules;
+  document.getElementById('s-online').textContent = online;
+  document.getElementById('s-error').textContent = errors;
+  const health = totalModules > 0 ? Math.round((online / totalModules) * 100) : 0;
+  const hEl = document.getElementById('s-health');
+  hEl.textContent = health + '%';
+  hEl.className = 'val ' + (health >= 80 ? 'green' : health >= 50 ? 'red' : '');
+  document.getElementById('s-time').textContent = new Date().toLocaleTimeString();
+}
+
+function renderCard(module) {
+  const grid = document.getElementById('grid');
+  let card = document.getElementById('mod-' + module);
+  const r = results[module];
+  const name = module.replace(/-/g, ' ');
+  
+  if (!card) {
+    card = document.createElement('div');
+    card.id = 'mod-' + module;
+    card.className = 'module-card';
+    grid.appendChild(card);
+  }
+  
+  if (r && r.ok) {
+    const score = r.coherence || 0;
+    const color = colorFor(score);
+    card.innerHTML = `<div class="name">${name}</div><div class="wave">Wave: ${r.wave || '?'}</div>
+      <div class="coherence" style="color:${color}">Coherence: ${(score * 100).toFixed(0)}%</div>
+      <div class="bar"><div class="bar-fill" style="width:${score*100}%;background:${color}"></div></div>`;
+  } else if (r && !r.ok) {
+    card.innerHTML = `<div class="name">${name}</div><div class="wave">Error</div>
+      <div class="coherence" style="color:#c38d9e">Failed</div>
+      <div class="bar"><div class="bar-fill" style="width:0%;background:#c38d9e"></div></div>`;
+  } else {
+    card.innerHTML = `<div class="name">${name}</div><div class="wave">Loading</div>
+      <div class="coherence" style="color:#888">—</div>
+      <div class="bar"><div class="bar-fill" style="width:0%;background:#1a1a2a"></div></div>`;
+  }
+}
+
+async function startScan() {
+  if (scanning) return;
+  scanning = true;
+  stopFlag = false;
+  currentIdx = 0;
+  scanned = 0;
+  online = 0;
+  errors = 0;
+  results = {};
+  document.getElementById('prog-fill').style.width = '0%';
+  document.getElementById('prog-text').textContent = 'Scanning...';
+  document.getElementById('btn-start').classList.add('active');
+  addLog('Scan started');
+  
+  while (currentIdx < totalModules && !stopFlag) {
+    await scanModule(MODULES[currentIdx]);
+    currentIdx++;
+    if (currentIdx % 20 === 0) await new Promise(r => setTimeout(r, 100));
+  }
+  
+  scanning = false;
+  document.getElementById('btn-start').classList.remove('active');
+  document.getElementById('prog-text').textContent = `Complete: ${online} online, ${errors} errors`;
+  addLog(`Scan complete: ${online} online, ${errors} errors`);
+  
+  if (autoRefresh) {
+    autoTimer = setTimeout(() => startScan(), 10000);
+  }
+}
+
+function stopScan() {
+  stopFlag = true;
+  scanning = false;
+  document.getElementById('btn-start').classList.remove('active');
+  addLog('Scan stopped');
+}
+
+function toggleLog() {
+  const el = document.getElementById('log');
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+function startAutoRefresh() {
+  if (autoTimer) clearTimeout(autoTimer);
+  autoRefresh = true;
+  document.getElementById('auto-label').textContent = 'Auto-refresh: ON (10s)';
+  startScan();
+}
+
+function stopAutoRefresh() {
+  autoRefresh = false;
+  if (autoTimer) clearTimeout(autoTimer);
+  document.getElementById('auto-label').textContent = 'Auto-refresh: OFF';
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === ' ') { e.preventDefault(); if (scanning) stopScan(); else startScan(); }
+});
+
+// Start scanning on load
+startScan();
+</script>
+</body>
+</html>

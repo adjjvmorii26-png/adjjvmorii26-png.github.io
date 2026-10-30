@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wave 508 — Orbit Cohesion Field</title>
+<style>
+  :root{--bg:#02040a;--s:rgba(6,12,26,0.96);--g:rgba(140,180,255,0.04);--b:rgba(140,180,255,0.12);--t:#8fa8c8;--m:#3d556f;--ac:#7aa2ff;--te:#2dd4bf;--am:#fbbf24;--ro:#fb7185;--cy:#38bdf8;--gn:#4ade80;--gd:#f59e0b;--dn:#ef4444;--vi:#a78bfa}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--t);font-family:'SF Mono','Fira Code',monospace;min-height:100vh;background-image:radial-gradient(1px 1px at 20% 30%,rgba(140,180,255,0.25) 1px,transparent 0),radial-gradient(1px 1px at 70% 60%,rgba(167,139,250,0.18) 1px,transparent 0),radial-gradient(1px 1px at 45% 80%,rgba(45,212,191,0.15) 1px,transparent 0);background-size:140px 140px}
+  .hd{text-align:center;padding:22px 20px 12px;border-bottom:1px solid var(--b);background:linear-gradient(180deg,rgba(122,162,255,0.08) 0%,transparent 100%)}
+  .hd h1{font-size:1.4em;color:#fff;letter-spacing:3px;text-transform:uppercase}
+  .hd h1 span{color:var(--te)}
+  .sub{color:var(--m);font-size:0.72em;letter-spacing:1px;margin-top:4px}
+  .bdg{display:inline-block;background:linear-gradient(135deg,var(--ac),var(--te));color:#fff;padding:3px 11px;border-radius:14px;font-size:0.62em;font-weight:700;margin-top:7px}
+  .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(350px,1fr));gap:14px;padding:16px;max-width:1440px;margin:0 auto;padding-bottom:60px}
+  .c{background:var(--s);border:1px solid var(--b);border-radius:9px;overflow:hidden}
+  .ch{padding:10px 14px;border-bottom:1px solid var(--b);display:flex;align-items:center;gap:9px}
+  .ic{width:27px;height:27px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.9em}
+  .ct{font-size:0.8em;font-weight:600;color:#fff}
+  .cs{font-size:0.6em;color:var(--m);margin-top:1px}
+  .cb{padding:10px 14px}
+  .br{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:8px}
+  .b{background:var(--g);border:1px solid var(--b);color:var(--t);padding:4px 9px;border-radius:5px;font-size:0.65em;font-family:inherit;cursor:pointer;transition:all .15s}
+  .b:hover{background:rgba(122,162,255,0.12);border-color:var(--ac);color:#fff}
+  .b.p{background:rgba(122,162,255,0.14);border-color:var(--ac);color:var(--ac)}
+  .o{background:rgba(0,0,0,0.4);border:1px solid var(--b);border-radius:5px;padding:7px 9px;font-size:0.62em;color:var(--t);max-height:230px;overflow-y:auto;white-space:pre-wrap;word-break:break-word;line-height:1.5}
+  .o .hl{color:var(--ac)} .o .w{color:var(--am)} .o .g{color:var(--gn)} .o .c{color:var(--cy)} .o .te{color:var(--te)} .o .d{color:var(--dn)} .o .r{color:var(--ro)} .o .gd{color:var(--gd)} .o .v{color:var(--vi)}
+  .full{grid-column:1/-1}
+  .orbit-ring{position:relative;height:130px;border-radius:50%;border:1px dashed rgba(122,162,255,0.25);margin:6px 8px 10px;background:radial-gradient(circle at center,rgba(122,162,255,0.06),transparent 65%)}
+  .sat-dot{position:absolute;width:6px;height:6px;border-radius:50%;transform:translate(-50%,-50%)}
+  .sb{display:flex;justify-content:center;gap:16px;padding:9px;border-top:1px solid var(--b);font-size:0.56em;color:var(--m);position:fixed;bottom:0;left:0;right:0;background:var(--bg)}
+  .dl{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--gn);margin-right:3px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+.back-btn{position:fixed;bottom:16px;left:16px;z-index:100;background:rgba(5,5,15,0.9);border:1px solid rgba(124,124,248,0.3);color:#7c7cf8;padding:8px 14px;border-radius:6px;font-family:inherit;font-size:0.7em;cursor:pointer;text-decoration:none;transition:all 0.2s;backdrop-filter:blur(4px)}
+.back-btn:hover{background:rgba(124,124,248,0.15);color:#fff;border-color:rgba(124,124,248,0.6)}
+</style>
+</head>
+<body>
+<div class="hd">
+  <h1>Wave <span>448</span></h1>
+  <div class="sub">ORBIT COHESION FIELD · CONSTELLATION MAPPER · DECAY · ANOMALY · PASSES · DEBRIS · SOLAR</div>
+  <div class="bdg" id="identity">IXPANSION — ORBITAL WAVE</div>
+</div>
+<div class="g">
+
+  <!-- ORBIT COHESION FIELD -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(122,162,255,0.12);color:var(--ac)">🛰</div><div><div class="ct">Orbit Cohesion Field</div><div class="cs">Unified orbital reality layer</div></div></div>
+    <div class="cb">
+      <div class="orbit-ring" id="ring"></div>
+      <div class="br"><button class="b p" onclick="field()">🛰 Field</button><button class="b" onclick="fleets()">🗺 Constellations</button><button class="b" onclick="pair()">⚡ Conjunction</button></div>
+      <div id="fieldOut" class="o">Awaiting the field...</div>
+    </div>
+  </div>
+
+  <!-- DECAY FORECASTER -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(251,191,36,0.12);color:var(--am)">☄️</div><div><div class="ct">Decay Forecaster</div><div class="cs">Re-entry window prediction</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="decayFleet()">☄️ Fleet Prognosis</button><button class="b" onclick="decayStorm()">🌩 Storm vs Quiet</button></div>
+      <div id="decayOut" class="o">Waiting on the atmosphere...</div>
+    </div>
+  </div>
+
+  <!-- TELEMETRY ANOMALY ORACLE -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(251,113,133,0.12);color:var(--ro)">👁</div><div><div class="ct">Telemetry Anomaly Oracle</div><div class="cs">Corruption · drift · spoof</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="anomalyTrials()">👁 Run Trials</button><button class="b" onclick="anomalyClean()">🛡 Clean Signal</button></div>
+      <div id="anomalyOut" class="o">The oracle watches the samples...</div>
+    </div>
+  </div>
+
+  <!-- GROUND STATION SYNTHESIZER -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(56,189,248,0.12);color:var(--cy)">📡</div><div><div class="ct">Ground Station Synthesizer</div><div class="cs">Passes from any lat/lon</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="passes()">📡 Simulate Passes</button><button class="b" onclick="stations()">🗼 Station Trio</button></div>
+      <div id="passOut" class="o">A synthesized sky awaits...</div>
+    </div>
+  </div>
+
+  <!-- ORBITAL STORYTELLER -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(167,139,250,0.12);color:var(--vi)">📖</div><div><div class="ct">Orbital Storyteller</div><div class="cs">Narrative journeys of satellites</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="story('conjunction')">⚡ Conjunction</button><button class="b" onclick="story('decay')">☄️ Decay</button><button class="b" onclick="story('inaugural')">🌱 Inaugural</button><button class="b" onclick="storyLog()">📜 Chronicle</button></div>
+      <div id="storyOut" class="o">The constellation's chronicle waits to be written...</div>
+    </div>
+  </div>
+
+  <!-- DEBRIS FIELD MAPPER -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(74,222,128,0.12);color:var(--gn)">💥</div><div><div class="ct">Debris Field Mapper</div><div class="cs">Fragmentation clouds + hotspots</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="debrisCensus()">💥 Field Census</button><button class="b" onclick="debrisBreakup()">🧨 Simulate Breakup</button><button class="b" onclick="debrisProjection()">📈 Kessler Projection</button></div>
+      <div id="debrisOut" class="o">Mapping what is left behind...</div>
+    </div>
+  </div>
+
+  <!-- SOLAR WEATHER COUPLER -->
+  <div class="c">
+    <div class="ch"><div class="ic" style="background:rgba(245,158,11,0.12);color:var(--gd)">☀️</div><div><div class="ct">Solar Weather Coupler</div><div class="cs">Flux → drag → drift → derate</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="solarRegimes()">☀️ Regimes</button><button class="b" onclick="solarTimeline()">⛈ Storm Timeline</button></div>
+      <div id="solarOut" class="o">The sun decides, the sky obeys...</div>
+    </div>
+  </div>
+
+  <!-- NOISE FILTER -->
+  <div class="c full">
+    <div class="ch"><div class="ic" style="background:rgba(45,212,191,0.12);color:var(--te)">🌊</div><div><div class="ct">Noise Filter</div><div class="cs">Signal hygiene before the oracle judges</div></div></div>
+    <div class="cb">
+      <div class="br"><button class="b p" onclick="noiseDemo()">🌊 Filter Demo Signal</button></div>
+      <div id="noiseOut" class="o">Telemetry arrives noisy; the organism makes it legible...</div>
+    </div>
+  </div>
+
+</div>
+<div class="sb"><span><span class="dl"></span>WAVE 448 ACTIVE</span><span>8 ORBITAL ORGANS</span><span id="clock"></span><span>IXPANSION ORGANISM</span></div>
+<script>
+function fmt(o){return JSON.stringify(o,null,2).replace(/"([^"]+)":/g,'<span class="hl">"$1"</span>:').replace(/: "([^"]+)"/g,': "<span class="c">$1</span>"').replace(/: (\d+\.?\d*)/g,': <span class="w">$1</span>')}
+function log(el,msg){document.getElementById(el).innerHTML=msg}
+const api=async(p)=>{try{return await(await fetch(p)).json()}catch(e){return{error:e.message}}};
+window.IXP && window.IXP.renderIdentity(document.getElementById('identity'));
+window.IXP && window.IXP.loadLive(d=>{if(d)window.IXP.renderIdentity(document.getElementById('identity'))});
+
+// ─── Orbit Cohesion Field ───
+const RGL={STLK:'#38bdf8',ONEW:'#a78bfa',IXPS:'#2dd4bf'};
+function paintRing(fleets){
+  const ring=document.getElementById('ring');ring.innerHTML='';
+  const colors=['#38bdf8','#a78bfa','#2dd4bf','#fbbf24'];
+  let i=0;
+  (fleets||[]).forEach(f=>{
+    for(let k=0;k<f.count;k++){
+      const dot=document.createElement('div');
+      dot.className='sat-dot';
+      const a=(k*137.5)%360, rad=30+(i*22);
+      dot.style.left=(50+rad*Math.cos(a*Math.PI/180))+'%';
+      dot.style.top=(50+rad*Math.sin(a*Math.PI/180))+'%';
+      dot.style.background=colors[i%colors.length];
+      ring.appendChild(dot);i++;
+    }
+  });
+}
+async function field(){
+  log('fieldOut','<span class="hl">🛰 Acquiring the field...</span>');
+  const d=await api('/api/orbit_cohesion_field');
+  paintRing(d.census&&d.census.fleets);
+  log('fieldOut',`<span class="hl">🛰 FIELD ACQUIRED</span>\n\n`+`Field strength: <span class="te">${d.field_strength}</span>\n`+`Objects: <span class="w">${d.total_objects}</span> | Pairs: ${d.total_pairs}\n`+`Mean probability: <span class="gd">${d.mean_probability}</span>\n`+`High risk: <span class="r">${d.high_risk.length}</span> (${d.nominal_risk})\n\n`+(d.high_risk||[]).slice(0,3).map(p=>`  <span class="r">${p.risk_level}</span> ${p.sat_a} ↔ ${p.sat_b} @ ${p.closest_approach_km}km p=${p.probability}`).join('\n')||'  the field is quiet — every shell holds its line');
+}
+async function fleets(){
+  const d=await api('/api/orbit_cohesion_field?action=fleets');
+  paintRing(d.fleets);
+  log('fieldOut',`<span class="hl">🗺 CONSTELLATION MAPPER</span>\n\n`+(d.fleets||[]).map(f=>`  <span class="te">${f.fleet}</span>\n    count ${f.count} · shell ${f.shell_km} km · incl ${f.inclination_deg}°\n    traffic ${f.traffic_density}/north\n`).join('\n')+`Total tracked: <span class="w">${d.total_objects}</span>`);
+}
+async function pair(){
+  const d=await api('/api/orbit_cohesion_field?action=pair&a=STLK-1&b=ONEW-1');
+  const a=d.assessment||{};
+  log('fieldOut',`<span class="hl">⚡ CONJUNCTION ASSESSMENT</span>\n\n`+`${a.sat_a} ↔ ${a.sat_b}\n`+`Probability: <span class="${a.risk_level==='green'?'g':a.risk_level==='critical'?'d':'r'}">${a.probability}</span>\n`+`Closest approach: <span class="w">${a.closest_approach_km} km</span>\n`+`Risk: <span class="${a.risk_level==='green'?'g':'r'}">${a.risk_level.toUpperCase()}</span>\n`+`Near misses: ${a.near_misses}`);
+}
+
+// ─── Decay ───
+async function decayFleet(){
+  log('decayOut','<span class="hl">☄️ Consulting the atmosphere...</span>');
+  const d=await api('/api/decay_forecaster?action=fleet');
+  log('decayOut',`<span class="hl">☄️ FLEET PROGNOSIS</span>\n\n`+(Array.isArray(d)?d:[]).map(r=>`  <span class="te">${r.object}</span>\n    re-entry in <span class="gd">${r.days_to_reentry} days</span> (±${r.forecast_uncertainty_days})\n    orbits remaining: ${r.orbits_remaining} · regime: ${r.drag_regime}\n    window: ${r.reentry_window_start} → ${r.reentry_window_end}\n`).join('\n')||'  no prognosis returned');
+}
+async function decayStorm(){
+  const d=await api('/api/decay_forecaster?action=storm&altitude_km=550');
+  const c=d.comparison||{};
+  log('decayOut',`<span class="hl">🌩 STORM VS QUIET</span>\n\n`+`Kp 8 storm: <span class="r">${d.days_to_reentry} days</span>\n`+`Kp 2 quiet: <span class="g">${c.quiet_kp2_would_survive_days} days</span>\n`+`Differential: <span class="w">${c.differential_days} days earlier</span>\n\n`+`The sun's temper decides when the object comes home.`);
+}
+
+// ─── Anomaly ───
+async function anomalyTrials(){
+  log('anomalyOut','<span class="hl">👁 The oracle reads three streams...</span>');
+  const d=await api('/api/telemetry_anomaly_oracle?mode=demo');
+  const rows=Object.entries(d).filter(([k])=>k.startsWith('CORRUPTED')||k.startsWith('DRIFTING')||k.startsWith('SUSPICIOUS'));
+  log('anomalyOut',`<span class="hl">👁 ORACLE VERDICTS</span>\n\n`+rows.map(([k,v])=>`  <span class="te">${k}</span>\n    verdict: <span class="${v.verdict.includes('spoof')?'d':v.verdict.includes('drift')?'gd':v.verdict.includes('corrupt')?'r':'g'}">${v.verdict}</span> · confidence ${v.confidence}\n    corruption ${v.scores.corruption} · drift ${v.scores.drift} · spoof ${v.scores.spoof}\n`).join('\n'));
+}
+async function anomalyClean(){
+  const d=await api('/api/telemetry_anomaly_oracle?mode=demo');
+  log('anomalyOut',`<span class="hl">👁 TRIAL DETAIL</span>\n\n`+fmt(d.CORRUPTED_PANEL||d['CORRUPTED-PANEL']||d));
+}
+
+// ─── Ground stations ───
+async function passes(){
+  log('passOut','<span class="hl">📡 Synthesizing the sky...</span>');
+  const d=await api('/api/ground_station_synthesizer?lat=40.71&lon=-74&fleet=STARLINK');
+  log('passOut',`<span class="hl">📡 GROUND STATION — ${d.station.lat},${d.station.lon}</span>\n\n`+`Fleet: <span class="te">${d.fleet}</span> · shell ${d.shell_km} km · horizon ${d.horizon_deg}°\n`+`Passes computed: <span class="w">${d.passes_computed}</span>\n\n`+(d.next_passes||[]).slice(0,5).map(p=>`  <span class="cy">${p.satellite}</span>\n    +${p.countdown_s}s · ${p.duration_min} min · max el ${p.max_elevation_deg}° @ ${p.azimuth_at_peak_deg}°\n`).join('\n'));
+}
+async function stations(){
+  const d=await api('/api/ground_station_synthesizer?mode=stations');
+  log('passOut',`<span class="hl">🗼 SYNTHESIZED STATION TRIO</span>\n\n`+(d.stations||[]).map(s=>`  <span class="te">${s.station.name}</span>\n    next pass in <span class="w">${s.next_in_s}s</span> · ${s.next_passes.length} visible passes\n`).join('\n'));
+}
+
+// ─── Storyteller ───
+async function story(kind){
+  log('storyOut','<span class="hl">📖 Writing the journey...</span>');
+  const d=await api('/api/orbital_storyteller?action=tell&kind='+kind);
+  const e=d.entry||{};
+  log('storyOut',`<span class="hl">📖 ${e.kind.toUpperCase()} — SEAL: ${e.seal}</span>\n\n`+`"${e.story}"\n\n`+`Chronicle length: <span class="w">${d.chronicle_length}</span>`);
+}
+async function storyLog(){
+  const d=await api('/api/orbital_storyteller?action=recent');
+  log('storyOut',`<span class="hl">📜 ORBITAL CHRONICLE</span>\n\n`+(d.chronicle||[]).map(e=>`  <span class="v">${e.satellite}</span> [${e.kind}] — ${e.seal}\n    ${e.story}\n`).join('\n'));
+}
+
+// ─── Debris ───
+async function debrisCensus(){
+  log('debrisOut','<span class="hl">💥 Mapping the field...</span>');
+  const d=await api('/api/debris_field_mapper');
+  log('debrisOut',`<span class="hl">💥 DEBRIS FIELD CENSUS</span>\n\n`+`Tracked fragments: <span class="gd">${d.total_tracked_fragments}</span>\n\n`+(d.hotspots||[]).map(h=>`  #${h.rank} <span class="te">${h.shell_km} km</span> — ${h.parents} parents · <span class="w">${h.fragments}</span> fragments\n`).join('\n'));
+}
+async function debrisBreakup(){
+  log('debrisOut','<span class="hl">🧨 Simulating a fragmentation event...</span>');
+  const d=await api('/api/debris_field_mapper?action=breakup');
+  const e=d.event||{};
+  log('debrisOut',`<span class="hl">🧨 BREAKUP: ${e.parent}</span>\n\n`+`Fragments created: <span class="r">${e.fragments}</span>\n`+`Velocity spread: ${e.velocity_spread_km_s} km/s\n`+`Shell: ${e.altitude_km} km\n\n`+`Hottest shell now: <span class="te">${(d.hotspots[0]||{}).shell_km}</span>`);
+}
+async function debrisProjection(){
+  const d=await api('/api/debris_field_mapper?action=projection');
+  log('debrisOut',`<span class="hl">📈 KESSLER PROJECTION</span>\n\n`+(d.projection||[]).map(r=>`  <span class="te">${r.shell_km}</span> — ${r.fragments_today} → <span class="${r.growth_ratio>1.5?'d':r.growth_ratio>1.2?'gd':'g'}">${r.fragments_after_years}</span> (×${r.growth_ratio})\n`).join('\n'));
+}
+
+// ─── Solar ───
+async function solarRegimes(){
+  log('solarOut','<span class="hl">☀️ Reading the sun...</span>');
+  const d=await api('/api/solar_weather_coupler?mode=regimes');
+  log('solarOut',`<span class="hl">☀️ SOLAR REGIMES @550KM</span>\n\n`+(d.regimes||[]).map(r=>`  <span class="gd">${r.regime}</span> kp=${r.kp} f10.7=${r.f107}\n    drag ×${r.drag_multiplier} · temp +${r.telemetry_impact.panel_temp_rise_c}°C · derate ${r.telemetry_impact.battery_derate_pct}%\n`).join('\n'));
+}
+async function solarTimeline(){
+  log('solarOut','<span class="hl">⛈ Building the storm timeline...</span>');
+  const d=await api('/api/solar_weather_coupler?mode=timeline');
+  log('solarOut',`<span class="hl">⛈ 72H STORM TIMELINE</span>\n\n`+(d.timeline||[]).map(r=>`  T+${String(r.hour).padStart(2,'0')}h kp=${r.kp} drag×${r.drag_multiplier} · ${r.telemetry_impact.command_risk}\n`).join(''));
+}
+
+// ─── Noise ───
+async function noiseDemo(){
+  log('noiseOut','<span class="hl">🌊 Filtering the raw stream...</span>');
+  const d=await api('/api/noise_filter');
+  const c=d.cleaned_signal||[];
+  const bars=c.slice(0,60).map(v=>'█'.repeat(Math.max(1,Math.round(v/3)))).join('\n');
+  log('noiseOut',`<span class="hl">🌊 SIGNAL CLEANED</span>\n\n`+`Noise floor: ${d.noise_floor} · threshold: ${d.threshold}\n`+`Outliers removed: <span class="r">${d.outliers_removed}</span> · retention ${d.retention_rate}\n\n`+bars.slice(0,400));
+}
+
+setInterval(()=>{document.getElementById('clock').textContent=new Date().toISOString().slice(11,19)},1000);
+</script>
+<a class="back-btn" href="index.html">← Organism</a>
+</body>
+</html>

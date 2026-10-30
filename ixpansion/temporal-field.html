@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Temporal Field — IXPANSION</title>
+<style>
+:root{--bg:#0a0a14;--fg:#e0e0e8;--muted:#6b6b80;--gold:#ffcc66;--cyan:#41b3a3;--magenta:#c063e8;--card:#14142a;--border:#2a2a44;--green:#41d3a3;--red:#e05a5a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;padding:20px}
+.header{text-align:center;margin-bottom:24px;border-bottom:2px solid var(--border);padding-bottom:16px}
+h1{font-size:2em;background:linear-gradient(135deg,var(--gold),var(--magenta));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.sub{color:var(--muted);margin-top:6px}
+.badge{display:inline-block;background:#2a2a44;color:var(--cyan);padding:4px 12px;border-radius:12px;font-size:0.9em;margin:4px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1400px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px}
+.card h2{color:var(--gold);font-size:1.1em;margin-bottom:12px}
+.metric{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #222}
+.metric:last-child{border-bottom:none}
+.metric .label{color:var(--muted)}
+.metric .value{color:var(--cyan);font-weight:bold}
+.pulse{animation:pulse 3s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.modal{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#1c1c30;border:1px solid var(--border);border-radius:12px;padding:20px;z-index:100;max-width:400px;width:90%}
+.modal h3{color:var(--gold);margin-bottom:12px}
+.btn{background:var(--cyan);border:none;color:#0a0a14;padding:8px 16px;border-radius:6px;cursor:pointer;font-weight:bold;margin:4px}
+.btn.danger{background:var(--red)}
+.btn:hover{opacity:0.9}
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>🕰 Temporal Field</h1>
+  <p class="sub">Module age, decay, rebirth, and epoch transitions</p>
+  <span class="badge" id="epoch">epoch: genesis</span>
+  <span class="badge" id="tick">tick: 0</span>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>🧬 Temporal Status</h2>
+    <div id="status">
+      <div class="metric"><span class="label">Module Count</span><span class="value">0</span></div>
+      <div class="metric"><span class="label">Active</span><span class="value">0</span></div>
+      <div class="metric"><span class="label">Reborn</span><span class="value">0</span></div>
+      <div class="metric"><span class="label">Avg Coherence</span><span class="value">0.0</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>🌋 Recent Events</h2>
+    <div id="events">No events yet</div>
+  </div>
+
+  <div class="card">
+    <h2>🔄 Control</h2>
+    <button class="btn" onclick="tick()">▶ Tick Time</button>
+    <button class="btn" onclick="epoch()">⏩ Epoch Bloom</button>
+    <button class="btn danger" onclick="audit()">🔍 Audit Decay</button>
+    <div id="audit-result" style="margin-top:12px"></div>
+  </div>
+
+  <div class="card">
+    <h2>📊 Module Cohorts</h2>
+    <div id="cohorts">Loading...</div>
+  </div>
+</div>
+
+<script>
+const HOST='';
+async function api(action){
+  const r = await fetch(HOST+'/api/temporal_field?action='+action);
+  return r.json();
+}
+async function refresh(){
+  const d = await api('status');
+  document.getElementById('epoch').textContent = 'epoch: '+d.epoch;
+  document.getElementById('tick').textContent = 'tick: '+d.tick;
+  document.getElementById('status').innerHTML = `
+    <div class="metric"><span class="label">Module Count</span><span class="value">${d.total_modules}</span></div>
+    <div class="metric"><span class="label">Active</span><span class="value">${d.active}</span></div>
+    <div class="metric"><span class="label">Reborn</span><span class="value">${d.reborn}</span></div>
+    <div class="metric"><span class="label">Avg Coherence</span><span class="value">${d.avg_coherence}</span></div>`;
+  if(d.recent_events && d.recent_events.length){
+    document.getElementById('events').innerHTML = d.recent_events.slice().reverse().map(e =>
+      `<div class="metric"><span class="label">${e.type}</span><span class="value">${e.module||''}</span></div>`).join('');
+  }
+}
+async function tick(){
+  const r = await api('tick');
+  await refresh();
+}
+async function epoch(){
+  const r = await fetch(HOST+'/api/temporal_field?action=epoch&epoch=bloom');
+  await refresh();
+}
+async function audit(){
+  const r = await api('audit');
+  document.getElementById('audit-result').innerHTML =
+    `<div class="metric"><span class="label">Dying Modules</span><span class="value">${r.dying_count}</span></div>`;
+}
+refresh();
+setInterval(refresh, 10000);
+</script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hex Cathedral Live — IXPANSION Organism</title>
+<style>
+:root{--bg:#0a0a14;--fg:#e0e0e8;--muted:#6b6b80;--accent:#c38d9e;--cyan:#41b3a3;--magenta:#c063e8;--gold:#ffd166;--card:#14142a;--border:#2a2a44;--danger:#e63946}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',Tahoma,Geneva,sans-serif;background:var(--bg);color:var(--fg);min-height:100vh;padding:16px}
+h1{text-align:center;font-variant-ligatures:none;letter-spacing:3px;margin-bottom:4px;font-size:1.6em}
+.sub{text-align:center;color:var(--muted);margin-bottom:18px;font-size:.85em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;max-width:1400px;margin:0 auto}
+.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;transition:border-color .3s}
+.card:hover{border-color:var(--magenta)}
+h2{color:var(--accent);font-size:.85em;margin-bottom:10px;text-transform:uppercase;letter-spacing:1px}
+.badge{background:#1e1e3a;color:var(--cyan);padding:2px 10px;border-radius:10px;font-size:.75em;font-family:monospace}
+.chapel{display:flex;justify-content:space-between;padding:6px 8px;margin:3px 0;background:#0e0e1e;border-radius:6px;font-family:monospace;font-size:.82em}
+.chapel .ln{color:var(--cyan)}
+.altar{color:var(--magenta);font-family:monospace;font-size:.78em}
+.link{color:var(--gold);font-family:monospace;font-size:.78em;padding:3px 6px;margin:2px 0;background:#0e0e1e;border-radius:4px;display:block}
+.heat{height:14px;background:#1e1e3a;border-radius:4px;overflow:hidden;margin-top:4px}
+.heat div{height:100%;background:linear-gradient(90deg,var(--cyan),var(--accent),var(--magenta));transition:width .6s}
+button{background:var(--magenta);color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-weight:600;margin:3px;font-size:.82em}
+button:hover{opacity:.85}
+.mono{font-family:monospace;font-size:.75em;color:var(--cyan);white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto}
+.status-ok{color:var(--cyan)}.status-err{color:var(--danger)}
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.live-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--cyan);margin-right:6px;animation:pulse 1.5s infinite}
+.nav{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px;justify-content:center}
+.nav a{color:var(--muted);text-decoration:none;font-size:.8em;padding:4px 10px;border-radius:6px;border:1px solid var(--border);transition:all .3s}
+.nav a:hover{color:var(--cyan);border-color:var(--cyan)}
+.log{background:#0a0a1e;padding:8px;border-radius:6px;font-family:monospace;font-size:.7em;color:var(--cyan);max-height:120px;overflow-y:auto;margin-top:8px}
+</style>
+</head>
+<body>
+<h1>&#127998; HEX CATHEDRAL LIVE</h1>
+<p class="sub"><span class="live-dot pulse"></span>Organism Dashboard — Wave 98 &amp; beyond — auto-refresh every 15s</p>
+<div class="nav">
+  <a href="index.html">&#8592; Hub</a>
+  <a href="hex-cathedral.html">&#9889; Cathedral</a>
+  <a href="hex-runtime">&#9889; Runtime</a>
+  <a href="hex-grammar">&#9998; Grammar</a>
+  <a href="ritual-governance">&#9889; Governance</a>
+  <a href="dream-logic-physics">&#10024; Dream</a>
+</div>
+<div class="grid" id="grid">
+  <div class="card"><h2>Status</h2><div id="status">Loading...</div></div>
+  <div class="card"><h2>Chapels &amp; Altars</h2><div id="map">Loading...</div></div>
+  <div class="card"><h2>Ritual Heat</h2><div id="heat">Loading...</div></div>
+  <div class="card"><h2>Lacing Links</h2><div id="links">Loading...</div></div>
+  <div class="card"><h2>Runtime Vitals</h2><div id="vitals">Loading...</div></div>
+  <div class="card"><h2>Glyphs &amp; Enactments</h2><div id="glyphs">Loading...</div></div>
+  <div class="card"><h2>Program Source</h2><div id="src" class="mono">Loading...</div></div>
+  <div class="card"><h2>Live Activity Log</h2><div id="log" class="log">Waiting...</div></div>
+  <div class="card"><h2>Organism Health</h2><div id="health">Loading...</div></div>
+  <div class="card"><h2>Failing Organs</h2><div id="failing">Loading...</div></div>
+</div>
+<script>
+const HOST='';const AUTO=15000;
+function $(id){return document.getElementById(id)}
+async function api(a,body={}){try{const r=await fetch(HOST+'/api/hex-cathedral?action='+a,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return await r.json()}catch(e){return{error:String(e)}}}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\"/g,'&quot;').replace(/'/g,'&#x27;')}
+function finite(value,fallback=0){const n=Number(value);return Number.isFinite(n)?n:fallback}
+function refresh(){Promise.all([api('status'),api('history')]).then(([st,hist])=>{
+  if(st.error){$('status').innerHTML='<span class="status-err">'+esc(st.error)+'</span>';return}
+  $('status').innerHTML=`<span class="status-ok">ALIVE</span> Wave ${esc(st.wave)} | ${esc(st.chapels)} chapels | ${esc(st.altars)} altars | ${esc(st.laces)} links | ${esc(st.flattened_instructions)} instr`;
+  $('map').innerHTML=st.altars?Object.entries(st.altars).map(([k,v])=>`<div class="chapel"><span>${esc(k)}</span><span class="altar">${esc(v.chapel)}:${esc(v.line)}</span></div>`).join(''):'<div class="chapel">No altars</div>';
+  $('heat').innerHTML=Object.entries(st.heat||{}).map(([k,v])=>`<div><b>${esc(k)}</b> ${esc(v)} <div class="heat"><div style="width:${Math.min(100,Math.max(0,finite(v)*4))}%"></div></div></div>`).join('')||'No heat data';
+  $('links').innerHTML=(st.laces||[]).map(l=>`<span class="link">&#8594; ${esc(l.from)} → ${esc(l.to)} (@${esc(l.label)} line ${esc(l.target_line)})</span>`).join('')||'No links yet';
+  $('vitals').innerHTML=`<span class="badge">Instruction count: ${esc(st.instruction_count||'?')}</span><br><span class="badge">Flattened: ${esc(st.flattened_instructions)}</span>`;
+  const last=hist.history?hist.history[0]:null;
+  $('glyphs').innerHTML=last?`<span class="badge">Last run: ${esc(Math.round(finite(last.steps)))} steps, ${esc(last.glyphs||0)} glyphs, ${esc(last.enactments||0)} enact</span>`:'';
+  $('src').textContent=JSON.stringify(st.altars||{},null,2);
+  // Fetch resilience mesh health
+  fetch('/api/resilience_mesh?action=status').then(r=>r.json()).then(h=>{
+    $('health').innerHTML=`<span class="badge">Score: ${esc(h.resilience_score)}</span> | <span class="badge">Healthy: ${esc(h.healthy)}/${esc(h.total_organs)}</span> | <span class="badge">Failing: ${esc(h.failing)}</span><br><span class="badge">Health Rate: ${esc((finite(h.health_rate)*100).toFixed(1))}%</span>`;
+  }).catch(()=>{});
+  fetch('/api/resilience_mesh?action=failing').then(r=>r.json()).then(f=>{
+    $('failing').innerHTML=(f.failing_organs||[]).map(o=>`<div class="chapel"><span>${esc(o.organ_id)}</span><span class="altar">${esc(o.status)}</span></div>`).join('')||'No failing organs';
+  }).catch(()=>{});
+  const log=$('log');
+  log.innerHTML+=`<div>[${new Date().toLocaleTimeString()}] Status refreshed — ${esc(st.chapels)} chapels, ${esc(st.laces)} lace(s)</div>`;
+  if(log.children.length>20) log.removeChild(log.firstChild);
+}).catch(e=>{$('status').innerHTML='<span class="status-err">'+esc(e)+'</span>'});}
+async function lace(){const d=await api('lace');$('log').innerHTML+='<div>[lace] '+esc(JSON.stringify(d.chapels||[]))+'</div>';refresh()}
+async function run(){const d=await api('run');$('log').innerHTML+='<div>[run] halted='+d.result?.halted+' glyphs='+(d.result?.glyphs||[]).length+'</div>';refresh()}
+async function reset(){await api('reset');$('log').innerHTML='<div>[reset] Cathedral reset</div>';refresh()}
+setInterval(refresh,AUTO);
+refresh();
+</script>
+<br><div style="text-align:center;margin-top:14px">
+<button onclick="lace()">&#9889; Lace Cathedral</button>
+<button onclick="run()">&#9889; Light the Cathedral</button>
+<button onclick="reset()">&#9888; Reset</button>
+</div>
+</body>
+</html>
