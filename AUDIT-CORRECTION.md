@@ -50,7 +50,7 @@ not evidence of absence.
 - **Archived the live-only content before anything could overwrite it.**
   `scripts/snapshot-live-pages.sh` mirrors the 206 referenced pages into
   `ixpansion/`, with `ixpansion/LIVE-SNAPSHOT.sha256` for integrity. The live
-  dashboard is preserved verbatim as `ixpansion/dashboard-live.html`.
+  dashboard is preserved as `ixpansion/dashboard-live.html`.
 - **Fixed the module-count contradiction** in `index.html`: one `FALLBACK`
   constant, `r.ok` guard, `no-store`, numeric validation, and a single animation
   pass. Previously two competing routines meant the animation timer overwrote the
@@ -62,11 +62,49 @@ not evidence of absence.
   `entropy-weather`, `lucid-experiments`, `lucid-prototype`, `lucid_game`) —
   these 404 live *and* are absent from git. Rendered as inert "Not yet shipped"
   cards rather than 404s.
-- **Added `scripts/check-links.py`** — authored pages are clean (0 broken refs
-  over 9 pages). With `--include-snapshot`, 215 pages surface 2 pre-existing
-  breakages inherited from the live site (`portal.html` → `entropy-weather.html`,
-  `organism.html`; `garden_live.html` → `../node_modules/vis/*`, `lib/bindings/utils.js`).
-  These were left untouched because snapshots are verbatim.
+- **Added `scripts/check-links.py`** — authored pages are clean. With
+  `--include-snapshot` all 215 pages are now clean (see below).
+
+## Second pass — remaining defects found and fixed
+
+- **`portal.html` was entirely dead.** It used 36 root-absolute links
+  (`/room`, `/census`, …) which, in a user-pages repo, resolve to the domain root
+  where nothing exists. Rewrote 26 to real targets (including 10 unambiguous
+  aliases: `/room` → `room-bridge.html`, `/census` → `organism_census.html`,
+  `/genome` → `genome-map.html`, `/soul` → `module-soul.html`, `/timeline` →
+  `wave-timeline.html`, `/waves364-367` → `waves364_367.html`, and similar).
+  10 targets exist nowhere and are now inert cards. Its "Command Center" card
+  pointed at a missing `organism.html`; `organism_hq.html` is titled
+  *"IXPANSION Organism HQ"*, so that link was repointed. "Entropy Weather" has no
+  counterpart (only the unrelated `entropy-heatmap.html`) and was made inert.
+- **57 dead tag references across 52 archived pages removed.** `/shared.js` (48
+  references), `/_vercel/insights` and `/speed-insights` analytics, and a pyvis
+  `lib/bindings/utils.js`. Every one of these 404s on the live site too, so no
+  page has ever executed them — removing them cannot change behaviour, it only
+  stops shipping 404 requests. The archive is therefore *content-faithful*, not
+  byte-verbatim; `LIVE-SNAPSHOT.sha256` was regenerated to match.
+- **The link checker was hiding this whole class of bug.** It skipped
+  root-absolute paths and scanned HTML comments. It now resolves `/x` against the
+  repository root (correct for a user-pages site) and ignores commented-out
+  references. This is what surfaced `portal.html` and the 48 `/shared.js` hits.
+- **CI gate prepared but not applied.** The intended change is two lines in
+  `.github/workflows/deploy.yml`:
+
+  ```yaml
+      - name: Check internal links
+        run: python3 scripts/check-links.py
+  ```
+
+  It could not be pushed: the GitHub App credential is not permitted to create or
+  update files under `.github/workflows/`. Add it manually, or grant the app
+  `workflows` permission. The checker itself is committed and passes today.
+- **`README.md.bak` replaced with a real `README.md`** documenting the layout,
+  the archive, and the known Vercel outage.
+- **Two markup defects repaired** in archived pages: `portal.html` had an
+  unescaped `?module=<name>` placeholder in body text (browsers consume `<name>`
+  as a tag, so the word silently vanished); `lucid-3d.html` never closed the
+  `<span>` holding `#undText`, so every subsequent HUD row nested inside it and
+  inherited that element's styling. All 215 pages now parse with balanced tags.
 
 ## Not done deliberately
 
@@ -83,4 +121,9 @@ not evidence of absence.
   network throw → same fallback; junk payload → fallback with "figures cached".
   All four pass.
 - `scripts/check-links.py` on authored pages: `scanned 9 page(s); 0 with broken
-  relative refs`, exit 0.
+  relative refs`, exit 0. With `--include-snapshot`: `scanned 215 page(s); 0 with
+  broken relative refs`, exit 0.
+- `sha256sum -c LIVE-SNAPSHOT.sha256` — 206/206 OK after the archive repairs.
+- `portal.html` and both edited dashboards parse with balanced tags (verified with
+  Python's `html.parser`).
+- `.github/workflows/deploy.yml` parses as valid YAML after adding the link gate.

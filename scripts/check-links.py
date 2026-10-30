@@ -16,7 +16,7 @@ from collections import defaultdict
 from pathlib import Path
 
 REF = re.compile(r'(?:href|src)="([^"#?]+)"')
-SKIP = re.compile(r"^(https?:|mailto:|data:|//|/)")
+SKIP = re.compile(r"^(https?:|mailto:|data:|//)")
 EXT = re.compile(r"\.(html|css|js|png|jpe?g|svg|webp|ico|json|txt|woff2?)$")
 
 
@@ -53,11 +53,17 @@ def main() -> int:
             continue
         scanned += 1
         text = page.read_text(errors="ignore")
+        # Commented-out references are not fetched by the browser; ignore them.
+        text = re.sub(r"<!--(?:(?!-->).)*-->", "", text, flags=re.S)
         for match in REF.finditer(text):
             target = match.group(1)
             if SKIP.match(target) or not EXT.search(target):
                 continue
-            if not (page.parent / target).exists():
+            # Root-absolute paths resolve against the repository root, which is
+            # the site root for this user-pages repo. They are NOT relative to
+            # the page, and silently 404 when the file is absent.
+            base = root if target.startswith("/") else page.parent
+            if not (base / target.lstrip("/")).exists():
                 broken[page].append(target)
 
     for page, refs in sorted(broken.items()):
