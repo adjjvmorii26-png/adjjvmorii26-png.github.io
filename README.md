@@ -14,6 +14,10 @@ Landing site and dashboard for **IXPANSION** — served by GitHub Pages at
 | `scripts/snapshot-live-pages.sh` | Rebuilds the archive from the live site (idempotent). |
 | `scripts/check-links.py` | Fails on broken internal links. Not yet wired into CI — see `AUDIT-CORRECTION.md`. |
 | `scripts/check-claims.py` | Fails when a number in the HTML disagrees with `data/figures.json` (module/wave/repo/route counts, version, "Showing N of M"). |
+| `skills/` | Reusable procedures. Each skill is `skills/<slug>/SKILL.md` with YAML frontmatter (`name`, `description`). |
+| `skills/skill-creator/SKILL.md` | The meta-skill: how to write a skill, what the validator enforces, and the anti-patterns. |
+| `scripts/new-skill.py` | Scaffolds `skills/<slug>/SKILL.md`; rejects bad slugs and never overwrites. |
+| `scripts/check-skills.py` | Validates every skill: name/dir match, description bounds and trigger wording, body length, relative links. |
 | `scripts/check-secrets.py` | Fails when a credential-shaped string appears in files git would publish. Matches are masked. |
 | `data/figures.json` | The single source of truth for every figure the site quotes, with provenance and whether it is verified. |
 | `.gitignore` | Keeps `.cline-home/` (agent transcripts) and env/key files out of the repo. |
@@ -39,6 +43,26 @@ the live site too, so no page ever executed them and removing them changes nothi
 build fixed, the landing page shows cached figures with an "API offline" badge, and
 the live-telemetry organ pages stay in their retry/empty states. Nothing in this
 repository can repair the origin.
+
+## Skills
+
+`skills/` holds reusable procedures. A skill is a directory with `SKILL.md`:
+
+```yaml
+---
+name: pdf-report
+description: Build a PDF report from tabular data. Use when the user asks for a
+  printable or shareable report from a table, CSV, or query result.
+---
+```
+
+`scripts/new-skill.py <slug> --description "..."` scaffolds one;
+`scripts/check-skills.py` validates them (run as part of `check-all.sh`). Start
+with `skills/skill-creator/SKILL.md` — it documents the convention and the
+quality bar.
+
+If your agent runtime discovers skills from a directory rather than this repo,
+copy or symlink `skills/*` into it; the format is the portable `SKILL.md` one.
 
 ## Secrets
 
