@@ -100,6 +100,13 @@ not evidence of absence.
   `workflows` permission. The checker itself is committed and passes today.
 - **`README.md.bak` replaced with a real `README.md`** documenting the layout,
   the archive, and the known Vercel outage.
+- **Figures centralised.** `data/figures.json` holds every number the site quotes
+  (with provenance and a `verified` flag), and `scripts/check-claims.py` fails
+  when the HTML disagrees — including a "Showing N of M" invariant that checks the
+  repo grid really renders N cards. Verified by injecting drift into a copy:
+  `modules=999`, `repos stat=31`, `version=v9.9.9` were each caught with
+  file:line, and `--github` caught a repo count that disagreed with the API.
+  This closes the failure mode behind the 41+/352/744/1254 discrepancy.
 - **Two markup defects repaired** in archived pages: `portal.html` had an
   unescaped `?module=<name>` placeholder in body text (browsers consume `<name>`
   as a tag, so the word silently vanished); `lucid-3d.html` never closed the

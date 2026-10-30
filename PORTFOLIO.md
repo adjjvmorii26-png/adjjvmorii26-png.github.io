@@ -95,6 +95,24 @@ The other 22 have no live demo, which for visual/generative projects (the
    browser; publishing it converts a private repo into a demo.
 6. **Centralise the module count.** One number, one source, referenced by the
    site, the dispatcher docstring, and any audit. Today there are four values.
+
+   *Partially done in this repository:* `data/figures.json` is now the single
+   source and `scripts/check-claims.py` fails the build when the HTML disagrees
+   with it. The remaining work is on the `ixpansion` side, whose dispatcher still
+   says 352 while the site says 744.
+
+## Two things I could not resolve, and did not guess at
+
+- **Telegram handle.** The site uses three variants — `aleph_bot` (portal card
+  text), `alpeh_bot` (`ixpansion/portal.html` link), `alpeha_bot` (landing page
+  CTA and footer). `t.me` returns an identical generic page for every one of
+  them, so no status code can settle which handle is real. One is almost
+  certainly a typo; only you know which.
+- **Dead repo link, now fixed.** The constellation card pointed at
+  `agent-workforce`, which 404s; the repo exists as `workforce-`. Repointed to
+  the real name — a concrete cost of the trailing-hyphen rename in
+  recommendation 4.
+
 7. **Split `ixpansion/api/`** into subpackages by domain (the docstring already
    names 8 entry points) to make 1254 flat modules tractable.
 
